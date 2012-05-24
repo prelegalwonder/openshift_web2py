@@ -4,7 +4,10 @@ Web2Py on OpenShift
 This git repository helps you get up and running quickly w/ a web2py installation
 on OpenShift.  The web2py project name used in this repo is 'web2py'
 but you can feel free to change it.  Right now the backend is sqlite3 and the
-database runtime is @ $OPENSHIFT_DATA_DIR/sqlite3.storage.
+database runtime is @ $OPENSHIFT_DATA_DIR/databases/sqlite3.storage.
+
+$OPENSHIFT_DATA_DIR isn't necessary when using the db cartridges as all data is 
+stored in the relational or nosql database.
 
 When you access this application for the first time, the sqlite database is
 initialized from the defined DAL in your model. This is the stock database that is created
