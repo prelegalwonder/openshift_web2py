@@ -22,15 +22,15 @@ Create a python-2.6 application
 
     rhc app create -a web2py -t python-2.6
 
-    Add this upstream repo
+Add this upstream repo
 
-        cd web2py
+    cd web2py
     git remote add upstream -m master git://github.com/prelegalwonder/openshift_web2py.git
-        git pull -s recursive -X theirs upstream master
+    git pull -s recursive -X theirs upstream master
     
-    Then push the repo upstream
+Then push the repo upstream
 
-        git push
+    git push
 
 That's it, you can now checkout your application at (admin application currently does not work in cloud):
 
