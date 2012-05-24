@@ -8,6 +8,7 @@
 ## if SSL/HTTPS is properly configured and you want all HTTP requests to
 ## be redirected to HTTPS, uncomment the line below:
 # request.requires_https()
+import os
 SQLITE_DIR = os.path.join(os.environ['OPENSHIFT_DATA_DIR'],'databases')
 
 if not request.env.web2py_runtime_gae:
