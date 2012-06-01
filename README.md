@@ -51,7 +51,7 @@ And whatever you want the app labeled as in your newrelic account can be set via
 
     app_name = web2py
 
-If you don't intend to use NewRelic or want to turn it off temporarily, simply uncomment everything after #NewRelic Monitoring 
+If you don't intend to use NewRelic or want to turn it off temporarily, simply comment out everything after #NewRelic Monitoring 
 in the wsgi/application file. 
 
     #NewRelic Monitoring                                                      
