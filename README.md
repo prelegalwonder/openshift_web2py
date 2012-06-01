@@ -50,3 +50,12 @@ After signing up, simply put your license key in wsgi/web2py/newrelic.ini
 And whatever you want the app labeled as in your newrelic account can be set via the name property. 
 
     app_name = web2py
+
+If you don't intend to use NewRelic or want to turn it off temporarily, simply uncomment everything after #NewRelic Monitoring 
+in the wsgi/application file. 
+
+    #NewRelic Monitoring                                                      
+    import newrelic.agent              
+    newrelic.agent.initialize(NEWRELIC_INI)  
+                                                                                                                                                        
+    application = newrelic.agent.wsgi_application()(application)
