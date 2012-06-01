@@ -26,8 +26,8 @@ from gluon.settings import global_settings
 import gluon.main
 
 application = gluon.main.appfactory(wsgiapp=gluon.main.wsgibase,
-                                    logfilename=WEB2PY_LOG,
-                                    profilerfilename=cProfile)
+                                    logfilename=None,
+                                    profilerfilename=WEB2PY_LOG)
 
 #NewRelic Monitoring
 #import newrelic.agent 
