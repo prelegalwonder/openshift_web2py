@@ -39,3 +39,14 @@ That's it, you can now checkout your application at (admin application currently
 The default web2py application that loads will be the "welcome" application. You can change this by modifying
 the routes as you usually would with web2py.
 
+Now with NewRelic Config
+------------------------------
+
+If you want to monitor the performance, user-experience and usage statistics, you can sign up for an account at newrelic.com.
+After signing up, simply put your license key in wsgi/web2py/newrelic.ini
+
+    license_key = <your_license_key_from_your_newrelic_account>
+
+And whatever you want the app labeled as in your newrelic account can be set via the name property. 
+
+    app_name = web2py
