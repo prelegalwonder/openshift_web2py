@@ -27,10 +27,10 @@ import gluon.main
 
 application = gluon.main.appfactory(wsgiapp=gluon.main.wsgibase,
                                     logfilename=WEB2PY_LOG,
-                                    profilerfilename=None)
+                                    profilerfilename=cProfile)
 
 #NewRelic Monitoring
-import newrelic.agent 
-newrelic.agent.initialize(NEWRELIC_INI)
+#import newrelic.agent 
+#newrelic.agent.initialize(NEWRELIC_INI)
 
-application = newrelic.agent.wsgi_application()(application)
+#application = newrelic.agent.wsgi_application()(application)
