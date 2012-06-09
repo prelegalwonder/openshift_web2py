@@ -32,12 +32,14 @@ Then push the repo upstream
 
     git push
 
-That's it, you can now checkout your application at (admin application currently does not work in cloud):
+That's it, you can now checkout your application at:
 
     http://web2py-$yournamespace.rhcloud.com
 
 The default web2py application that loads will be the "welcome" application. You can change this by modifying
 the routes as you usually would with web2py.
+
+For the admin app to work you must put your password hash in parameters_8080.py in wsgi/web2py/. Take note that I haven't tested whether changes made directly with the admin IDE in the environment are saved to the remote git repo by default. This needs testing, so make sure you export your app or back it up in someway.
 
 Now with NewRelic Config
 ------------------------------
