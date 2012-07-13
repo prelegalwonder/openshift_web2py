@@ -41,7 +41,7 @@ the routes as you usually would with web2py.
 
 For the admin app to work you must put your password hash in parameters_8080.py in wsgi/web2py/. Take note that I haven't tested whether changes made directly with the admin IDE in the environment are saved to the remote git repo by default. This needs testing, so make sure you export your app or back it up in someway.
 
-**Update:** Currently if you use the IDE in the cloud it doesn't save it to the remote git repo. Every time the in-cloud app is started its copied to a seperate runtime directory. Definitely backup your changes. I'm thinking of how to handle this for people who want to use the in-cloud IDE. Keep in mind you can also use the openshift deployer in master from a seperate local vanilla instance.
+**Update:** Currently if you use the IDE in the cloud it doesn't save it to the remote git repo. Every time the in-cloud app is started its copied to a separate runtime directory. Definitely backup your changes. I'm thinking of how to handle this for people who want to use the in-cloud IDE. Keep in mind you can also use the openshift deployer in master from a seperate local vanilla instance.
 
 Now with NewRelic Config
 ------------------------------
