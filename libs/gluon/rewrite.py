@@ -179,7 +179,7 @@ def try_rewrite_on_error(http_response, request, environ, ticket=None):
                     path_info, query_string = uri, ''
                 query_string += \
                     'code=%s&ticket=%s&requested_uri=%s&request_url=%s' % \
-                    (status,ticket,request.env.request_uri,request.url)
+                    (status,ticket,urllib.quote_plus(request.env.request_uri),request.url)
                 if uri.startswith('http://') or uri.startswith('https://'):
                     # make up a response
                     url = path_info+'?'+query_string
@@ -214,10 +214,14 @@ def try_redirect_on_error(http_object, request, ticket=None):
                     break
                 elif '?' in redir:
                     url = '%s&code=%s&ticket=%s&requested_uri=%s&request_url=%s' % \
-                        (redir,status,ticket,request.env.request_uri,request.url)
+                        (redir,status,ticket,
+                         urllib.quote_plus(request.env.request_uri),
+                         request.url)
                 else:
                     url = '%s?code=%s&ticket=%s&requested_uri=%s&request_url=%s' % \
-                        (redir,status,ticket,request.env.request_uri,request.url)
+                        (redir,status,ticket,
+                         urllib.quote_plus(request.env.request_uri),
+                         request.url)
                 return HTTP(303,
                             'You are being redirected <a href="%s">here</a>' % url,
                             Location=url)
@@ -257,7 +261,7 @@ def load(routes='routes.py', app=None, data=None, rdict=None):
                 return
             data = read_file(path).replace('\r\n','\n')
 
-        symbols = {}
+        symbols = dict(app=app)
         try:
             exec (data + '\n') in symbols
         except SyntaxError, e:
@@ -333,6 +337,7 @@ def load(routes='routes.py', app=None, data=None, rdict=None):
 
 regex_at = re.compile(r'(?<!\\)\$[a-zA-Z]\w*')
 regex_anything = re.compile(r'(?<!\\)\$anything')
+regex_redirect = re.compile(r'(\d+)->(.*)')
 
 def compile_regex(k, v):
     """
@@ -380,15 +385,15 @@ def load_routers(all_apps):
             all_apps.append(app)
             router = Storage(routers.BASE)   # new copy
             if app != 'BASE':
-                for key in routers[app].keys():
-                    if key in ROUTER_BASE_KEYS:
-                        raise SyntaxError, "BASE-only key '%s' in router '%s'" % (key, app)
+                keys = set(routers[app]).intersection(ROUTER_BASE_KEYS)
+                if keys:
+                    raise SyntaxError, "BASE-only key(s) %s in router '%s'" % (tuple(keys), app)
             router.update(routers[app])
             routers[app] = router
         router = routers[app]
-        for key in router.keys():
-            if key not in ROUTER_KEYS:
-                raise SyntaxError, "unknown key '%s' in router '%s'" % (key, app)
+        keys = set(router).difference(ROUTER_KEYS)
+        if keys:
+            raise SyntaxError, "unknown key(s) %s in router '%s'" % (tuple(keys), app)
         if not router.controllers:
             router.controllers = set()
         elif not isinstance(router.controllers, str):
@@ -397,6 +402,16 @@ def load_routers(all_apps):
             router.languages = set(router.languages)
         else:
             router.languages = set()
+        if router.functions:
+            if isinstance(router.functions, (set, tuple, list)):
+                functions = set(router.functions)
+                if isinstance(router.default_function, str):
+                    functions.add(router.default_function)  # legacy compatibility
+                router.functions = { router.default_controller: functions }
+            for controller in router.functions:
+                router.functions[controller] = set(router.functions[controller])
+        else:
+            router.functions = dict()
         if app != 'BASE':
             for base_only in ROUTER_BASE_KEYS:
                 router.pop(base_only, None)
@@ -412,16 +427,6 @@ def load_routers(all_apps):
             if router.controllers:
                 router.controllers.add('static')
                 router.controllers.add(router.default_controller)
-            if router.functions:
-                if isinstance(router.functions, (set, tuple, list)):
-                    functions = set(router.functions)
-                    if isinstance(router.default_function, str):
-                        functions.add(router.default_function)  # legacy compatibility
-                    router.functions = { router.default_controller: functions }
-                for controller in router.functions:
-                    router.functions[controller] = set(router.functions[controller])
-            else:
-                router.functions = dict()
 
     if isinstance(routers.BASE.applications, str) and routers.BASE.applications == 'ALL':
         routers.BASE.applications = list(all_apps)
@@ -509,6 +514,9 @@ def regex_filter_in(e):
     e['WEB2PY_ORIGINAL_URI'] = e['PATH_INFO'] + (query and ('?' + query) or '')
     if thread.routes.routes_in:
         path = regex_uri(e, thread.routes.routes_in, "routes_in", e['PATH_INFO'])
+        rmatch = regex_redirect.match(path)
+        if rmatch:
+            raise HTTP(int(rmatch.group(1)),location=rmatch.group(2))
         items = path.split('?', 1)
         e['PATH_INFO'] = items[0]
         if len(items) > 1:

@@ -1,9 +1,8 @@
 /** these MUST stay **/
-body { margin: 0; padding:0; border: 0; }
 a { text-decoration:none; white-space: nowrap;}
 a:hover {text-decoration: underline}
 a.button {text-decoration: none}
-h1,h2,h3,h4,h5,h6 {margin: 0.5em 0 0.25em 0; display: block; font-family: Helvetica}
+h1,h2,h3,h4,h5,h6 {margin: 0.5em 0 0.25em 0; display: block; font-family: Helvetica;}
         h1 { font-size: 4.00em;}
         h2 { font-size: 3.00em;}
         h3 { font-size: 2.00em;}
@@ -38,9 +37,6 @@ ul { list-style-type: none; margin: 0px; padding: 0px; }
 /** end **/
 
 /* Sticky footer begin */
-html, body {
-  height: 100%;
-}
 
 .wrapper {
   min-height: 100%;
@@ -67,9 +63,6 @@ html, body {
 
 /* Sticky footer end */
 
-body {
-    background-color: #FFFFFF;
-}
 .footer {
     border-top: 1px #DEDEDE solid;
 }
@@ -97,8 +90,6 @@ td.w2p_fl, td.w2p_fc { padding-top: 4px; }
 #auth_user_remember__row label {display: inline;}
 #web2py_user_form td { vertical-align:top; }
 
-a, a:visited, a:hover { color:#0069D6}
-
 /*********** web2py specific ***********/
 div.flash {
     font-weight: bold;
@@ -120,14 +111,18 @@ div.flash {
     -webkit-border-radius: 5px;
     z-index: 2;
 }
+div.flash {z-index:2000;}
+
+div.error_wrapper { display: block; }
 div.error {
     background-color: red;
     color: white;
     padding: 3px;
+    display: inline-block;	
 }
 
 .topbar {
-    padding: 10px 10px;
+    padding: 10px 0;
     width:100%;
     color: #959595;
     vertical-align: middle;
@@ -171,12 +166,13 @@ div.error {
 .breadcrumbs { float: left; }
 
 .copyright {float: left;}
+#poweredBy {float: right;}
 
 /* #MEDIA QUERIES SECTION */
 
     /* All Mobile Sizes (devices and browser) */
     @media only screen and (max-width: 767px) {
-
+/* removed because of bootswatch
         .topbar {text-align: center;}
         #navbar, #menu {float: none;}
         #navbar {font-size: 1.2em; padding: .6em 0 1.2em;}
@@ -184,9 +180,8 @@ div.error {
         #menu select {font-size: 1.2em; margin: 0; padding: 0;}
 
         div.flash {top: 110px; right: 10px;}
-
+*/
     }
-
 
 /*
 *Grid
@@ -230,8 +225,12 @@ div.error {
 
 .web2py_console form {
     width:100%;
+    display: inline;
 }
 
+.web2py_console form select {
+    margin: 0;
+}
 
 .web2py_search_actions{
     float:left;
@@ -294,5 +293,13 @@ div.error {
 
 #w2p_query_panel {}
 
-.ie9 #query_panel {padding-bottom:2px;}
+.web2py_breadcrumbs ul {
+    list-style: none;
+    margin-bottom: 18px;
+}
 
+.web2py_breadcrumbs ul li {
+    display: inline-block;
+}
+
+.ie9 #query_panel {padding-bottom:2px;}

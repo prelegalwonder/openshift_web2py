@@ -95,17 +95,17 @@ function web2py_ajax_page(method, action, data, target) {
       web2py_trap_link(target);
       web2py_ajax_init('#'+target);
       if(command)
-        eval(decodeURIComponent(escape(command)));
+	  eval(decodeURIComponent(command));
       if(flash)
-        jQuery('.flash').html(decodeURIComponent(escape(flash))).slideDown();
+	  jQuery('.flash').html(decodeURIComponent(flash)).slideDown();
       }
     });
 }
 
 function web2py_component(action, target, timeout, times){
   jQuery(function(){
-    var element = $("#" + target).get(0);
-    var statement = "$('#" + target + "').get(0).reload();";
+    var element = jQuery("#" + target).get(0);
+    var statement = "jQuery('#" + target + "').get(0).reload();";
     element.reload = function (){
         // Continue if times is Infinity or
         // the times limit is not reached
@@ -145,6 +145,7 @@ function web2py_component(action, target, timeout, times){
         }
     } else {
         // run once (no timeout specified)
+	element.reload_counter = Infinity;
         web2py_ajax_page('get', action, null, target);
     } }); }
 

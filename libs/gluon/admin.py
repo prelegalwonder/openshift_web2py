@@ -19,6 +19,9 @@ from fileutils import read_file, write_file, parse_version
 from restricted import RestrictedError
 from settings import global_settings
 
+if not global_settings.web2py_runtime_gae:
+    import site
+
 def apath(path='', r=None):
     """
     Builds a path inside an application folder
@@ -434,6 +437,8 @@ def upgrade(request, url='http://web2py.com'):
 
 def add_path_first(path):
     sys.path = [path]+[p for p in sys.path if (not p==path and not p==(path+'/'))]
+    if not global_settings.web2py_runtime_gae:
+        site.addsitedir(path)
 
 def create_missing_folders():
     if not global_settings.web2py_runtime_gae:

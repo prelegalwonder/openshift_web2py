@@ -16,14 +16,24 @@ import random
 import time
 import os
 import logging
+from contrib.pbkdf2 import pbkdf2_hex
 
 logger = logging.getLogger("web2py")
+
+def compare(a,b):
+    """ compares two strings and not vulnerable to timing attacks """
+    if len(a) != len(b):
+        return False
+    result = 0
+    for x, y in zip(a, b):
+        result |= ord(x) ^ ord(y)
+    return result == 0
 
 def md5_hash(text):
     """ Generate a md5 hash with the given text """
     return hashlib.md5(text).hexdigest()
 
-def simple_hash(text, digest_alg = 'md5'):
+def simple_hash(text, salt = '', digest_alg = 'md5'):
     """
     Generates hash with the given text using the specified
     digest hashing algorithm
@@ -32,6 +42,8 @@ def simple_hash(text, digest_alg = 'md5'):
         raise RuntimeError, "simple_hash with digest_alg=None"
     elif not isinstance(digest_alg,str):
         h = digest_alg(text)
+    elif salt:
+        return hmac_hash(text, salt, digest_alg)
     else:
         h = hashlib.new(digest_alg)
         h.update(text)
@@ -57,15 +69,24 @@ def get_digest(value):
     elif value == "sha512":
         return hashlib.sha512
     else:
-        raise ValueError("Invalid digest algorithm")
+        raise ValueError("Invalid digest algorithm: %s" % value) 
 
-def hmac_hash(value, key, digest_alg='md5', salt=None):
-    if ':' in key:
-        digest_alg, key = key.split(':')
+DIGEST_ALG_BY_SIZE = {
+    128/4: 'md5',
+    160/4: 'sha1',
+    224/4: 'sha224',
+    256/4: 'sha256',
+    384/4: 'sha384',
+    512/4: 'sha512',
+    }
+
+def hmac_hash(value, salt, digest_alg='md5'):
+    if isinstance(digest_alg,str) and digest_alg.startswith('pbkdf2'):
+        iterations, keylen, alg = digest_alg[7:-1].split(',')
+        return pbkdf2_hex(value, salt, int(iterations),
+                          int(keylen),get_digest(alg))
     digest_alg = get_digest(digest_alg)
-    d = hmac.new(key,value,digest_alg)
-    if salt:
-        d.update(str(salt))
+    d = hmac.new(salt,value,digest_alg)
     return d.hexdigest()
 
 

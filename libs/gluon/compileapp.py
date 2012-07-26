@@ -40,18 +40,15 @@ import imp
 import logging
 logger = logging.getLogger("web2py")
 import rewrite
-import platform
 
 try:
     import py_compile
 except:
     logger.warning('unable to import py_compile')
 
-is_pypy = hasattr(platform,'python_implementation') and \
-    platform.python_implementation() == 'PyPy'
-settings.global_settings.is_pypy = is_pypy
-is_gae = settings.global_settings.web2py_runtime_gae
-is_jython = settings.global_settings.is_jython = 'java' in sys.platform.lower() or hasattr(sys, 'JYTHON_JAR') or str(sys.copyright).find('Jython') > 0
+is_pypy = settings.global_settings.is_pypy
+is_gae  = settings.global_settings.web2py_runtime_gae
+is_jython = settings.global_settings.is_jython
 
 TEST_CODE = \
     r"""
@@ -128,7 +125,7 @@ def LOAD(c=None, f='index', args=None, vars=None,
     attr['_id']=target
     request = current.request
     if '.' in f:
-        f, extension = f.split('.',1)
+        f, extension = f.rsplit('.',1)
     if url or ajax:
         url = url or URL(request.application, c, f, r=request,
                          args=args, vars=vars, extension=extension,
@@ -235,7 +232,7 @@ class LoadFactory(object):
         attr['_id']=target
         request = self.environment['request']
         if '.' in f:
-            f, extension = f.split('.',1)
+            f, extension = f.rsplit('.',1)
         if url or ajax:
             url = url or html.URL(request.application, c, f, r=request,
                                   args=args, vars=vars, extension=extension,
@@ -361,7 +358,7 @@ def build_environment(request, response, session, store_current=True):
     """
     Build the environment dictionary into which web2py files are executed.
     """
-
+    
     environment = {}
     for key in html.__all__:
         environment[key] = getattr(html, key)
