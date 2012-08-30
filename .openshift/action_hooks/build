@@ -6,3 +6,4 @@
 
 mv $OPENSHIFT_REPO_DIR/wsgi/web2py/applications $OPENSHIFT_DATA_DIR/applications
 ln -s $OPENSHIFT_DATA_DIR/applications $OPENSHIFT_REPO_DIR/wsgi/web2py/
+ln -s $OPENSHIFT_REPO_DIR/libs/gluon $OPENSHIFT_REPO_DIR/wsgi/web2py/
