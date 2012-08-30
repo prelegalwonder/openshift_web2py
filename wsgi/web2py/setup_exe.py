@@ -110,7 +110,7 @@ if remove_msft_dlls:
             os.unlink(os.path.join('dist',f))
         except:
             print "unable to delete dist/"+f
-            sys.exit(1)
+            #sys.exit(1)
 
 
 #Should we include applications?
@@ -182,6 +182,8 @@ if not make_zip and not remove_build_files:
 
 print "Finished!"
 print "Enjoy web2py " +web2py_version_line
+
+
 
 
 

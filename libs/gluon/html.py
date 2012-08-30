@@ -25,7 +25,7 @@ from HTMLParser import HTMLParser
 from htmlentitydefs import name2codepoint
 
 from storage import Storage
-from utils import web2py_uuid, hmac_hash
+from utils import web2py_uuid, simple_hash, compare
 from highlight import highlight
 
 regex_crlf = re.compile('\r|\n')
@@ -80,6 +80,7 @@ __all__ = [
     'OPTGROUP',
     'SELECT',
     'SPAN',
+    'STRONG',
     'STYLE',
     'TABLE',
     'TAG',
@@ -274,7 +275,7 @@ def URL(
             extension = None
 
         if '.' in function:
-            function, extension = function.split('.', 1)
+            function, extension = function.rsplit('.', 1)
 
     function2 = '%s.%s' % (function,extension or 'html')
 
@@ -295,7 +296,8 @@ def URL(
     if other.endswith('/'):
         other += '/'    # add trailing slash to make last trailing empty arg explicit
 
-    if vars.has_key('_signature'): vars.pop('_signature')
+    if '_signature' in vars:
+        vars.pop('_signature')
     list_vars = []
     for (key, vals) in sorted(vars.items()):
         if not isinstance(vals, (list, tuple)):
@@ -326,8 +328,7 @@ def URL(
 
         # re-assembling the same way during hash authentication
         message = h_args + '?' + urllib.urlencode(sorted(h_vars))
-
-        sig = hmac_hash(message, hmac_key, digest_alg='sha1', salt=salt)
+        sig = simple_hash(message, hmac_key or '',salt or '',digest_alg='sha1')
         # add the signature into vars
         list_vars.append(('_signature', sig))
 
@@ -335,7 +336,7 @@ def URL(
         if url_encode:
             other += '?%s' % urllib.urlencode(list_vars)
         else:
-            other += '?%s' % '&'.join([var[0]+'='+var[1] for var in list_vars])
+            other += '?%s' % '&'.join(['%s=%s' % var[:2] for var in list_vars])
     if anchor:
         if url_encode:
             other += '#' + urllib.quote(str(anchor))
@@ -387,7 +388,7 @@ def verifyURL(request, hmac_key=None, hash_vars=True, salt=None, user_signature=
 
     """
 
-    if not request.get_vars.has_key('_signature'):
+    if not '_signature' in request.get_vars:
         return False # no signature in the request URL
 
     # check if user_signature requires
@@ -446,7 +447,7 @@ def verifyURL(request, hmac_key=None, hash_vars=True, salt=None, user_signature=
     message = h_args + '?' + urllib.urlencode(sorted(h_vars))
 
     # hash with the hmac_key provided
-    sig = hmac_hash(message, str(hmac_key), digest_alg='sha1', salt=salt)
+    sig = simple_hash(message, str(hmac_key), salt or '', digest_alg='sha1')
 
     # put _signature back in get_vars just in case a second call to URL.verify is performed
     # (otherwise it'll immediately return false)
@@ -454,7 +455,8 @@ def verifyURL(request, hmac_key=None, hash_vars=True, salt=None, user_signature=
 
     # return whether or not the signature in the request matched the one we just generated
     # (I.E. was the message the same as the one we originally signed)
-    return original_sig == sig
+
+    return compare(original_sig, sig)
 
 URL.verify = verifyURL
 
@@ -470,6 +472,32 @@ class XmlComponent(object):
 
     def xml(self):
         raise NotImplementedError
+    def __mul__(self,n):
+        return CAT(*[self for i in range(n)])
+    def __add__(self,other):
+        if isinstance(self,CAT):
+            components = self.components
+        else:
+            components = [self]
+        if isinstance(other,CAT):
+            components += other.components
+        else:
+            components += [other]
+        return CAT(*components)
+
+    def add_class(self, name):        
+        """ add a class to _class attribute """
+        c = self['_class']
+        classes = (set(c.split()) if c else set())|set(name.split())
+        self['_class'] = ' '.join(classes) if classes else None
+        return self
+
+    def remove_class(self, name):
+        """ remove a class from _class attribute """
+        c = self['_class']
+        classes = (set(c.split()) if c else set())-set(name.split())
+        self['_class'] = ' '.join(classes) if classes else None
+        return self
 
 
 class XML(XmlComponent):
@@ -503,9 +531,10 @@ class XML(XmlComponent):
             'img/',
             'h1','h2','h3','h4','h5','h6',
             'table','tr','td','div',
+            'strong',
             ],
         allowed_attributes = {
-            'a': ['href', 'title'],
+            'a': ['href', 'title', 'target'],
             'img': ['src', 'alt'],
             'blockquote': ['type'],
             'td': ['colspan'],
@@ -630,17 +659,17 @@ class DIV(XmlComponent):
         self.attributes = attributes
         self._fixup()
         # converts special attributes in components attributes
-        self._postprocessing()
         self.parent = None
         for c in self.components:
             self._setnode(c)
+        self._postprocessing()
 
     def update(self, **kargs):
         """
         dictionary like updating of the tag attributes
         """
 
-        for (key, value) in kargs.items():
+        for (key, value) in kargs.iteritems():
             self[key] = value
         return self
 
@@ -785,7 +814,9 @@ class DIV(XmlComponent):
                 c.latest = self.latest
                 c.session = self.session
                 c.formname = self.formname
-                if hideerror: c['hideerror'] = hideerror
+                if hideerror and not \
+                        self.attributes.get('hideerror',False):
+                    c['hideerror'] = hideerror
                 newstatus = c._traverse(status,hideerror) and newstatus
 
         # for input, textarea, select, option
@@ -844,7 +875,7 @@ class DIV(XmlComponent):
 
         # get the xml for the inner components
         co = join([xmlescape(component) for component in
-                     self.components])
+                   self.components])
 
         return (fa, co)
 
@@ -936,6 +967,48 @@ class DIV(XmlComponent):
         >>> for c in a.elements('input, select, textarea'): c['_disabled'] = 'disabled'
         >>> a.xml()
         '<form action="" enctype="multipart/form-data" method="post"><input disabled="disabled" type="text" /><select disabled="disabled"><option value="0">0</option></select><textarea cols="40" disabled="disabled" rows="10"></textarea></form>'
+
+        Elements that are matched can also be replaced or removed by specifying
+        a "replace" argument (note, a list of the original matching elements
+        is still returned as usual).
+
+        >>> a = DIV(DIV(SPAN('x', _class='abc'), DIV(SPAN('y', _class='abc'), SPAN('z', _class='abc'))))
+        >>> b = a.elements('span.abc', replace=P('x', _class='xyz'))
+        >>> print a
+        <div><div><p class="xyz">x</p><div><p class="xyz">x</p><p class="xyz">x</p></div></div></div>
+
+        "replace" can be a callable, which will be passed the original element and
+        should return a new element to replace it.
+
+        >>> a = DIV(DIV(SPAN('x', _class='abc'), DIV(SPAN('y', _class='abc'), SPAN('z', _class='abc'))))
+        >>> b = a.elements('span.abc', replace=lambda el: P(el[0], _class='xyz'))
+        >>> print a
+        <div><div><p class="xyz">x</p><div><p class="xyz">y</p><p class="xyz">z</p></div></div></div>
+
+        If replace=None, matching elements will be removed completely.
+
+        >>> a = DIV(DIV(SPAN('x', _class='abc'), DIV(SPAN('y', _class='abc'), SPAN('z', _class='abc'))))
+        >>> b = a.elements('span', find='y', replace=None)
+        >>> print a
+        <div><div><span class="abc">x</span><div><span class="abc">z</span></div></div></div>
+
+        If a "find_text" argument is specified, elements will be searched for text
+        components that match find_text, and any matching text components will be
+        replaced (find_text is ignored if "replace" is not also specified).
+        Like the "find" argument, "find_text" can be a string or a compiled regex.
+
+        >>> a = DIV(DIV(SPAN('x', _class='abc'), DIV(SPAN('y', _class='abc'), SPAN('z', _class='abc'))))
+        >>> b = a.elements(find_text=re.compile('x|y|z'), replace='hello')
+        >>> print a
+        <div><div><span class="abc">hello</span><div><span class="abc">hello</span><span class="abc">hello</span></div></div></div>
+
+        If other attributes are specified along with find_text, then only components
+        that match the specified attributes will be searched for find_text.
+
+        >>> a = DIV(DIV(SPAN('x', _class='abc'), DIV(SPAN('y', _class='efg'), SPAN('z', _class='abc'))))
+        >>> b = a.elements('span.efg', find_text=re.compile('x|y|z'), replace='hello')
+        >>> print a
+        <div><div><span class="abc">x</span><div><span class="efg">hello</span><span class="abc">z</span></div></div></div>
         """
         if len(args)==1:
             args = [a.strip() for a in args[0].split(',')]
@@ -964,49 +1037,60 @@ class DIV(XmlComponent):
                     return self.elements(*args,**kargs)
         # make a copy of the components
         matches = []
-        first_only = False
-        if kargs.has_key("first_only"):
-            first_only = kargs["first_only"]
-            del kargs["first_only"]
         # check if the component has an attribute with the same
         # value as provided
         check = True
-        tag = getattr(self,'tag').replace("/","")
+        tag = getattr(self,'tag').replace('/', '')
         if args and tag not in args:
             check = False
-        for (key, value) in kargs.items():
-            if isinstance(value,(str,int)):
-                if self[key] != str(value):
+        for (key, value) in kargs.iteritems():
+            if key not in ['first_only', 'replace', 'find_text']:
+                if isinstance(value, (str, int)):
+                    if self[key] != str(value):
+                        check = False
+                elif key in self.attributes:
+                    if not value.search(str(self[key])):
+                        check = False
+                else:
                     check = False
-            elif key in self.attributes:
-                if not value.search(str(self[key])):
-                    check = False
-            else:
-                check = False
         if 'find' in kargs:
             find = kargs['find']
+            is_regex = not isinstance(find, (str, int))
             for c in self.components:
-                if isinstance(find,(str,int)):
-                    if isinstance(c,str) and str(find) in c:
-                        check = True
-                else:
-                    if isinstance(c,str) and find.search(c):
-                        check = True
+                if (isinstance(c, str) and ((is_regex and find.search(c)) or
+                   (str(find) in c))):
+                    check = True
         # if found, return the component
         if check:
             matches.append(self)
-            if first_only:
-                return matches
-        # loop the copy
-        for c in self.components:
-            if isinstance(c, XmlComponent):
-                kargs['first_only'] = first_only
-                child_matches = c.elements( *args,  **kargs )
-                if first_only  and len(child_matches) != 0:
-                    return child_matches
-                matches.extend( child_matches )
-        return matches
 
+        first_only = kargs.get('first_only', False)
+        replace = kargs.get('replace', False)
+        find_text = replace is not False and kargs.get('find_text', False)
+        is_regex = not isinstance(find_text, (str, int, bool))
+        find_components = not (check and first_only)
+        def replace_component(i):
+            if replace is None:
+                del self[i]
+            elif callable(replace):
+                self[i] = replace(self[i])
+            else:
+                self[i] = replace
+        # loop the components
+        if find_text or find_components:
+            for i, c in enumerate(self.components):
+                if check and find_text and isinstance(c, str) and \
+                   ((is_regex and find_text.search(c)) or (str(find_text) in c)):
+                    replace_component(i)
+                if find_components and isinstance(c, XmlComponent):
+                    child_matches = c.elements(*args, **kargs)
+                    if len(child_matches):
+                        if not find_text and replace is not False and child_matches[0] is c:
+                            replace_component(i)
+                        if first_only:
+                            return child_matches
+                        matches.extend(child_matches)
+        return matches
 
     def element(self, *args, **kargs):
         """
@@ -1030,16 +1114,15 @@ class DIV(XmlComponent):
         sibs = [s for s in self.parent.components if not s == self]
         matches = []
         first_only = False
-        if kargs.has_key("first_only"):
-            first_only = kargs["first_only"]
-            del kargs["first_only"]
+        if 'first_only' in kargs:
+            first_only = kargs.pop('first_only')
         for c in sibs:
             try:
                 check = True
                 tag = getattr(c,'tag').replace("/","")
                 if args and tag not in args:
                         check = False
-                for (key, value) in kargs.items():
+                for (key, value) in kargs.iteritems():
                     if c[key] != value:
                             check = False
                 if check:
@@ -1320,6 +1403,11 @@ class P(DIV):
         return text
 
 
+class STRONG(DIV):
+
+    tag = 'strong'
+
+
 class B(DIV):
 
     tag = 'b'
@@ -1340,6 +1428,8 @@ class A(DIV):
     tag = 'a'
 
     def xml(self):
+        if not self.components and self['_href']:
+            self.append(self['_href'])
         if self['delete']:
             d = "jQuery(this).closest('%s').remove();" % self['delete']
         else:
@@ -1349,10 +1439,12 @@ class A(DIV):
                 (self['component'],self['target'] or '',d)
             self['_href'] = self['_href'] or '#null'
         elif self['callback']:
+            returnfalse="var e = arguments[0] || window.event; e.cancelBubble=true; if (e.stopPropagation) e.stopPropagation();"
             if d:
-                self['_onclick']="if(confirm(w2p_ajax_confirm_message||'Are you sure you want o delete this object?')){ajax('%s',[],'%s');%s};return false;" % (self['callback'],self['target'] or '',d)
+                self['_onclick']="if(confirm(w2p_ajax_confirm_message||'Are you sure you want o delete this object?')){ajax('%s',[],'%s');%s};%s" % \
+                    (self['callback'],self['target'] or '',d, returnfalse)
             else:
-                self['_onclick']="ajax('%s',[],'%s');%sreturn false;" % \
+                self['_onclick']="ajax('%s',[],'%s');%sreturn false" % \
                     (self['callback'],self['target'] or '',d)
             self['_href'] = self['_href'] or '#null'
         elif self['cid']:
@@ -1594,14 +1686,14 @@ class INPUT(DIV):
         if name is None or name == '':
             return True
         name = str(name)
-
+        request_vars_get = self.request_vars.get
         if self['_type'] != 'checkbox':
             self['old_value'] = self['value'] or self['_value'] or ''
-            value = self.request_vars.get(name, '')
+            value = request_vars_get(name, '')
             self['value'] = value
         else:
             self['old_value'] = self['value'] or False
-            value = self.request_vars.get(name)
+            value = request_vars_get(name)
             if isinstance(value, (tuple, list)):
                 self['value'] = self['_value'] in value
             else:
@@ -1648,7 +1740,7 @@ class INPUT(DIV):
                 self['_checked'] = 'checked'
             else:
                 self['_checked'] = None
-        elif t == 'text' or t == 'hidden':
+        elif not t == 'submit':
             if value is None:
                 self['value'] = _value
             else:
@@ -1660,8 +1752,11 @@ class INPUT(DIV):
                 and self.errors.get(name, None) \
                 and self['hideerror'] != True:
             self['_class'] = (self['_class'] and self['_class']+' ' or '')+'invalidinput'
-            return DIV.xml(self) + DIV(self.errors[name], _class='error',
-                errors=None, _id='%s__error' % name).xml()
+            return DIV.xml(self) + DIV(
+                DIV(
+                    self.errors[name], _class='error',
+                    errors=None, _id='%s__error' % name),
+                _class='error_wrapper').xml()
         else:
             if self['_class'] and self['_class'].endswith('invalidinput'):
                 self['_class'] = self['_class'][:-12]
@@ -1841,14 +1936,15 @@ class FORM(DIV):
         # check formname and formkey
 
         status = True
-        if self.session:
-            formkey = self.session.get('_formkey[%s]' % self.formname, None)
+        request_vars = self.request_vars
+        if session:
+            formkey = session.get('_formkey[%s]' % formname, None)
             # check if user tampering with form and void CSRF
-            if formkey != self.request_vars._formkey:
+            if formkey != request_vars._formkey:
                 status = False
-        if self.formname != self.request_vars._formname:
+        if formname != request_vars._formname:
             status = False
-        if status and self.session:
+        if status and session:
             # check if editing a record that has been modified by the server
             if hasattr(self,'record_hash') and self.record_hash != formkey:
                 status = False
@@ -1892,10 +1988,10 @@ class FORM(DIV):
 
     def hidden_fields(self):
         c = []
+        attr = self.attributes.get('hidden',{})
         if 'hidden' in self.attributes:
-            for (key, value) in self.attributes.get('hidden',{}).items():
-                c.append(INPUT(_type='hidden', _name=key, _value=value))
-
+            c = [INPUT(_type='hidden', _name=key, _value=value)
+                 for (key, value) in attr.iteritems()]
         if hasattr(self, 'formkey') and self.formkey:
             c.append(INPUT(_type='hidden', _name='_formkey',
                      _value=self.formkey))
@@ -1964,7 +2060,7 @@ class FORM(DIV):
                 onsuccess(self)
             if next:
                 if self.vars:
-                    for key,value in self.vars.items():
+                    for key,value in self.vars.iteritems():
                         next = next.replace('[%s]' % key,
                                             urllib.quote(str(value)))
                     if not next.startswith('/'):
@@ -2010,8 +2106,29 @@ class FORM(DIV):
         self.validate(**kwargs)
         return self
 
+    REDIRECT_JS = "window.location='%s';return false"
+
     def add_button(self,value,url,_class=None):
-        self[0][-1][1].append(INPUT(_type="button",_value=value,_onclick="window.location='%s';return false" % url,_class=_class))
+        self[0][-1][1].append(INPUT(_type="button",_value=value,_class=_class,
+                                    _onclick=self.REDIRECT_JS % url))
+
+
+
+    @staticmethod
+    def confirm(text='OK',buttons=None,hidden=None):
+        if not buttons: buttons = {}
+        if not hidden: hidden={}
+        inputs = [INPUT(_type='button',
+                        _value=name,
+                        _onclick=FORM.REDIRECT_JS % link) \
+                      for name,link in buttons.iteritems()]
+        inputs += [INPUT(_type='hidden',
+                         _name=name,
+                         _value=value)
+                   for name,value in hidden.iteritems()]
+        form = FORM(INPUT(_type='submit',_value=text),*inputs)
+        form.process()
+        return form
 
 class BEAUTIFY(DIV):
 
@@ -2049,6 +2166,9 @@ class BEAUTIFY(DIV):
         if level == 0:
             return
         for c in self.components:
+            if hasattr(c,'value') and not callable(c.value):
+                if c.value:
+                    components.append(c.value)
             if hasattr(c,'xml') and callable(c.xml):
                 components.append(c)
                 continue
@@ -2131,6 +2251,8 @@ class MENU(DIV):
                 li = LI(DIV(name))
             elif link:
                 li = LI(A(name, _href=link))
+            elif not link and isinstance(name,A):
+                li = LI(name)
             else:
                 li = LI(A(name, _href='#',
                           _onclick='javascript:void(0);return false;'))
@@ -2150,11 +2272,12 @@ class MENU(DIV):
         if not select:
             select = SELECT(**self.attributes)
         for item in data:
-            if len(item) <= 4 or item[4] == True: 
-                if item[2]:
-                    select.append(OPTION(CAT(prefix, item[0]), _value=item[2], _selected=item[1]))
-                    if len(item)>3 and len(item[3]):
-                        self.serialize_mobile(item[3], select, prefix = CAT(prefix, item[0], '/'))
+            if len(item) <= 4 or item[4] == True:
+                select.append(OPTION(CAT(prefix, item[0]), 
+                                     _value=item[2], _selected=item[1]))
+                if len(item)>3 and len(item[3]):
+                    self.serialize_mobile(
+                        item[3], select, prefix = CAT(prefix, item[0], '/'))
         select['_onchange'] = 'window.location=this.value'
         return select
 
@@ -2206,7 +2329,7 @@ def test():
     >>> print form.accepts({'myvar':'34'}, formname=None)
     False
     >>> print form.xml()
-    <form action="" enctype="multipart/form-data" method="post"><input class="invalidinput" name="myvar" type="text" value="34" /><div class="error" id="myvar__error">invalid expression</div></form>
+    <form action="" enctype="multipart/form-data" method="post"><input class="invalidinput" name="myvar" type="text" value="34" /><div class="error_wrapper"><div class="error" id="myvar__error">invalid expression</div></div></form>
     >>> print form.accepts({'myvar':'4'}, formname=None, keepvalues=True)
     True
     >>> print form.xml()
@@ -2220,7 +2343,7 @@ def test():
     >>> print form.accepts({'myvar':'as df'}, formname=None)
     False
     >>> print form.xml()
-    <form action=\"\" enctype=\"multipart/form-data\" method=\"post\"><input class=\"invalidinput\" name=\"myvar\" type=\"text\" value=\"as df\" /><div class=\"error\" id=\"myvar__error\">only alphanumeric!</div></form>
+    <form action="" enctype="multipart/form-data" method="post"><input class="invalidinput" name="myvar" type="text" value="as df" /><div class="error_wrapper"><div class="error" id="myvar__error">only alphanumeric!</div></div></form>
     >>> session={}
     >>> form=FORM(INPUT(value=\"Hello World\", _name=\"var\", requires=IS_MATCH('^\w+$')))
     >>> if form.accepts({}, session,formname=None): print 'passed'
@@ -2271,10 +2394,10 @@ class web2pyHTMLParser(HTMLParser):
                 data = data.decode('latin1')
         self.parent.append(data.encode('utf8','xmlcharref'))
     def handle_charref(self,name):
-        if name[1].lower()=='x':
-            self.parent.append(unichr(int(name[2:], 16)).encode('utf8'))
+        if name.startswith('x'):
+            self.parent.append(unichr(int(name[1:], 16)).encode('utf8'))
         else:
-            self.parent.append(unichr(int(name[1:], 10)).encode('utf8'))
+            self.parent.append(unichr(int(name)).encode('utf8'))
     def handle_entityref(self,name):
         self.parent.append(unichr(name2codepoint[name]).encode('utf8'))
     def handle_endtag(self, tagname):
@@ -2332,7 +2455,11 @@ class MARKMIN(XmlComponent):
     For documentation: http://web2py.com/examples/static/markmin.html
     """
     def __init__(self, text, extra=None, allowed=None, sep='p',
-                 url=None, environment=None, latex='google'):
+                 url=None, environment=None, latex='google',
+                 autolinks='default',
+                 protolinks='default',
+                 class_prefix='',
+                 id_prefix='markmin_'):
         self.text = text
         self.extra = extra or {}
         self.allowed = allowed or {}
@@ -2340,6 +2467,10 @@ class MARKMIN(XmlComponent):
         self.url = URL if url==True else url
         self.environment = environment
         self.latex = latex
+        self.autolinks = autolinks
+        self.protolinks = protolinks
+        self.class_prefix = class_prefix
+        self.id_prefix = id_prefix
 
     def xml(self):
         """
@@ -2348,7 +2479,9 @@ class MARKMIN(XmlComponent):
         from contrib.markmin.markmin2html import render
         return render(self.text,extra=self.extra,
                       allowed=self.allowed,sep=self.sep,latex=self.latex,
-                      URL=self.url, environment=self.environment)
+                      URL=self.url, environment=self.environment,
+                      autolinks=self.autolinks,protolinks=self.protolinks,
+                      class_prefix=self.class_prefix,id_prefix=self.id_prefix)
 
     def __str__(self):
         return self.xml()
@@ -2370,6 +2503,8 @@ class MARKMIN(XmlComponent):
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
+
+
 
 
 

@@ -1,20 +1,24 @@
-{{left_sidebar_enabled,right_sidebar_enabled=False,True}}
+{{left_sidebar_enabled,right_sidebar_enabled=False,('message' in globals())}}
 {{extend 'layout.html'}}
 
 {{if 'message' in globals():}}
 <h3>{{=message}}</h3>
 
-<h4/>{{=T('How did you get here?')}}</h4>
+<h4>{{=T('How did you get here?')}}</h4>
 <ol>
   <li>{{=T('You are successfully running web2py')}}</li>
-  <li>{{=T('You visited the url')}} {{=A(request.env.path_info,_href=request.env.path_info)}}</li>
-  <li>{{=T('Which called the function')}} {{=A(request.function+'()',_href='#')}} {{=T('located in the file')}}
-    {{=A('web2py/applications/%(application)s/controllers/%(controller)s.py'%request,_href=URL('admin','default','peek',args=(request.application,'controllers',request.controller+'.py')))}}</li>
-  <li>{{=T('The output of the file is a dictionary that was rendered by the view')}}
-    {{=A('web2py/applications/%(application)s/views/%(controller)s/index.html'%request,_href=URL('admin','default','peek',args=(request.application,'views',request.controller,'index.html')))}}</li>
+  <li>{{=XML(T('You visited the url %s', A(request.env.path_info,_href=request.env.path_info)))}}</li>
+  <li>{{=XML(T('Which called the function %s located in the file %s',
+             (A(request.function+'()',_href='#'),
+              A('web2py/applications/%(application)s/controllers/%(controller)s.py'%request,
+               _href=URL('admin','default','peek', args=(request.application,'controllers',request.controller+'.py'))))))}}</li>
+  <li>{{=XML(T('The output of the file is a dictionary that was rendered by the view %s',
+           A('web2py/applications/%(application)s/views/%(controller)s/index.html'%request,
+           _href=URL('admin','default','peek',args=(request.application,'views',request.controller,'index.html')))))}}</li>
   <li>{{=T('You can modify this application and adapt it to your needs')}}</li>
-</ul>
 </ol>
+{{elif 'content' in globals():}}
+{{=content}}
 {{else:}}
 {{=BEAUTIFY(response._vars)}}
 {{pass}}
@@ -29,4 +33,3 @@
   <li><a href="http://web2py.com/book">{{=T('Documentation')}}</a></li>
 </ul>
 {{end}}
-

@@ -17,7 +17,7 @@ SERVER_NAME = socket.gethostname()
 SERVER_SOFTWARE = 'Rocket %s' % VERSION
 HTTP_SERVER_SOFTWARE = '%s Python/%s' % (SERVER_SOFTWARE, sys.version.split(' ')[0])
 BUF_SIZE = 16384
-SOCKET_TIMEOUT = 1 # in secs
+SOCKET_TIMEOUT = 10 # in secs
 THREAD_STOP_CHECK_INTERVAL = 1 # in secs, How often should threads check for a server stop message?
 IS_JYTHON = platform.system() == 'Java' # Handle special cases for Jython
 IGNORE_ERRORS_ON_CLOSE = set([errno.ECONNABORTED, errno.ECONNRESET])
@@ -1342,10 +1342,16 @@ class Worker(Thread):
                           stat_msg)
         try:
             self.conn.sendall(b(msg))
+        except socket.timeout:
+            self.closeConnection = True
+            self.err_log.error(
+                'Tried to send "%s" to client but received timeout error'
+                % status)
         except socket.error:
             self.closeConnection = True
-            self.err_log.error('Tried to send "%s" to client but received socket'
-                           ' error' % status)
+            self.err_log.error(
+                'Tried to send "%s" to client but received socket error'
+                % status)
 
     #def kill(self):
     #    if self.isAlive() and hasattr(self, 'conn'):
@@ -1374,6 +1380,8 @@ class Worker(Thread):
                     d = d.decode('ISO-8859-1')
         except socket.timeout:
             raise SocketTimeout("Socket timed out before request.")
+        except TypeError:
+            raise SocketClosed("ssl bug caused closer of socket, upgrade to python 2.7")
 
         d = d.strip()
 
@@ -1399,7 +1407,7 @@ class Worker(Thread):
             raise BadRequest
 
         req = match.groupdict()
-        for k,v in req.items():
+        for k,v in req.iteritems():
             if not v:
                 req[k] = ""
             if k == 'path':
@@ -1686,7 +1694,8 @@ class FileSystemWorker(Worker):
 
         try:
             # Get our file path
-            headers = dict([(str(k.lower()), v) for k, v in self.read_headers(sock_file).items()])
+            reader = self.read_headers(sock_file)
+            headers = dict((k.lower(),v) for k,v in reader.iteritems())
             rpath = request.get('path', '').lstrip('/')
             filepath = os.path.join(self.root, rpath)
             filepath = os.path.abspath(filepath)
@@ -2073,6 +2082,8 @@ def demo():
 
 if __name__=='__main__':
     demo()
+
+
 
 
 

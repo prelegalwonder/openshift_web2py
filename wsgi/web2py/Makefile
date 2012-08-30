@@ -1,3 +1,7 @@
+all:
+	echo "The Makefile is used to build the distribution."
+	echo "In order to run web2py you do not need to make anything."
+	echo "just run web2py.py"
 clean:
 	rm -f httpserver.log 
 	rm -f parameters*.py 
@@ -13,10 +17,6 @@ clean:
 	find ./applications/examples/ -name '.*' -exec rm -f {} \; 
 	find ./applications/welcome/ -name '.*' -exec rm -f {} \; 
 	find ./ -name '*.pyc' -exec rm -f {} \;
-all:
-	echo "The Makefile is used to build the distribution."
-	echo "In order to run web2py you do not need to make anything."
-	echo "just run web2py.py"
 epydoc:
 	### build epydoc
 	rm -f -r applications/examples/static/epydoc/ 
@@ -29,7 +29,7 @@ update:
 	wget -O gluon/contrib/simplejsonrpc.py http://rad2py.googlecode.com/hg/ide2py/simplejsonrpc.py
 	echo "remember that pymysql was tweaked"
 src:
-	echo 'Version 2.00.0 ('`date +%Y-%m-%d\ %H:%M:%S`') dev' > VERSION
+	echo 'Version 2.0.2 ('`date +%Y-%m-%d\ %H:%M:%S`') stable' > VERSION
 	### rm -f all junk files
 	make clean
 	### clean up baisc apps
@@ -43,11 +43,11 @@ src:
 	rm -f applications/admin/uploads/*                 
 	rm -f applications/welcome/uploads/*               
 	rm -f applications/examples/uploads/*             
-	### make admin layout and appadmin the default
-	cp applications/admin/views/appadmin.html applications/welcome/views
-	cp applications/admin/views/appadmin.html applications/examples/views
-	cp applications/admin/controllers/appadmin.py applications/welcome/controllers
-	cp applications/admin/controllers/appadmin.py applications/examples/controllers	
+	### make welcome layout and appadmin the default
+	cp applications/welcome/views/appadmin.html applications/admin/views
+	cp applications/welcome/views/appadmin.html applications/examples/views
+	cp applications/welcome/controllers/appadmin.py applications/admin/controllers
+	cp applications/welcome/controllers/appadmin.py applications/examples/controllers	
 	### build web2py_src.zip
 	echo '' > NEWINSTALL
 	mv web2py_src.zip web2py_src_old.zip | echo 'no old'
@@ -62,6 +62,7 @@ app:
 	echo 'did you uncomment import_all in gluon/main.py?'
 	python2.5 -c 'import compileall; compileall.compile_dir("gluon/")'
 	#python web2py.py -S welcome -R __exit__.py
+	#cd ../web2py_osx/site-packages/; unzip ../site-packages.zip
 	find gluon -path '*.pyc' -exec cp {} ../web2py_osx/site-packages/{} \;
 	cd ../web2py_osx/site-packages/; zip -r ../site-packages.zip *
 	mv ../web2py_osx/site-packages.zip ../web2py_osx/web2py/web2py.app/Contents/Resources/lib/python2.5
@@ -84,7 +85,8 @@ app:
 	mv ../web2py_osx/web2py_osx.zip .
 win:
 	echo 'did you uncomment import_all in gluon/main.py?'
-	python2.5 -c 'import compileall; compileall.compile_dir("gluon/")'
+	python2.7 -c 'import compileall; compileall.compile_dir("gluon/")'
+	#cd ../web2py_win/library/; unzip ../library.zip
 	find gluon -path '*.pyc' -exec cp {} ../web2py_win/library/{} \;
 	cd ../web2py_win/library/; zip -r ../library.zip *
 	mv ../web2py_win/library.zip ../web2py_win/web2py
@@ -112,14 +114,18 @@ pip:
 run:
 	python2.5 web2py.py -a hello
 commit:
+	python web2py.py --run_system_tests
 	make src
 	echo '' > NEWINSTALL
 	hg commit -m "$(S)"
 	#bzr commit -m "$(S)"
 	git commit -a -m "$(S)"
-	python web2py.py --run_system_tests
 push:
 	hg push
 	git push
 	git push mdipierro
-	#bzr push bzr+ssh://mdipierro@bazaar.launchpad.net/~mdipierro/web2py/devel --use-existing-dir
+tag:
+	git tag -l '$(S)'
+	hg tag -l '$(S)'
+	make commit S='$(S)'
+	make push

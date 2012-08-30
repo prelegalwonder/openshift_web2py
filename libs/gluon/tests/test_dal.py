@@ -13,6 +13,7 @@ else:
 
 import unittest
 import datetime
+import cStringIO
 from dal import DAL, Field, Table, SQLALL
 
 ALLOWED_DATATYPES = [
@@ -128,6 +129,26 @@ class TestFields(unittest.TestCase):
             )
         self.assertEqual(db.t.insert(a=t0), 1)
         self.assertEqual(db().select(db.t.a)[0].a, t0)
+
+        ## Row APIs
+        row = db().select(db.t.a)[0]
+        self.assertEqual(db.t[1].a,t0)
+        self.assertEqual(db.t['a'],db.t.a)
+        self.assertEqual(db.t(1).a,t0)
+        self.assertTrue(db.t(1,a=None)==None)
+        self.assertFalse(db.t(1,a=t0)==None)
+        self.assertEqual(row.a,t0)
+        self.assertEqual(row['a'],t0)
+        self.assertEqual(row['t.a'],t0)
+        self.assertEqual(row('t.a'),t0)
+
+        ## Lazy and Virtual fields
+        db.t.b = Field.Virtual(lambda row: row.t.a)
+        db.t.c = Field.Lazy(lambda row: row.t.a)
+        row = db().select(db.t.a)[0]
+        self.assertEqual(row.b,t0)
+        self.assertEqual(row.c(),t0)
+
         db.t.drop()
         db.define_table('t', Field('a', 'time', default='11:30'))
         t0 = datetime.time(10, 30, 55)
@@ -155,9 +176,9 @@ class TestTable(unittest.TestCase):
         self.assertRaises(SyntaxError, Table, None, 'test', None)
 
         persons = Table(None, 'persons',
-                        Field('firstname','string'), 
+                        Field('firstname','string'),
                         Field('lastname', 'string'))
-        
+
         # Does it have the correct fields?
 
         self.assert_(set(persons.fields).issuperset(set(['firstname',
@@ -368,6 +389,17 @@ class TestJoin(unittest.TestCase):
         db.t1.drop()
         db.t2.drop()
 
+        db.define_table('person',Field('name'))
+        id = db.person.insert(name="max")
+        self.assertEqual(id.name,'max')
+        db.define_table('dog',Field('name'),Field('owner','reference person'))
+        db.dog.insert(name='skipper',owner=1)
+        row = db(db.person.id==db.dog.owner).select().first()
+        self.assertEqual(row[db.person.name],'max')
+        self.assertEqual(row['person.name'],'max')
+        db.dog.drop()
+        self.assertEqual(len(db.person._referenced_by),0)
+        db.person.drop()
 
 class TestMinMaxSum(unittest.TestCase):
 
@@ -483,7 +515,68 @@ class TestVirtualFields(unittest.TestCase):
         db.t.drop()
         db.commit()
 
+class TestComputedFields(unittest.TestCase):
+
+    def testRun(self):
+        db = DAL('sqlite:memory:')
+        db.define_table('t',
+                        Field('a'),
+                        Field('b',default='x'),
+                        Field('c',compute=lambda r: r.a+r.b))
+        db.commit()
+        id = db.t.insert(a="z")
+        self.assertEqual(db.t[id].c,'zx')
+        db.t.drop()
+        db.commit()
+
+class TestImportExportFields(unittest.TestCase):
+
+    def testRun(self):
+        db = DAL('sqlite:memory:')
+        db.define_table('person', Field('name'))
+        db.define_table('pet',Field('friend',db.person),Field('name'))
+        for n in range(2):
+            db(db.pet).delete()
+            db(db.person).delete()
+            for k in range(10):
+                id = db.person.insert(name=str(k))
+                db.pet.insert(friend=id,name=str(k))
+        db.commit()
+        stream = cStringIO.StringIO()
+        db.export_to_csv_file(stream)
+        db(db.pet).delete()
+        db(db.person).delete()
+        stream = cStringIO.StringIO(stream.getvalue())
+        db.import_from_csv_file(stream)
+        assert db(db.person.id==db.pet.friend)(db.person.name==db.pet.name).count()==10
+        db.pet.drop()
+        db.person.drop()
+        db.commit()
+
+class TestImportExportUuidFields(unittest.TestCase):
+
+    def testRun(self):
+        db = DAL('sqlite:memory:')
+        db.define_table('person', Field('name'),Field('uuid'))
+        db.define_table('pet',Field('friend',db.person),Field('name'))
+        for n in range(2):
+            db(db.pet).delete()
+            db(db.person).delete()
+            for k in range(10):
+                id = db.person.insert(name=str(k),uuid=str(k))
+                db.pet.insert(friend=id,name=str(k))
+        db.commit()
+        stream = cStringIO.StringIO()
+        db.export_to_csv_file(stream)
+        stream = cStringIO.StringIO(stream.getvalue())
+        db.import_from_csv_file(stream)
+        assert db(db.person).count()==10
+        assert db(db.person.id==db.pet.friend)(db.person.name==db.pet.name).count()==20
+        db.pet.drop()
+        db.person.drop()
+        db.commit()
 
 if __name__ == '__main__':
     unittest.main()
     tearDownModule()
+

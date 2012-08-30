@@ -36,6 +36,13 @@ import os
 import sys
 import traceback
 import threading
+import hmac
+import base64
+
+try:
+    from Crypto.Cipher import AES
+except ImportError:
+    from contrib import aes as AES
 
 try:
     from gluon.contrib.minify import minify
@@ -76,6 +83,7 @@ class Request(Storage):
     """
 
     def __init__(self):
+        Storage.__init__(self)
         self.wsgi = Storage() # hooks to environ and start_response
         self.env = Storage()
         self.cookies = Cookie.SimpleCookie()
@@ -109,7 +117,8 @@ class Request(Storage):
             user_agent_parser.detect(self.env.http_user_agent)
         user_agent = Storage(user_agent)
         for key,value in user_agent.items():
-            if isinstance(value,dict): user_agent[key] = Storage(value)
+            if isinstance(value,dict):
+                user_agent[key] = Storage(value)
         return user_agent
 
     def requires_https(self):
@@ -158,8 +167,9 @@ class Response(Storage):
     """
 
     def __init__(self):
+        Storage.__init__(self)
         self.status = 200
-        self.headers = Storage()
+        self.headers = dict()
         self.headers['X-Powered-By'] = 'web2py'
         self.body = cStringIO.StringIO()
         self.session_id = None
@@ -213,9 +223,9 @@ class Response(Storage):
         return page
 
     def include_meta(self):
-        s = ''
-        for key,value in (self.meta or {}).items():
-            s += '<meta name="%s" content="%s" />' % (key,xmlescape(value))
+        s = '\n'.join(
+            '<meta name="%s" content="%s" />\n' % (k,xmlescape(v))
+            for k,v in (self.meta or {}).iteritems())
         self.write(s,escape=False)
 
     def include_files(self):
@@ -267,6 +277,8 @@ class Response(Storage):
         stream,
         chunk_size = DEFAULT_CHUNK_SIZE,
         request=None,
+        attachment=False,
+        filename=None
         ):
         """
         if a controller function::
@@ -274,40 +286,60 @@ class Response(Storage):
             return response.stream(file, 100)
 
         the file content will be streamed at 100 bytes at the time
+
+        Optional kwargs:
+            (for custom stream calls)
+            attachment=True # Send as attachment. Usually creates a
+                            # pop-up download window on browsers
+            filename=None # The name for the attachment
+
+        Note: for using the stream name (filename) with attachments
+        the option must be explicitly set as function parameter(will
+        default to the last request argument otherwise)
         """
+
+        headers = self.headers
+        # for attachment settings and backward compatibility
+        keys = [item.lower() for item in headers]
+        if attachment:
+            if filename is None:
+                attname = ""
+            else:
+                attname = filename
+            headers["Content-Disposition"] = \
+                "attachment;filename=%s" % attname
+
         if not request:
             request = current.request
         if isinstance(stream, (str, unicode)):
             stream_file_or_304_or_206(stream,
                                       chunk_size=chunk_size,
                                       request=request,
-                                      headers=self.headers)
+                                      headers=headers)
 
         # ## the following is for backward compatibility
-
         if hasattr(stream, 'name'):
             filename = stream.name
-        else:
-            filename = None
-        keys = [item.lower() for item in self.headers]
+
         if filename and not 'content-type' in keys:
-            self.headers['Content-Type'] = contenttype(filename)
+            headers['Content-Type'] = contenttype(filename)
         if filename and not 'content-length' in keys:
             try:
-                self.headers['Content-Length'] = \
+                headers['Content-Length'] = \
                     os.path.getsize(filename)
             except OSError:
                 pass
-
+        
+        env = request.env
         # Internet Explorer < 9.0 will not allow downloads over SSL unless caching is enabled
-        if request.is_https and isinstance(request.env.http_user_agent,str) and \
-                not re.search(r'Opera', request.env.http_user_agent) and \
-                re.search(r'MSIE [5-8][^0-9]', request.env.http_user_agent):
-            self.headers['Pragma'] = 'cache'
-            self.headers['Cache-Control'] = 'private'
+        if request.is_https and isinstance(env.http_user_agent,str) and \
+                not re.search(r'Opera', env.http_user_agent) and \
+                re.search(r'MSIE [5-8][^0-9]', env.http_user_agent):
+            headers['Pragma'] = 'cache'
+            headers['Cache-Control'] = 'private'
 
-        if request and request.env.web2py_use_wsgi_file_wrapper:
-            wrapped = request.env.wsgi_file_wrapper(stream, chunk_size)
+        if request and env.web2py_use_wsgi_file_wrapper:
+            wrapped = env.wsgi_file_wrapper(stream, chunk_size)
         else:
             wrapped = streamer(stream, chunk_size=chunk_size)
         return wrapped
@@ -322,7 +354,6 @@ class Response(Storage):
         downloads from http://..../download/filename
         """
 
-        import contenttype as c
         if not request.args:
             raise HTTP(404)
         name = request.args[-1]
@@ -336,11 +367,13 @@ class Response(Storage):
             (filename, stream) = field.retrieve(name)
         except IOError:
             raise HTTP(404)
-        self.headers['Content-Type'] = c.contenttype(name)
+        headers = self.headers
+        headers['Content-Type'] = contenttype(name)
         if attachment:
-            self.headers['Content-Disposition'] = \
-                "attachment; filename=%s" % filename
-        return self.stream(stream, chunk_size = chunk_size, request=request)
+            headers['Content-Disposition'] = \
+                'attachment; filename=%s' % filename
+        return self.stream(stream, chunk_size=chunk_size, request=request)
+                           
 
     def json(self, data, default=None):
         return json(data, default = default or custom_json)
@@ -377,8 +410,15 @@ class Response(Storage):
             dbstats = [TABLE(*[TR(PRE(row[0]),'%.2fms' % (row[1]*1000)) \
                                    for row in i.db._timings]) \
                            for i in thread.instances]
+            dbtables = dict([(i.uri, {'defined': sorted(list(set(i.db.tables) - 
+                                                 set(i.db._LAZY_TABLES.keys()))) or
+                                                 '[no defined tables]',
+                                      'lazy': sorted(i.db._LAZY_TABLES.keys()) or
+                                              '[no lazy tables]'})
+                             for i in thread.instances])
         else:
             dbstats = [] # if no db or on GAE
+            dbtables = {}
         u = web2py_uuid()
         return DIV(
             BUTTON('design',_onclick="document.location='%s'" % admin),
@@ -388,6 +428,8 @@ class Response(Storage):
             DIV(BEAUTIFY(current.session),_class="hidden",_id="session-%s"%u),
             BUTTON('response',_onclick="jQuery('#response-%s').slideToggle()"%u),
             DIV(BEAUTIFY(current.response),_class="hidden",_id="response-%s"%u),
+            BUTTON('db tables',_onclick="jQuery('#db-tables-%s').slideToggle()"%u),
+            DIV(BEAUTIFY(dbtables),_class="hidden",_id="db-tables-%s"%u),
             BUTTON('db stats',_onclick="jQuery('#db-stats-%s').slideToggle()"%u),
             DIV(BEAUTIFY(dbstats),_class="hidden",_id="db-stats-%s"%u),
             SCRIPT("jQuery('.hidden').hide()")
@@ -409,6 +451,7 @@ class Session(Storage):
         migrate=True,
         separate = None,
         check_client=False,
+        cookie_key=None,
         ):
         """
         separate can be separate=lambda(session_name): session_name[-2:]
@@ -422,14 +465,36 @@ class Session(Storage):
             masterapp = request.application
         response.session_id_name = 'session_id_%s' % masterapp.lower()
 
+        # Load session data from cookie
+        cookies = request.cookies
+            
+        if cookie_key:
+            response.session_cookie_key = cookie_key
+            response.session_cookie_key2 = hashlib.md5(cookie_key).digest()
+            cookie_name = masterapp.lower()+'_session_data'
+            response.session_cookie_name = cookie_name
+            if cookie_name in cookies:
+                cookie_value = cookies[cookie_name].value
+                cookie_parts = cookie_value.split(":")
+                enc = cookie_parts[2]
+                cipher = AES.new(cookie_key)
+                decrypted = cipher.decrypt(base64.b64decode(enc)).rstrip('{')
+                check = hmac.new(response.session_cookie_key2,enc).hexdigest()
+                if cookie_parts[0] == check:
+                    session_data = cPickle.loads(decrypted)
+                    self.update(session_data)
+            else:
+                return
+
         if not db:
-            if global_settings.db_sessions is True or masterapp in global_settings.db_sessions:
+            if global_settings.db_sessions is True \
+                    or masterapp in global_settings.db_sessions:
                 return
             response.session_new = False
             client = request.client and request.client.replace(':', '.')
-            if response.session_id_name in request.cookies:
+            if response.session_id_name in cookies:
                 response.session_id = \
-                    request.cookies[response.session_id_name].value
+                    cookies[response.session_id_name].value
                 if regex_session_id.match(response.session_id):
                     response.session_filename = \
                         os.path.join(up(request.folder), masterapp,
@@ -441,11 +506,13 @@ class Session(Storage):
                     response.session_file = \
                         open(response.session_filename, 'rb+')
                     try:
-                        portalocker.lock(response.session_file,portalocker.LOCK_EX)
+                        portalocker.lock(response.session_file,
+                                         portalocker.LOCK_EX)
                         response.session_locked = True
                         self.update(cPickle.load(response.session_file))
                         response.session_file.seek(0)
-                        oc = response.session_filename.split('/')[-1].split('-')[0]
+                        oc = response.session_filename.split('/')[-1]\
+                            .split('-')[0]
                         if check_client and client!=oc:
                             raise Exception, "cookie attack"
                     finally:
@@ -459,7 +526,8 @@ class Session(Storage):
                 response.session_id = '%s-%s' % (client, uuid)
                 if separate:
                     prefix = separate(response.session_id)
-                    response.session_id = '%s/%s' % (prefix,response.session_id)
+                    response.session_id = '%s/%s' % \
+                        (prefix,response.session_id)
                 response.session_filename = \
                     os.path.join(up(request.folder), masterapp,
                                  'sessions', response.session_id)
@@ -479,29 +547,35 @@ class Session(Storage):
                 table_migrate = False
             tname = tablename + '_' + masterapp
             table = db.get(tname, None)
+            Field = db.Field
             if table is None:
-                table = db.define_table(
+                db.define_table(
                     tname,
-                    db.Field('locked', 'boolean', default=False),
-                    db.Field('client_ip', length=64),
-                    db.Field('created_datetime', 'datetime',
+                    Field('locked', 'boolean', default=False),
+                    Field('client_ip', length=64),
+                    Field('created_datetime', 'datetime',
                              default=request.now),
-                    db.Field('modified_datetime', 'datetime'),
-                    db.Field('unique_key', length=64),
-                    db.Field('session_data', 'blob'),
+                    Field('modified_datetime', 'datetime'),
+                    Field('unique_key', length=64),
+                    Field('session_data', 'blob'),
                     migrate=table_migrate,
                     )
+                table = db[tname] # to allow for lazy table
             try:
-                key = request.cookies[response.session_id_name].value
+
+                # Get session data out of the database
+                # Key comes from the cookie
+                key = cookies[response.session_id_name].value
                 (record_id, unique_key) = key.split(':')
                 if record_id == '0':
                     raise Exception, 'record_id == 0'
+                        # Select from database
                 rows = db(table.id == record_id).select()
+                # Make sure the session data exists in the database
                 if len(rows) == 0 or rows[0].unique_key != unique_key:
                     raise Exception, 'No record'
-
-                 # rows[0].update_record(locked=True)
-
+                # rows[0].update_record(locked=True)
+                # Unpickle the data
                 session_data = cPickle.loads(rows[0].session_data)
                 self.update(session_data)
             except Exception:
@@ -511,8 +585,9 @@ class Session(Storage):
             response._dbtable_and_field = \
                 (response.session_id_name, table, record_id, unique_key)
             response.session_id = '%s:%s' % (record_id, unique_key)
-        response.cookies[response.session_id_name] = response.session_id
-        response.cookies[response.session_id_name]['path'] = '/'
+        rcookies = response.cookies
+        rcookies[response.session_id_name] = response.session_id
+        rcookies[response.session_id_name]['path'] = '/'
         self.__hash = hashlib.md5(str(self)).digest()
         if self.flash:
             (response.flash, self.flash) = (self.flash, None)
@@ -540,8 +615,18 @@ class Session(Storage):
         self._close(response)
         self._forget = True
 
-    def _try_store_in_db(self, request, response):
+    def _try_store_in_cookie(self, request, response):
+        pad = lambda s: s + (32 - len(s) % 32) * '{'
+        data = cPickle.dumps(dict(self))
+        cipher = AES.new(response.session_cookie_key)
+        encrypted_data = base64.b64encode(cipher.encrypt(pad(data)))
+        signature = hmac.new(response.session_cookie_key2,encrypted_data)\
+            .hexdigest()
+        value = signature+':'+encrypted_data
+        response.cookies[response.session_cookie_name] = value
+        response.cookies[response.session_cookie_name]['path'] = '/'
 
+    def _try_store_in_db(self, request, response):
         # don't save if file-based sessions, no session id, or session being forgotten
         if not response.session_db or not response.session_id or self._forget:
             return
@@ -615,6 +700,7 @@ class Session(Storage):
                 del response.session_file
             except:
                 pass
+
 
 
 

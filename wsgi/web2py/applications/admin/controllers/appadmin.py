@@ -11,6 +11,8 @@ import copy
 import gluon.contenttype
 import gluon.fileutils
 
+response.subtitle = 'Database Administration (appadmin)'
+
 # ## critical --- make a copy of the environment
 
 global_env = copy.copy(globals())
@@ -25,8 +27,7 @@ try:
 except:
     hosts = (http_host, )
 
-if request.env.http_x_forwarded_for or request.env.wsgi_url_scheme\
-     in ['https', 'HTTPS']:
+if request.env.http_x_forwarded_for or request.is_https:
     session.secure()
 elif (remote_addr not in hosts) and (remote_addr != "127.0.0.1"):
     raise HTTP(200, T('appadmin is disabled because insecure channel'))
@@ -198,19 +199,10 @@ def select():
                 _name='update_fields', _value=request.vars.update_fields
                  or '')), TR(T('Delete:'), INPUT(_name='delete_check',
                 _class='delete', _type='checkbox', value=False), ''),
-                TR('', '', INPUT(_type='submit', _value='submit'))),
+                TR('', '', INPUT(_type='submit', _value=T('submit')))),
                 _action=URL(r=request,args=request.args))
-    if request.vars.csvfile != None:
-        try:
-            import_csv(db[request.vars.table],
-                       request.vars.csvfile.file)
-            response.flash = T('data uploaded')
-        except Exception, e:
-            response.flash = DIV(T('unable to parse csv file'),PRE(str(e)))
     if form.accepts(request.vars, formname=None):
-#         regex = re.compile(request.args[0] + '\.(?P<table>\w+)\.id\>0')
         regex = re.compile(request.args[0] + '\.(?P<table>\w+)\..+')
-
         match = regex.match(form.vars.query.strip())
         if match:
             table = match.group('table')
@@ -219,10 +211,10 @@ def select():
             if form.vars.update_check and form.vars.update_fields:
                 db(query).update(**eval_in_global_env('dict(%s)'
                                   % form.vars.update_fields))
-                response.flash = T('%s rows updated', nrows)
+                response.flash = T('%s %%{row} updated', nrows)
             elif form.vars.delete_check:
                 db(query).delete()
-                response.flash = T('%s rows deleted', nrows)
+                response.flash = T('%s %%{row} deleted', nrows)
             nrows = db(query).count()
             if orderby:
                 rows = db(query,ignore_common_filters=True).select(limitby=(start, stop), orderby=eval_in_global_env(orderby))
@@ -231,6 +223,24 @@ def select():
         except Exception, e:
             (rows, nrows) = ([], 0)
             response.flash = DIV(T('Invalid Query'),PRE(str(e)))
+    # begin handle upload csv
+    csv_table = table or request.vars.table
+    if csv_table:
+        formcsv = FORM(str(T('or import from csv file'))+" ",
+                       INPUT(_type='file',_name='csvfile'),
+                       INPUT(_type='hidden',_value=csv_table,_name='table'),
+                       INPUT(_type='submit',_value=T('import')))
+    else:
+        formcsv = None
+    if formcsv and formcsv.process().accepted:
+        try:
+            import_csv(db[request.vars.table],
+                       request.vars.csvfile.file)
+            response.flash = T('data uploaded')
+        except Exception, e:
+            response.flash = DIV(T('unable to parse csv file'),PRE(str(e)))
+    # end handle upload csv
+
     return dict(
         form=form,
         table=table,
@@ -239,6 +249,7 @@ def select():
         nrows=nrows,
         rows=rows,
         query=request.vars.query,
+        formcsv = formcsv,
         )
 
 
@@ -292,9 +303,9 @@ def state():
 
 def ccache():
     form = FORM(
-        P(TAG.BUTTON("Clear CACHE?", _type="submit", _name="yes", _value="yes")),
-        P(TAG.BUTTON("Clear RAM", _type="submit", _name="ram", _value="ram")),
-        P(TAG.BUTTON("Clear DISK", _type="submit", _name="disk", _value="disk")),
+        P(TAG.BUTTON(T("Clear CACHE?"), _type="submit", _name="yes", _value="yes")),
+        P(TAG.BUTTON(T("Clear RAM"), _type="submit", _name="ram", _value="ram")),
+        P(TAG.BUTTON(T("Clear DISK"), _type="submit", _name="disk", _value="disk")),
     )
 
     if form.accepts(request.vars, session):
@@ -310,10 +321,10 @@ def ccache():
 
         if clear_ram:
             cache.ram.clear()
-            session.flash += "Ram Cleared "
+            session.flash += T("Ram Cleared")
         if clear_disk:
             cache.disk.clear()
-            session.flash += "Disk Cleared"
+            session.flash += T("Disk Cleared")
 
         redirect(URL(r=request))
 
@@ -415,7 +426,7 @@ def ccache():
 
     def key_table(keys):
         return TABLE(
-            TR(TD(B('Key')), TD(B('Time in Cache (h:m:s)'))),
+            TR(TD(B(T('Key'))), TD(B(T('Time in Cache (h:m:s)')))),
             *[TR(TD(k[0]), TD('%02d:%02d:%02d' % k[1])) for k in keys],
             **dict(_class='cache-keys',
                    _style="border-collapse: separate; border-spacing: .5em;"))

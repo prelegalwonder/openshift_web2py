@@ -40,18 +40,17 @@ import imp
 import logging
 logger = logging.getLogger("web2py")
 import rewrite
-import platform
 
 try:
     import py_compile
 except:
     logger.warning('unable to import py_compile')
 
-is_pypy = hasattr(platform,'python_implementation') and \
-    platform.python_implementation() == 'PyPy'
-settings.global_settings.is_pypy = is_pypy
-is_gae = settings.global_settings.web2py_runtime_gae
-is_jython = settings.global_settings.is_jython = 'java' in sys.platform.lower() or hasattr(sys, 'JYTHON_JAR') or str(sys.copyright).find('Jython') > 0
+is_pypy = settings.global_settings.is_pypy
+is_gae  = settings.global_settings.web2py_runtime_gae
+is_jython = settings.global_settings.is_jython
+
+pjoin = os.path.join
 
 TEST_CODE = \
     r"""
@@ -128,7 +127,7 @@ def LOAD(c=None, f='index', args=None, vars=None,
     attr['_id']=target
     request = current.request
     if '.' in f:
-        f, extension = f.split('.',1)
+        f, extension = f.rsplit('.',1)
     if url or ajax:
         url = url or URL(request.application, c, f, r=request,
                          args=args, vars=vars, extension=extension,
@@ -163,12 +162,8 @@ def LOAD(c=None, f='index', args=None, vars=None,
         if not isinstance(args,(list,tuple)):
             args = [args]
         c = c or request.controller
-        other_request = Storage()
-        for key, value in request.items():
-            other_request[key] = value
-        other_request['env'] = Storage()
-        for key, value in request.env.items():
-            other_request.env[key] = value
+        other_request = Storage(request)
+        other_request['env'] = Storage(request.env)
         other_request.controller = c
         other_request.function = f
         other_request.extension = extension or request.extension
@@ -203,8 +198,7 @@ def LOAD(c=None, f='index', args=None, vars=None,
         page = run_controller_in(c, f, other_environment)
         if isinstance(page, dict):
             other_response._vars = page
-            for key in page:
-                other_response._view_environment[key] = page[key]
+            other_response._view_environment.update(page)
             run_view_in(other_response._view_environment)
             page = other_response.body.getvalue()
         current.request, current.response = original_request, original_response
@@ -235,7 +229,7 @@ class LoadFactory(object):
         attr['_id']=target
         request = self.environment['request']
         if '.' in f:
-            f, extension = f.split('.',1)
+            f, extension = f.rsplit('.',1)
         if url or ajax:
             url = url or html.URL(request.application, c, f, r=request,
                                   args=args, vars=vars, extension=extension,
@@ -248,12 +242,8 @@ class LoadFactory(object):
                 args = [args]
             c = c or request.controller
 
-            other_request = Storage()
-            for key, value in request.items():
-                other_request[key] = value
-            other_request['env'] = Storage()
-            for key, value in request.env.items():
-                other_request.env['key'] = value
+            other_request = Storage(request)
+            other_request['env'] = Storage(request.env)
             other_request.controller = c
             other_request.function = f
             other_request.extension = extension or request.extension
@@ -286,8 +276,7 @@ class LoadFactory(object):
             page = run_controller_in(c, f, other_environment)
             if isinstance(page, dict):
                 other_response._vars = page
-                for key in page:
-                    other_response._view_environment[key] = page[key]
+                other_response._view_environment.update(page)
                 run_view_in(other_response._view_environment)
                 page = other_response.body.getvalue()
             current.request, current.response = original_request, original_response
@@ -332,7 +321,7 @@ def local_import_aux(name, reload_force=False, app='welcome'):
 """
 OLD IMPLEMENTATION:
     items = name.replace('/','.').split('.')
-    filename, modulepath = items[-1], os.path.join(apath,'modules',*items[:-1])
+    filename, modulepath = items[-1], pjoin(apath,'modules',*items[:-1])
     imp.acquire_lock()
     try:
         file=None
@@ -361,12 +350,9 @@ def build_environment(request, response, session, store_current=True):
     """
     Build the environment dictionary into which web2py files are executed.
     """
-
-    environment = {}
-    for key in html.__all__:
-        environment[key] = getattr(html, key)
-    for key in validators.__all__:
-        environment[key] = getattr(validators, key)
+    h,v = html,validators
+    environment = dict((k,getattr(h,k)) for k  in h.__all__)
+    environment.update((k,getattr(v, k)) for k in v.__all__)
     if not request.env:
         request.env = Storage()
 
@@ -403,7 +389,7 @@ def build_environment(request, response, session, store_current=True):
     environment['local_import'] = \
         lambda name, reload=False, app=request.application:\
         local_import_aux(name,reload,app)
-    BaseAdapter.set_folder(os.path.join(request.folder, 'databases'))
+    BaseAdapter.set_folder(pjoin(request.folder, 'databases'))
     response._view_environment = copy.copy(environment)
     return environment
 
@@ -433,11 +419,11 @@ def compile_views(folder):
     Compiles all the views in the application specified by `folder`
     """
 
-    path = os.path.join(folder, 'views')
+    path = pjoin(folder, 'views')
     for file in listdir(path, '^[\w/\-]+(\.\w+)+$'):
         data = parse_template(file, path)
         filename = ('views/%s.py' % file).replace('/', '_').replace('\\', '_')
-        filename = os.path.join(folder, 'compiled', filename)
+        filename = pjoin(folder, 'compiled', filename)
         write_file(filename, data)
         save_pyc(filename)
         os.unlink(filename)
@@ -448,10 +434,10 @@ def compile_models(folder):
     Compiles all the models in the application specified by `folder`
     """
 
-    path = os.path.join(folder, 'models')
+    path = pjoin(folder, 'models')
     for file in listdir(path, '.+\.py$'):
-        data = read_file(os.path.join(path, file))
-        filename = os.path.join(folder, 'compiled','models',file)
+        data = read_file(pjoin(path, file))
+        filename = pjoin(folder, 'compiled','models',file)
         mktree(filename)
         write_file(filename, data)
         save_pyc(filename)
@@ -463,15 +449,15 @@ def compile_controllers(folder):
     Compiles all the controllers in the application specified by `folder`
     """
 
-    path = os.path.join(folder, 'controllers')
+    path = pjoin(folder, 'controllers')
     for file in listdir(path, '.+\.py$'):
-        ### why is this here? save_pyc(os.path.join(path, file))
-        data = read_file(os.path.join(path,file))
+        ### why is this here? save_pyc(pjoin(path, file))
+        data = read_file(pjoin(path,file))
         exposed = regex_expose.findall(data)
         for function in exposed:
             command = data + "\nresponse._vars=response._caller(%s)\n" % \
                 function
-            filename = os.path.join(folder, 'compiled', ('controllers/'
+            filename = pjoin(folder, 'compiled', ('controllers/'
                                      + file[:-3]).replace('/', '_')
                                      + '_' + function + '.py')
             write_file(filename, command)
@@ -488,18 +474,18 @@ def run_models_in(environment):
     folder = environment['request'].folder
     c = environment['request'].controller
     f = environment['request'].function
-    cpath = os.path.join(folder, 'compiled')
+    cpath = pjoin(folder, 'compiled')
     if os.path.exists(cpath):
         for model in listdir(cpath, '^models_\w+\.pyc$', 0):
             restricted(read_pyc(model), environment, layer=model)
-        path = os.path.join(cpath, 'models')
+        path = pjoin(cpath, 'models')
         models = listdir(path, '^\w+\.pyc$',0,sort=False)
         compiled=True
     else:
-        path = os.path.join(folder, 'models')
+        path = pjoin(folder, 'models')
         models = listdir(path, '^\w+\.py$',0,sort=False)
         compiled=False
-    paths = (path, os.path.join(path,c), os.path.join(path,c,f))
+    paths = (path, pjoin(path,c), pjoin(path,c,f))
     for model in models:
         if not os.path.split(model)[0] in paths and c!='appadmin':
             continue
@@ -523,11 +509,11 @@ def run_controller_in(controller, function, environment):
     # if compiled should run compiled!
 
     folder = environment['request'].folder
-    path = os.path.join(folder, 'compiled')
+    path = pjoin(folder, 'compiled')
     badc = 'invalid controller (%s/%s)' % (controller, function)
     badf = 'invalid function (%s/%s)' % (controller, function)
     if os.path.exists(path):
-        filename = os.path.join(path, 'controllers_%s_%s.pyc'
+        filename = pjoin(path, 'controllers_%s_%s.pyc'
                                  % (controller, function))
         if not os.path.exists(filename):
             raise HTTP(404,
@@ -542,7 +528,7 @@ def run_controller_in(controller, function, environment):
         [add_path_first(path) for path in paths]
         # TESTING END
 
-        filename = os.path.join(folder, 'controllers/%s.py'
+        filename = pjoin(folder, 'controllers/%s.py'
                                  % controller)
         if not os.path.exists(filename):
             raise HTTP(404,
@@ -553,7 +539,7 @@ def run_controller_in(controller, function, environment):
         code += TEST_CODE
         restricted(code, environment, layer=filename)
     else:
-        filename = os.path.join(folder, 'controllers/%s.py'
+        filename = pjoin(folder, 'controllers/%s.py'
                                  % controller)
         if not os.path.exists(filename):
             raise HTTP(404,
@@ -591,19 +577,20 @@ def run_view_in(environment):
 
     request = environment['request']
     response = environment['response']
+    view = response.view
     folder = request.folder
-    path = os.path.join(folder, 'compiled')
-    badv = 'invalid view (%s)' % response.view
+    path = pjoin(folder, 'compiled')
+    badv = 'invalid view (%s)' % view
     patterns = response.generic_patterns or []
-    regex = re.compile('|'.join(fnmatch.translate(r) for r in patterns))
+    regex = re.compile('|'.join(map(fnmatch.translate, patterns)))
     short_action =  '%(controller)s/%(function)s.%(extension)s' % request
     allow_generic = patterns and regex.search(short_action)
-    if not isinstance(response.view, str):
-        ccode = parse_template(response.view, os.path.join(folder, 'views'),
+    if not isinstance(view, str):
+        ccode = parse_template(view, pjoin(folder, 'views'),
                                context=environment)
         restricted(ccode, environment, 'file stream')
     elif os.path.exists(path):
-        x = response.view.replace('/', '_')
+        x = view.replace('/', '_')
         files = ['views_%s.pyc' % x]
         if allow_generic:
             files.append('views_generic.%s.pyc' % request.extension)
@@ -614,7 +601,7 @@ def run_view_in(environment):
                 files.append('views_generic.pyc')
         # end backward compatibility code
         for f in files:
-            filename = os.path.join(path,f)
+            filename = pjoin(path,f)
             if os.path.exists(filename):
                 code = read_pyc(filename)
                 restricted(code, environment, layer=filename)
@@ -623,10 +610,10 @@ def run_view_in(environment):
                    rewrite.thread.routes.error_message % badv,
                    web2py_error=badv)
     else:
-        filename = os.path.join(folder, 'views', response.view)
+        filename = pjoin(folder, 'views', view)
         if not os.path.exists(filename) and allow_generic:
-            response.view = 'generic.' + request.extension
-            filename = os.path.join(folder, 'views', response.view)
+            view = 'generic.' + request.extension
+            filename = pjoin(folder, 'views', view)
         if not os.path.exists(filename):
             raise HTTP(404,
                        rewrite.thread.routes.error_message % badv,
@@ -634,12 +621,12 @@ def run_view_in(environment):
         layer = filename
         if is_gae:
             ccode = getcfs(layer, filename,
-                           lambda: compile2(parse_template(response.view,
-                                            os.path.join(folder, 'views'),
+                           lambda: compile2(parse_template(view,
+                                            pjoin(folder, 'views'),
                                             context=environment),layer))
         else:
-            ccode = parse_template(response.view,
-                                   os.path.join(folder, 'views'),
+            ccode = parse_template(view,
+                                   pjoin(folder, 'views'),
                                    context=environment)
         restricted(ccode, environment, layer)
 
@@ -648,8 +635,8 @@ def remove_compiled_application(folder):
     Deletes the folder `compiled` containing the compiled application.
     """
     try:
-        shutil.rmtree(os.path.join(folder, 'compiled'))
-        path = os.path.join(folder, 'controllers')
+        shutil.rmtree(pjoin(folder, 'compiled'))
+        path = pjoin(folder, 'controllers')
         for file in listdir(path,'.*\.pyc$',drop=False):
             os.unlink(file)
     except OSError:
@@ -661,7 +648,7 @@ def compile_application(folder):
     Compiles all models, views, controller for the application in `folder`.
     """
     remove_compiled_application(folder)
-    os.mkdir(os.path.join(folder, 'compiled'))
+    os.mkdir(pjoin(folder, 'compiled'))
     compile_models(folder)
     compile_controllers(folder)
     compile_views(folder)
@@ -688,6 +675,8 @@ def test():
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
+
+
 
 
 

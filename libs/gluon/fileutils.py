@@ -16,7 +16,6 @@ import time
 import datetime
 from http import HTTP
 from gzip import open as gzopen
-from settings import global_settings
 
 
 __all__ = [
@@ -70,16 +69,6 @@ def write_file(filename, value, mode='w'):
 def readlines_file(filename, mode='r'):
     "applies .split('\n') to the output of read_file()"
     return read_file(filename, mode).split('\n')
-
-def abspath(*relpath, **base):
-    "convert relative path to absolute path based (by default) on applications_parent"
-    path = os.path.join(*relpath)
-    gluon = base.get('gluon', False)
-    if os.path.isabs(path):
-        return path
-    if gluon:
-        return os.path.join(global_settings.gluon_parent, path)
-    return os.path.join(global_settings.applications_parent, path)
 
 
 def mktree(path):
@@ -329,7 +318,7 @@ def get_session(request, other_application='admin'):
         session_id = request.cookies['session_id_' + other_application].value
         osession = storage.load_storage(os.path.join(
                 up(request.folder), other_application, 'sessions', session_id))
-    except:
+    except Exception, e:
         osession = storage.Storage()
     return osession
 
@@ -348,7 +337,6 @@ def check_credentials(request, other_application='admin', expiration = 60*60):
         dt = time.time() - expiration
         s = get_session(request, other_application)
         return (s.authorized and s.last_time and s.last_time > dt)
-
 
 def fix_newlines(path):
     regex = re.compile(r'''(\r
@@ -396,6 +384,17 @@ def make_fake_file_like_object():
     return LogFile()
 
 
+from settings import global_settings # we need to import settings here because
+                                     # settings imports fileutils too
+def abspath(*relpath, **base):
+    "convert relative path to absolute path based (by default) on applications_parent"
+    path = os.path.join(*relpath)
+    gluon = base.get('gluon', False)
+    if os.path.isabs(path):
+        return path
+    if gluon:
+        return os.path.join(global_settings.gluon_parent, path)
+    return os.path.join(global_settings.applications_parent, path)
 
 
 

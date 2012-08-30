@@ -4,4 +4,5 @@
 # before the deploy step.  This script gets executed directly, so it
 # could be python, php, ruby, etc.
 
-mkdir $OPENSHIFT_DATA_DIR/databases
+mv $OPENSHIFT_REPO_DIR/wsgi/web2py/applications $OPENSHIFT_DATA_DIR/applications
+ln -s $OPENSHIFT_DATA_DIR/applications $OPENSHIFT_REPO_DIR/wsgi/web2py/
