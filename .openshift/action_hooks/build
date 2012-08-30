@@ -5,5 +5,5 @@
 # could be python, php, ruby, etc.
 
 mv $OPENSHIFT_REPO_DIR/wsgi/web2py/applications $OPENSHIFT_DATA_DIR/
-ln -s $OPENSHIFT_DATA_DIRapplications $OPENSHIFT_REPO_DIRwsgi/web2py/
-ln -s $OPENSHIFT_REPO_DIRlibs/gluon $OPENSHIFT_REPO_DIRwsgi/web2py/
+ln -s $OPENSHIFT_DATA_DIR/applications $OPENSHIFT_REPO_DIR/wsgi/web2py/
+ln -s $OPENSHIFT_REPO_DIR/libs/gluon $OPENSHIFT_REPO_DIR/wsgi/web2py/
