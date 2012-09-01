@@ -66,6 +66,7 @@ Openshift makes using it's available database cartridges very simple by providin
 you can use depending on the connection format you want to use.
 
 Openshift provides two classes of db cartridge; RDBMS and NOSQL. RDBMS uses the environment variable OPENSHIFT\_DB\_\* where NOSQL uses OPENSHIFT\_NOSQL\_DB\_\* 
+
 MySQL and PostgreSQL are RDBM's style of database, where MongoDB is a NOSQL style database. 
 
 So if you wanted to get the host of your mysql environment, you'd use OPENSHIFT\_DB\_HOST vs OPENSHIFT\_NOSQL\_DB\_HOST for mongodb. You can get a list of available variables by loging into your gear and executing:
