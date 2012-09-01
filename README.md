@@ -71,7 +71,7 @@ MySQL and PostgreSQL are RDBM's style of database, where MongoDB is a NOSQL styl
 
 So if you wanted to get the host of your mysql environment, you'd use OPENSHIFT\_DB\_HOST vs OPENSHIFT\_NOSQL\_DB\_HOST for mongodb. You can get a list of available variables by loging into your gear and executing:
 
-    env | grep DB
+    openshift_gear$> env | grep DB
 
 Using web2py, the most useful variable will most likely be the URL when defining the DAL in the model. Here's a mongodb example for your model (db.py):
     
