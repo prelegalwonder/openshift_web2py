@@ -6,5 +6,6 @@
 
 rsync -a -v $OPENSHIFT_REPO_DIR/wsgi/web2py/applications $OPENSHIFT_DATA_DIR/
 rm -rf $OPENSHIFT_REPO_DIR/wsgi/web2py/applications
+
 ln -s $OPENSHIFT_DATA_DIR/applications $OPENSHIFT_REPO_DIR/wsgi/web2py/
 ln -s $OPENSHIFT_REPO_DIR/libs/gluon $OPENSHIFT_REPO_DIR/wsgi/web2py/

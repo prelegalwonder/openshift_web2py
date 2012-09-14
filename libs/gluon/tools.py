@@ -31,6 +31,8 @@ from utils import web2py_uuid
 from fileutils import read_file, check_credentials
 from gluon import *
 from gluon.contrib.autolinks import expand_one
+from gluon.contrib.markmin.markmin2html import \
+    replace_at_urls, replace_autolinks, replace_components
 from gluon.dal import Row
 
 import serializers
@@ -839,6 +841,7 @@ class Auth(object):
         table_event = None,
         table_cas = None,
         showid = False,
+        use_username = False,
         login_email_validate = True,
         login_userfield = None,
         logout_onlogout = None,
@@ -1205,23 +1208,23 @@ class Auth(object):
 
     def navbar(self, prefix='Welcome', action=None,
                separators=(' [ ',' | ',' ] '), user_identifier=DEFAULT,
-               referrer_actions=DEFAULT):
+               referrer_actions=DEFAULT, mode='default'):
         referrer_actions = [] if not referrer_actions else referrer_actions
         request = current.request
+        asdropdown = (mode == 'dropdown')
         T = current.T
         if isinstance(prefix, str):
             prefix = T(prefix)
         if prefix:
             prefix = prefix.strip() + ' '
         if not action:
-            action=self.url(self.settings.function)
+            action = self.url(self.settings.function)
         s1,s2,s3 = separators
         if URL() == action:
             next = ''
         else:
             next = '?_next=' + urllib.quote(URL(args=request.args,
                                                 vars=request.get_vars))
-
         href = lambda function: '%s/%s%s' % (action, function,
             next if referrer_actions is DEFAULT or function in referrer_actions else '')
 
@@ -1241,29 +1244,56 @@ class Auth(object):
             profile = A(T('Profile'), _href=href('profile'))
             password = A(T('Password'), _href=href('change_password'))
             bar = SPAN(prefix, user_identifier, s1, logout, s3, _class='auth_navbar')
+
+            if asdropdown:
+                logout = LI(A(I(_class='icon-off'), ' '+T('Logout'), _href='%s/logout?_next=%s' %
+                      (action, urllib.quote(self.settings.logout_next)))) # the space before T('Logout') is intentional. It creates a gap between icon and text
+                profile = LI(A(I(_class='icon-user'), ' '+T('Profile'), _href=href('profile')))
+                password = LI(A(I(_class='icon-lock'), ' '+T('Password'), _href=href('change_password')))
+                bar = UL(logout,_class='dropdown-menu') # logout will be the last item in list
+
             if not 'profile' in self.settings.actions_disabled:
-                bar.insert(-1, s2)
+                if not asdropdown: bar.insert(-1, s2)
                 bar.insert(-1, profile)
             if not 'change_password' in self.settings.actions_disabled:
-                bar.insert(-1, s2)
+                if not asdropdown: bar.insert(-1, s2)
                 bar.insert(-1, password)
         else:
             login = A(T('Login'), _href=href('login'))
             register = A(T('Register'), _href=href('register'))
-            retrieve_username = A(T('Forgot username?'), _href=href('retrieve_username'))
-            lost_password = A(T('Lost password?'), _href=href('request_reset_password'))
+            retrieve_username = A(
+                T('Forgot username?'), _href=href('retrieve_username'))
+            lost_password = A(
+                T('Lost password?'), _href=href('request_reset_password'))
             bar = SPAN(s1, login, s3, _class='auth_navbar')
 
+            if asdropdown:
+                login = LI(A(I(_class='icon-off'), ' '+T('Login'), _href=href('login'))) #the space before T('Login') is intentional. It creates a gap between icon and text
+                register = LI(A(I(_class='icon-user'), ' '+T('Register'), _href=href('register')))
+                retrieve_username = LI(A(I(_class='icon-edit'), ' '+T('Forgot username?'), _href=href('retrieve_username')))
+                lost_password = LI(A(I(_class='icon-lock'), ' '+T('Lost password?'), _href=href('request_reset_password')))
+                bar = UL(login,_class='dropdown-menu') # login will be the last item in list
+
             if not 'register' in self.settings.actions_disabled:
-                bar.insert(-1, s2)
+                if not asdropdown: bar.insert(-1, s2)
                 bar.insert(-1, register)
-            if self.use_username and \
-                    not 'retrieve_username' in self.settings.actions_disabled:
-                bar.insert(-1, s2)
+            if self.settings.use_username and not 'retrieve_username' \
+                    in self.settings.actions_disabled:
+                if not asdropdown: bar.insert(-1, s2)
                 bar.insert(-1, retrieve_username)
-            if not 'request_reset_password' in self.settings.actions_disabled:
-                bar.insert(-1, s2)
+            if not 'request_reset_password' \
+                    in self.settings.actions_disabled:
+                if not asdropdown: bar.insert(-1, s2)
                 bar.insert(-1, lost_password)
+
+        if asdropdown:
+            bar.insert(-1, LI('',_class='divider'))
+            if self.user_id:               
+                bar = LI(A(prefix, user_identifier, _href='#'),
+                         bar,_class='dropdown')
+            else:
+                bar = LI(A(T('Login'), _href='#'),
+                         bar,_class='dropdown')
         return bar
 
     def __get_migrate(self, tablename, migrate=True):
@@ -1353,7 +1383,7 @@ class Auth(object):
                   writable=False,readable=False,
                   label=T('Modified By')))
 
-    def define_tables(self, username=False, signature=None,
+    def define_tables(self, username=None, signature=None,
                       migrate=True, fake_migrate=False):
         """
         to be called unless tables are defined manually
@@ -1371,7 +1401,10 @@ class Auth(object):
 
         db = self.db
         settings = self.settings
-        self.use_username = username
+        if username is None:
+            username = settings.use_username
+        else:
+            settings.use_username = username
         if not self.signature:
             self.define_signature()
         if signature==True:
@@ -1612,12 +1645,12 @@ class Auth(object):
         checks = []
         # make a guess about who this user is
         for fieldname in ['registration_id','username','email']:
-            if fieldname in table_user.fields() and keys.get(fieldname,None):
+            if fieldname in table_user.fields() and \
+                    keys.get(fieldname,None):
                 checks.append(fieldname)
                 value = keys[fieldname]
-                user = user or table_user._db(
-                    (table_user.registration_id==value)|
-                    (table_user[fieldname]==value)).select().first()
+                user = table_user(**{fieldname:value})
+                if user: break
         if not checks:
             return None
         if not 'registration_id' in keys:
@@ -3143,11 +3176,20 @@ class Auth(object):
         id = archive_table.insert(**new_record)
         return id
 
-    def wiki(self,slug=None,env=None,manage_permissions=False,force_prefix='', resolve=True):
+    def wiki(self,
+             slug=None,
+             env=None,
+             render=None,
+             manage_permissions=False,
+             force_prefix='',
+             restrict_search=False,
+             resolve=True):
         if not hasattr(self,'_wiki'):
-            self._wiki = Wiki(self,
+            self._wiki = Wiki(self,render=render,
                               manage_permissions=manage_permissions,
-                              force_prefix=force_prefix,env=env)
+                              force_prefix=force_prefix,
+                              restrict_search=restrict_search,
+                              env=env)
         else:
             self._wiki.env.update(env or {})
         # if resolve is set to True, process request as wiki call
@@ -4465,13 +4507,21 @@ class Expose(object):
 class Wiki(object):
     everybody = 'everybody'
     rows_page = 25
-    regex_redirect = re.compile('redirect\s+(\w+\://\S+)\s*')
     def markmin_render(self,page):
         html = MARKMIN(page.body,url=True,environment=self.env,
                        autolinks=lambda link: expand_one(link,{})).xml()
         html += DIV(_class='w2p_wiki_tags',
                     *[A(t.strip(),_href=URL(args='_search',vars=dict(q=t)))
                       for t in page.tags or [] if t.strip()]).xml()
+        return html
+    def html_render(self,page):
+        html = page.body
+        # @///function -> http://..../function
+        html = replace_at_urls(html,URL)
+        # http://...jpg -> <img src="http://...jpg/> or oembed
+        html = replace_autolinks(html,lambda link: expand_one(link,{}))
+        # @{component:name} -> <script>embed component name</script>
+        html = replace_components(html,self.env)
         return html
     @staticmethod
     def component(text):
@@ -4483,10 +4533,12 @@ class Wiki(object):
         controller, function, args = items[0], items[1], items[2:]
         return LOAD(controller, function, args=args, ajax=True).xml()
     def __init__(self,auth,env=None,render='markmin',
-                 manage_permissions=False,force_prefix=''):
+                 manage_permissions=False,force_prefix='',
+                 restrict_search=False):
         self.env = env or {}
         self.env['component'] = Wiki.component
         if render == 'markmin': render=self.markmin_render
+        elif render == 'html': render=self.html_render
         self.auth = auth
         if self.auth.user:
             self.force_prefix = force_prefix % self.auth.user
@@ -4494,6 +4546,7 @@ class Wiki(object):
             self.force_prefix = force_prefix
         self.host = current.request.env.http_host
         perms = self.manage_permissions = manage_permissions
+        self.restrict_search = restrict_search
         db = auth.db
         table_definitions = {
             'wiki_page':{
@@ -4557,14 +4610,15 @@ class Wiki(object):
     # WIKI ACCESS POLICY
     def not_authorized(self,page=None):
         raise HTTP(401)
-    def can_read(self,page):
+    def can_read(self,page):   
         if 'everybody' in page.can_read or not self.manage_permissions:
             return True
         elif self.auth.user:
             groups = self.auth.user_groups.values()
             if ('wiki_editor' in groups or
                 set(groups).intersection(set(page.can_read+page.can_edit)) or
-                page.created_by==self.auth.user.id): return True
+                page.created_by==self.auth.user.id):
+                return True
         return False
     def can_edit(self,page=None):
         if not self.auth.user: redirect(self.auth.settings.login_url)
@@ -4575,7 +4629,8 @@ class Wiki(object):
                 set(groups).intersection(set(page.can_edit)) or
                 page.created_by==self.auth.user.id))
     def can_manage(self):
-        if not self.auth.user: redirect(self.auth.settings.login_url)
+        if not self.auth.user:
+            return False
         groups = self.auth.user_groups.values()
         return 'wiki_editor' in groups
     def can_search(self):
@@ -4585,11 +4640,11 @@ class Wiki(object):
         request =  current.request
         automenu = self.menu(request.controller,request.function)
         current.response.menu += automenu
-        zero = request.args(0)
+        zero = request.args(0) or 'index'
         if zero and zero.isdigit():
             return self.media(int(zero))
         elif not zero or not zero.startswith('_'):
-            return self.read(zero or 'index')
+            return self.read(zero)
         elif zero=='_edit':
             return self.edit(request.args(1) or 'index')
         elif zero=='_editmedia':
@@ -4623,19 +4678,20 @@ class Wiki(object):
         return body.replace('://HOSTNAME','://%s' % self.host)
 
     def read(self,slug):
-        if slug in '_cloud': return self.cloud()
-        elif slug in '_search': return self.search()
+        if slug in '_cloud':
+            return self.cloud()
+        elif slug in '_search':
+            return self.search()
         page = self.auth.db.wiki_page(slug=slug)
         if not page:
             redirect(URL(args=('_create',slug)))
-        if not self.can_read(page): return self.not_authorized(page)
+        if not self.can_read(page):
+            return self.not_authorized(page)
         if current.request.extension == 'html':
             if not page:
                 url = URL(args=('_edit',slug))
                 return dict(content=A('Create page "%s"' % slug,_href=url,_class="btn"))
             else:
-                match = self.regex_redirect.match(page.body)
-                if match: redirect(match.group(1))
                 return dict(content=XML(self.fix_hostname(page.html)))
         elif current.request.extension == 'load':
             return self.fix_hostname(page.html) if page else ''
@@ -4664,7 +4720,8 @@ class Wiki(object):
         if not self.can_edit(page): return self.not_authorized(page)
         title_guess = ' '.join(c.capitalize() for c in slug.split('-'))
         if not page:
-            if not (self.can_manage() or slug.startswith(self.force_prefix)):
+            if not (self.can_manage() or
+                    slug.startswith(self.force_prefix)):
                 current.session.flash='slug must have "%s" prefix' \
                     % self.force_prefix
                 redirect(URL(args=('_edit',self.force_prefix+slug)))
@@ -4718,7 +4775,8 @@ class Wiki(object):
             redirect(URL(args=('_edit',form.vars.slug)))
         return dict(content=form)
     def pages(self):
-        if not self.can_manage(): return self.not_authorized()
+        if not self.can_manage():
+            return self.not_authorized()
         self.auth.db.wiki_page.id.represent = lambda id,row:SPAN('@////%s' % row.slug)
         self.auth.db.wiki_page.title.represent = lambda title,row: \
             A(title,_href=URL(args=row.slug))
@@ -4797,10 +4855,10 @@ class Wiki(object):
                             URL(controller,function,args=('_pages'))))
             submenu.append((current.T('Edit Menu'),None,
                             URL(controller,function,args=('_edit','wiki-menu'))))
-        # if self.can_search():
-            submenu.append((current.T('Search Pages'),None,
-                            URL(controller,function,args=('_search'))))
+        submenu.append((current.T('Search Pages'),None,
+                        URL(controller,function,args=('_search'))))
         return menu
+
     def search(self,tags=None,query=None,cloud=True,preview=True,
                limitby=(0,100),orderby=None):
         if not self.can_search(): return self.not_authorized()
@@ -4827,6 +4885,8 @@ class Wiki(object):
                 query = (db.wiki_page.id==db.wiki_tag.wiki_page)&\
                     (db.wiki_tag.name.belongs(tags))
                 query = query|db.wiki_page.title.startswith(request.vars.q)
+            if self.restrict_search and not self.manage():
+                query = query&(db.wiki_page.created_by==self.auth.user_id)
             pages = db(query).select(
                 *fields,**dict(orderby=orderby or ~count,
                                groupby=db.wiki_page.id,

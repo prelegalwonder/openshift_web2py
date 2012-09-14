@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>web2py.gluon.sql</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="web2py.gluon-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://www.web2py.com">web2py Web Framework</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        Package&nbsp;web2py ::
+        <a href="web2py.gluon-module.html">Package&nbsp;gluon</a> ::
+        Module&nbsp;sql
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="web2py.gluon.sql-pysrc.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<h1 class="epydoc">Source Code for <a href="web2py.gluon.sql-module.html">Module web2py.gluon.sql</a></h1>
+<pre class="py-src">
+<a name="L1"></a><tt class="py-lineno">1</tt>  <tt class="py-line"><tt class="py-comment"># this file exists for backward compatibility</tt> </tt>
+<a name="L2"></a><tt class="py-lineno">2</tt>  <tt class="py-line"><tt class="py-comment"></tt> </tt>
+<a name="L3"></a><tt class="py-lineno">3</tt>  <tt class="py-line"><tt class="py-name">__all__</tt> <tt class="py-op">=</tt> <tt class="py-op">[</tt><tt class="py-string">'DAL'</tt><tt class="py-op">,</tt><tt class="py-string">'Field'</tt><tt class="py-op">,</tt><tt class="py-string">'DRIVERS'</tt><tt class="py-op">]</tt> </tt>
+<a name="L4"></a><tt class="py-lineno">4</tt>  <tt class="py-line"> </tt>
+<a name="L5"></a><tt class="py-lineno">5</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-0" class="py-name" targets="Module web2py.gluon.dal=web2py.gluon.dal-module.html"><a title="web2py.gluon.dal" class="py-name" href="#" onclick="return doclink('link-0', 'dal', 'link-0');">dal</a></tt> <tt class="py-keyword">import</tt> <tt id="link-1" class="py-name" targets="Class web2py.gluon.dal.DAL=web2py.gluon.dal.DAL-class.html"><a title="web2py.gluon.dal.DAL" class="py-name" href="#" onclick="return doclink('link-1', 'DAL', 'link-1');">DAL</a></tt><tt class="py-op">,</tt> <tt id="link-2" class="py-name" targets="Class web2py.gluon.dal.Field=web2py.gluon.dal.Field-class.html"><a title="web2py.gluon.dal.Field" class="py-name" href="#" onclick="return doclink('link-2', 'Field', 'link-2');">Field</a></tt><tt class="py-op">,</tt> <tt id="link-3" class="py-name" targets="Class web2py.gluon.dal.Table=web2py.gluon.dal.Table-class.html"><a title="web2py.gluon.dal.Table" class="py-name" href="#" onclick="return doclink('link-3', 'Table', 'link-3');">Table</a></tt><tt class="py-op">,</tt> <tt id="link-4" class="py-name" targets="Class web2py.gluon.dal.Query=web2py.gluon.dal.Query-class.html"><a title="web2py.gluon.dal.Query" class="py-name" href="#" onclick="return doclink('link-4', 'Query', 'link-4');">Query</a></tt><tt class="py-op">,</tt> <tt id="link-5" class="py-name" targets="Class web2py.gluon.dal.Set=web2py.gluon.dal.Set-class.html"><a title="web2py.gluon.dal.Set" class="py-name" href="#" onclick="return doclink('link-5', 'Set', 'link-5');">Set</a></tt><tt class="py-op">,</tt> <tt id="link-6" class="py-name" targets="Class web2py.gluon.dal.Expression=web2py.gluon.dal.Expression-class.html"><a title="web2py.gluon.dal.Expression" class="py-name" href="#" onclick="return doclink('link-6', 'Expression', 'link-6');">Expression</a></tt><tt class="py-op">,</tt> <tt id="link-7" class="py-name" targets="Class web2py.gluon.dal.Row=web2py.gluon.dal.Row-class.html"><a title="web2py.gluon.dal.Row" class="py-name" href="#" onclick="return doclink('link-7', 'Row', 'link-7');">Row</a></tt><tt class="py-op">,</tt> <tt id="link-8" class="py-name" targets="Class web2py.gluon.dal.Rows=web2py.gluon.dal.Rows-class.html"><a title="web2py.gluon.dal.Rows" class="py-name" href="#" onclick="return doclink('link-8', 'Rows', 'link-8');">Rows</a></tt><tt class="py-op">,</tt> <tt id="link-9" class="py-name" targets="Variable web2py.gluon.dal.DRIVERS=web2py.gluon.dal-module.html#DRIVERS,Variable web2py.gluon.sql.DRIVERS=web2py.gluon.sql-module.html#DRIVERS"><a title="web2py.gluon.dal.DRIVERS
+web2py.gluon.sql.DRIVERS" class="py-name" href="#" onclick="return doclink('link-9', 'DRIVERS', 'link-9');">DRIVERS</a></tt><tt class="py-op">,</tt> <tt id="link-10" class="py-name" targets="Class web2py.gluon.dal.BaseAdapter=web2py.gluon.dal.BaseAdapter-class.html"><a title="web2py.gluon.dal.BaseAdapter" class="py-name" href="#" onclick="return doclink('link-10', 'BaseAdapter', 'link-10');">BaseAdapter</a></tt><tt class="py-op">,</tt> <tt class="py-name">SQLField</tt><tt class="py-op">,</tt> <tt class="py-name">SQLTable</tt><tt class="py-op">,</tt> <tt class="py-name">SQLXorable</tt><tt class="py-op">,</tt> <tt class="py-name">SQLQuery</tt><tt class="py-op">,</tt> <tt class="py-name">SQLSet</tt><tt class="py-op">,</tt> <tt class="py-name">SQLRows</tt><tt class="py-op">,</tt> <tt class="py-name">SQLStorage</tt><tt class="py-op">,</tt> <tt class="py-name">SQLDB</tt><tt class="py-op">,</tt> <tt class="py-name">GQLDB</tt><tt class="py-op">,</tt> <tt id="link-11" class="py-name" targets="Class web2py.gluon.dal.SQLALL=web2py.gluon.dal.SQLALL-class.html"><a title="web2py.gluon.dal.SQLALL" class="py-name" href="#" onclick="return doclink('link-11', 'SQLALL', 'link-11');">SQLALL</a></tt><tt class="py-op">,</tt> <tt id="link-12" class="py-name" targets="Class web2py.gluon.dal.SQLCustomType=web2py.gluon.dal.SQLCustomType-class.html"><a title="web2py.gluon.dal.SQLCustomType" class="py-name" href="#" onclick="return doclink('link-12', 'SQLCustomType', 'link-12');">SQLCustomType</a></tt> </tt>
+<a name="L6"></a><tt class="py-lineno">6</tt>  <tt class="py-line"> </tt><script type="text/javascript">
+<!--
+expandto(location.href);
+// -->
+</script>
+</pre>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="web2py.gluon-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://www.web2py.com">web2py Web Framework</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0beta1 on Thu Sep 13 23:51:27 2012
+    </td>
+    <td align="right" class="footer">
+      <a href="http://epydoc.sourceforge.net">http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie()
+  // -->
+</script>
+  
+</body>
+</html>

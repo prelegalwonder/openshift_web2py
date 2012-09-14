@@ -7,6 +7,8 @@ Copyrighted by Massimo Di Pierro <mdipierro@cs.depaul.edu>
 License: LGPLv3 (http://www.gnu.org/licenses/lgpl.html)
 """
 
+import re
+
 __all__ = ['HTTP', 'redirect']
 
 defined_status = {
@@ -56,6 +58,7 @@ try:
 except NameError:
     BaseException = Exception
 
+regex_status = re.compile('^\d{3} \w+$')
 
 class HTTP(BaseException):
 
@@ -83,22 +86,24 @@ class HTTP(BaseException):
         if status in defined_status:
             status = '%d %s' % (status, defined_status[status])
         else:
-            status = str(status) + ' '
-        if not 'Content-Type' in headers:
-            headers['Content-Type'] = 'text/html; charset=UTF-8'
+            status = str(status)
+            if not regex_status.match(status):
+                status = '500 %s' % (defined_status[500])
+        headers.setdefault('Content-Type','text/html; charset=UTF-8')
         body = self.body
         if status[:1] == '4':
             if not body:
                 body = status
             if isinstance(body, str):
-                if len(body)<512 and headers['Content-Type'].startswith('text/html'):
+                if len(body)<512 and \
+                        headers['Content-Type'].startswith('text/html'):
                     body += '<!-- %s //-->' % ('x'*512) ### trick IE
                 headers['Content-Length'] = len(body)
         rheaders = []
         for k, v in headers.iteritems():
             if isinstance(v, list):
                 rheaders += [(k, str(item)) for item in v]
-            else:
+            elif not v is None:
                 rheaders.append((k, str(v)))
         responder(status, rheaders)
         if env.get('request_method','')=='HEAD':

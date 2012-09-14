@@ -1,0 +1,1131 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>web2py.gluon.custom_import</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="web2py.gluon-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://www.web2py.com">web2py Web Framework</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        Package&nbsp;web2py ::
+        <a href="web2py.gluon-module.html">Package&nbsp;gluon</a> ::
+        Module&nbsp;custom_import
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="web2py.gluon.custom_import-pysrc.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<h1 class="epydoc">Source Code for <a href="web2py.gluon.custom_import-module.html">Module web2py.gluon.custom_import</a></h1>
+<pre class="py-src">
+<a name="L1"></a><tt class="py-lineno">  1</tt>  <tt class="py-line"><tt class="py-comment">#!/usr/bin/env python</tt> </tt>
+<a name="L2"></a><tt class="py-lineno">  2</tt>  <tt class="py-line"><tt class="py-comment"></tt><tt class="py-comment"># -*- coding: utf-8 -*-</tt> </tt>
+<a name="L3"></a><tt class="py-lineno">  3</tt>  <tt class="py-line"><tt class="py-comment"></tt> </tt>
+<a name="L4"></a><tt class="py-lineno">  4</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">__builtin__</tt> </tt>
+<a name="L5"></a><tt class="py-lineno">  5</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">os</tt> </tt>
+<a name="L6"></a><tt class="py-lineno">  6</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">re</tt> </tt>
+<a name="L7"></a><tt class="py-lineno">  7</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">sys</tt> </tt>
+<a name="L8"></a><tt class="py-lineno">  8</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">threading</tt> </tt>
+<a name="L9"></a><tt class="py-lineno">  9</tt>  <tt class="py-line"> </tt>
+<a name="L10"></a><tt class="py-lineno"> 10</tt>  <tt class="py-line"><tt class="py-comment"># Install the new import function:</tt> </tt>
+<a name="custom_import_install"></a><div id="custom_import_install-def"><a name="L11"></a><tt class="py-lineno"> 11</tt> <a class="py-toggle" href="#" id="custom_import_install-toggle" onclick="return toggle('custom_import_install');">-</a><tt class="py-line"><tt class="py-comment"></tt><tt class="py-keyword">def</tt> <a class="py-def-name" href="web2py.gluon.custom_import-module.html#custom_import_install">custom_import_install</a><tt class="py-op">(</tt><tt class="py-param">web2py_path</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="custom_import_install-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="custom_import_install-expanded"><a name="L12"></a><tt class="py-lineno"> 12</tt>  <tt class="py-line">    <tt class="py-keyword">global</tt> <tt id="link-0" class="py-name" targets="Variable web2py.gluon.custom_import._web2py_importer=web2py.gluon.custom_import-module.html#_web2py_importer"><a title="web2py.gluon.custom_import._web2py_importer" class="py-name" href="#" onclick="return doclink('link-0', '_web2py_importer', 'link-0');">_web2py_importer</a></tt> </tt>
+<a name="L13"></a><tt class="py-lineno"> 13</tt>  <tt class="py-line">    <tt class="py-keyword">global</tt> <tt id="link-1" class="py-name" targets="Variable web2py.gluon.custom_import._web2py_path=web2py.gluon.custom_import-module.html#_web2py_path"><a title="web2py.gluon.custom_import._web2py_path" class="py-name" href="#" onclick="return doclink('link-1', '_web2py_path', 'link-1');">_web2py_path</a></tt> </tt>
+<a name="L14"></a><tt class="py-lineno"> 14</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-name">isinstance</tt><tt class="py-op">(</tt><tt class="py-name">__builtin__</tt><tt class="py-op">.</tt><tt class="py-name">__import__</tt><tt class="py-op">,</tt> <tt id="link-2" class="py-name" targets="Class web2py.gluon.custom_import._Web2pyImporter=web2py.gluon.custom_import._Web2pyImporter-class.html"><a title="web2py.gluon.custom_import._Web2pyImporter" class="py-name" href="#" onclick="return doclink('link-2', '_Web2pyImporter', 'link-2');">_Web2pyImporter</a></tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L15"></a><tt class="py-lineno"> 15</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-comment">#aready installed</tt> </tt>
+<a name="L16"></a><tt class="py-lineno"> 16</tt>  <tt class="py-line">    <tt id="link-3" class="py-name"><a title="web2py.gluon.custom_import._web2py_path" class="py-name" href="#" onclick="return doclink('link-3', '_web2py_path', 'link-1');">_web2py_path</a></tt> <tt class="py-op">=</tt> <tt id="link-4" class="py-name" targets="Variable web2py.gluon.main.web2py_path=web2py.gluon.main-module.html#web2py_path"><a title="web2py.gluon.main.web2py_path" class="py-name" href="#" onclick="return doclink('link-4', 'web2py_path', 'link-4');">web2py_path</a></tt> </tt>
+<a name="L17"></a><tt class="py-lineno"> 17</tt>  <tt class="py-line">    <tt id="link-5" class="py-name"><a title="web2py.gluon.custom_import._web2py_importer" class="py-name" href="#" onclick="return doclink('link-5', '_web2py_importer', 'link-0');">_web2py_importer</a></tt> <tt class="py-op">=</tt> <tt id="link-6" class="py-name"><a title="web2py.gluon.custom_import._Web2pyImporter" class="py-name" href="#" onclick="return doclink('link-6', '_Web2pyImporter', 'link-2');">_Web2pyImporter</a></tt><tt class="py-op">(</tt><tt id="link-7" class="py-name"><a title="web2py.gluon.main.web2py_path" class="py-name" href="#" onclick="return doclink('link-7', 'web2py_path', 'link-4');">web2py_path</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L18"></a><tt class="py-lineno"> 18</tt>  <tt class="py-line">    <tt class="py-name">__builtin__</tt><tt class="py-op">.</tt><tt class="py-name">__import__</tt> <tt class="py-op">=</tt> <tt id="link-8" class="py-name"><a title="web2py.gluon.custom_import._web2py_importer" class="py-name" href="#" onclick="return doclink('link-8', '_web2py_importer', 'link-0');">_web2py_importer</a></tt> </tt>
+</div><a name="L19"></a><tt class="py-lineno"> 19</tt>  <tt class="py-line"> </tt>
+<a name="is_tracking_changes"></a><div id="is_tracking_changes-def"><a name="L20"></a><tt class="py-lineno"> 20</tt> <a class="py-toggle" href="#" id="is_tracking_changes-toggle" onclick="return toggle('is_tracking_changes');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="web2py.gluon.custom_import-module.html#is_tracking_changes">is_tracking_changes</a><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="is_tracking_changes-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="is_tracking_changes-expanded"><a name="L21"></a><tt class="py-lineno"> 21</tt>  <tt class="py-line">    <tt class="py-docstring">"""</tt> </tt>
+<a name="L22"></a><tt class="py-lineno"> 22</tt>  <tt class="py-line"><tt class="py-docstring">    @return: True: neo_importer is tracking changes made to Python source</tt> </tt>
+<a name="L23"></a><tt class="py-lineno"> 23</tt>  <tt class="py-line"><tt class="py-docstring">    files. False: neo_import does not reload Python modules.</tt> </tt>
+<a name="L24"></a><tt class="py-lineno"> 24</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L25"></a><tt class="py-lineno"> 25</tt>  <tt class="py-line"> </tt>
+<a name="L26"></a><tt class="py-lineno"> 26</tt>  <tt class="py-line">    <tt class="py-keyword">global</tt> <tt id="link-9" class="py-name" targets="Variable web2py.gluon.custom_import._is_tracking_changes=web2py.gluon.custom_import-module.html#_is_tracking_changes"><a title="web2py.gluon.custom_import._is_tracking_changes" class="py-name" href="#" onclick="return doclink('link-9', '_is_tracking_changes', 'link-9');">_is_tracking_changes</a></tt> </tt>
+<a name="L27"></a><tt class="py-lineno"> 27</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt id="link-10" class="py-name"><a title="web2py.gluon.custom_import._is_tracking_changes" class="py-name" href="#" onclick="return doclink('link-10', '_is_tracking_changes', 'link-9');">_is_tracking_changes</a></tt> </tt>
+</div><a name="L28"></a><tt class="py-lineno"> 28</tt>  <tt class="py-line"> </tt>
+<a name="track_changes"></a><div id="track_changes-def"><a name="L29"></a><tt class="py-lineno"> 29</tt> <a class="py-toggle" href="#" id="track_changes-toggle" onclick="return toggle('track_changes');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="web2py.gluon.custom_import-module.html#track_changes">track_changes</a><tt class="py-op">(</tt><tt class="py-param">track</tt><tt class="py-op">=</tt><tt class="py-name">True</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="track_changes-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="track_changes-expanded"><a name="L30"></a><tt class="py-lineno"> 30</tt>  <tt class="py-line">    <tt class="py-docstring">"""</tt> </tt>
+<a name="L31"></a><tt class="py-lineno"> 31</tt>  <tt class="py-line"><tt class="py-docstring">    Tell neo_importer to start/stop tracking changes made to Python modules.</tt> </tt>
+<a name="L32"></a><tt class="py-lineno"> 32</tt>  <tt class="py-line"><tt class="py-docstring">    @param track: True: Start tracking changes. False: Stop tracking changes.</tt> </tt>
+<a name="L33"></a><tt class="py-lineno"> 33</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L34"></a><tt class="py-lineno"> 34</tt>  <tt class="py-line"> </tt>
+<a name="L35"></a><tt class="py-lineno"> 35</tt>  <tt class="py-line">    <tt class="py-keyword">global</tt> <tt id="link-11" class="py-name"><a title="web2py.gluon.custom_import._is_tracking_changes" class="py-name" href="#" onclick="return doclink('link-11', '_is_tracking_changes', 'link-9');">_is_tracking_changes</a></tt> </tt>
+<a name="L36"></a><tt class="py-lineno"> 36</tt>  <tt class="py-line">    <tt class="py-keyword">global</tt> <tt id="link-12" class="py-name"><a title="web2py.gluon.custom_import._web2py_importer" class="py-name" href="#" onclick="return doclink('link-12', '_web2py_importer', 'link-0');">_web2py_importer</a></tt> </tt>
+<a name="L37"></a><tt class="py-lineno"> 37</tt>  <tt class="py-line">    <tt class="py-keyword">global</tt> <tt id="link-13" class="py-name" targets="Variable web2py.gluon.custom_import._web2py_date_tracker_importer=web2py.gluon.custom_import-module.html#_web2py_date_tracker_importer"><a title="web2py.gluon.custom_import._web2py_date_tracker_importer" class="py-name" href="#" onclick="return doclink('link-13', '_web2py_date_tracker_importer', 'link-13');">_web2py_date_tracker_importer</a></tt> </tt>
+<a name="L38"></a><tt class="py-lineno"> 38</tt>  <tt class="py-line">    <tt class="py-keyword">assert</tt> <tt class="py-name">track</tt> <tt class="py-keyword">is</tt> <tt class="py-name">True</tt> <tt class="py-keyword">or</tt> <tt class="py-name">track</tt> <tt class="py-keyword">is</tt> <tt class="py-name">False</tt><tt class="py-op">,</tt> <tt class="py-string">"Boolean expected."</tt> </tt>
+<a name="L39"></a><tt class="py-lineno"> 39</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-name">track</tt> <tt class="py-op">==</tt> <tt id="link-14" class="py-name"><a title="web2py.gluon.custom_import._is_tracking_changes" class="py-name" href="#" onclick="return doclink('link-14', '_is_tracking_changes', 'link-9');">_is_tracking_changes</a></tt><tt class="py-op">:</tt> </tt>
+<a name="L40"></a><tt class="py-lineno"> 40</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> </tt>
+<a name="L41"></a><tt class="py-lineno"> 41</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-name">track</tt><tt class="py-op">:</tt> </tt>
+<a name="L42"></a><tt class="py-lineno"> 42</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt id="link-15" class="py-name"><a title="web2py.gluon.custom_import._web2py_date_tracker_importer" class="py-name" href="#" onclick="return doclink('link-15', '_web2py_date_tracker_importer', 'link-13');">_web2py_date_tracker_importer</a></tt><tt class="py-op">:</tt> </tt>
+<a name="L43"></a><tt class="py-lineno"> 43</tt>  <tt class="py-line">            <tt id="link-16" class="py-name"><a title="web2py.gluon.custom_import._web2py_date_tracker_importer" class="py-name" href="#" onclick="return doclink('link-16', '_web2py_date_tracker_importer', 'link-13');">_web2py_date_tracker_importer</a></tt> <tt class="py-op">=</tt> \ </tt>
+<a name="L44"></a><tt class="py-lineno"> 44</tt>  <tt class="py-line">                <tt id="link-17" class="py-name" targets="Class web2py.gluon.custom_import._Web2pyDateTrackerImporter=web2py.gluon.custom_import._Web2pyDateTrackerImporter-class.html"><a title="web2py.gluon.custom_import._Web2pyDateTrackerImporter" class="py-name" href="#" onclick="return doclink('link-17', '_Web2pyDateTrackerImporter', 'link-17');">_Web2pyDateTrackerImporter</a></tt><tt class="py-op">(</tt><tt id="link-18" class="py-name"><a title="web2py.gluon.custom_import._web2py_path" class="py-name" href="#" onclick="return doclink('link-18', '_web2py_path', 'link-1');">_web2py_path</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L45"></a><tt class="py-lineno"> 45</tt>  <tt class="py-line">        <tt class="py-name">__builtin__</tt><tt class="py-op">.</tt><tt class="py-name">__import__</tt> <tt class="py-op">=</tt> <tt id="link-19" class="py-name"><a title="web2py.gluon.custom_import._web2py_date_tracker_importer" class="py-name" href="#" onclick="return doclink('link-19', '_web2py_date_tracker_importer', 'link-13');">_web2py_date_tracker_importer</a></tt> </tt>
+<a name="L46"></a><tt class="py-lineno"> 46</tt>  <tt class="py-line">    <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="L47"></a><tt class="py-lineno"> 47</tt>  <tt class="py-line">        <tt class="py-name">__builtin__</tt><tt class="py-op">.</tt><tt class="py-name">__import__</tt> <tt class="py-op">=</tt> <tt id="link-20" class="py-name"><a title="web2py.gluon.custom_import._web2py_importer" class="py-name" href="#" onclick="return doclink('link-20', '_web2py_importer', 'link-0');">_web2py_importer</a></tt> </tt>
+<a name="L48"></a><tt class="py-lineno"> 48</tt>  <tt class="py-line">    <tt id="link-21" class="py-name"><a title="web2py.gluon.custom_import._is_tracking_changes" class="py-name" href="#" onclick="return doclink('link-21', '_is_tracking_changes', 'link-9');">_is_tracking_changes</a></tt> <tt class="py-op">=</tt> <tt class="py-name">track</tt> </tt>
+</div><a name="L49"></a><tt class="py-lineno"> 49</tt>  <tt class="py-line"> </tt>
+<a name="L50"></a><tt class="py-lineno"> 50</tt>  <tt class="py-line"><tt class="py-name">_STANDARD_PYTHON_IMPORTER</tt> <tt class="py-op">=</tt> <tt class="py-name">__builtin__</tt><tt class="py-op">.</tt><tt class="py-name">__import__</tt> <tt class="py-comment"># Keep standard importer</tt> </tt>
+<a name="L51"></a><tt class="py-lineno"> 51</tt>  <tt class="py-line"><tt id="link-22" class="py-name"><a title="web2py.gluon.custom_import._web2py_importer" class="py-name" href="#" onclick="return doclink('link-22', '_web2py_importer', 'link-0');">_web2py_importer</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> <tt class="py-comment"># The standard web2py importer</tt> </tt>
+<a name="L52"></a><tt class="py-lineno"> 52</tt>  <tt class="py-line"><tt id="link-23" class="py-name"><a title="web2py.gluon.custom_import._web2py_date_tracker_importer" class="py-name" href="#" onclick="return doclink('link-23', '_web2py_date_tracker_importer', 'link-13');">_web2py_date_tracker_importer</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> <tt class="py-comment"># The web2py importer with date tracking</tt> </tt>
+<a name="L53"></a><tt class="py-lineno"> 53</tt>  <tt class="py-line"><tt id="link-24" class="py-name"><a title="web2py.gluon.custom_import._web2py_path" class="py-name" href="#" onclick="return doclink('link-24', '_web2py_path', 'link-1');">_web2py_path</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> <tt class="py-comment"># Absolute path of the web2py directory</tt> </tt>
+<a name="L54"></a><tt class="py-lineno"> 54</tt>  <tt class="py-line"> </tt>
+<a name="L55"></a><tt class="py-lineno"> 55</tt>  <tt class="py-line"><tt id="link-25" class="py-name"><a title="web2py.gluon.custom_import._is_tracking_changes" class="py-name" href="#" onclick="return doclink('link-25', '_is_tracking_changes', 'link-9');">_is_tracking_changes</a></tt> <tt class="py-op">=</tt> <tt class="py-name">False</tt> <tt class="py-comment"># The tracking mode</tt> </tt>
+<a name="L56"></a><tt class="py-lineno"> 56</tt>  <tt class="py-line"> </tt>
+<a name="_BaseImporter"></a><div id="_BaseImporter-def"><a name="L57"></a><tt class="py-lineno"> 57</tt> <a class="py-toggle" href="#" id="_BaseImporter-toggle" onclick="return toggle('_BaseImporter');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="web2py.gluon.custom_import._BaseImporter-class.html">_BaseImporter</a><tt class="py-op">(</tt><tt class="py-base-class">object</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="_BaseImporter-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="_BaseImporter-expanded"><a name="L58"></a><tt class="py-lineno"> 58</tt>  <tt class="py-line">    <tt class="py-docstring">"""</tt> </tt>
+<a name="L59"></a><tt class="py-lineno"> 59</tt>  <tt class="py-line"><tt class="py-docstring">    The base importer. Dispatch the import the call to the standard Python</tt> </tt>
+<a name="L60"></a><tt class="py-lineno"> 60</tt>  <tt class="py-line"><tt class="py-docstring">    importer.</tt> </tt>
+<a name="L61"></a><tt class="py-lineno"> 61</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L62"></a><tt class="py-lineno"> 62</tt>  <tt class="py-line"> </tt>
+<a name="_BaseImporter.begin"></a><div id="_BaseImporter.begin-def"><a name="L63"></a><tt class="py-lineno"> 63</tt> <a class="py-toggle" href="#" id="_BaseImporter.begin-toggle" onclick="return toggle('_BaseImporter.begin');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="web2py.gluon.custom_import._BaseImporter-class.html#begin">begin</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="_BaseImporter.begin-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="_BaseImporter.begin-expanded"><a name="L64"></a><tt class="py-lineno"> 64</tt>  <tt class="py-line">        <tt class="py-docstring">"""</tt> </tt>
+<a name="L65"></a><tt class="py-lineno"> 65</tt>  <tt class="py-line"><tt class="py-docstring">        Many imports can be made for a single import statement. This method</tt> </tt>
+<a name="L66"></a><tt class="py-lineno"> 66</tt>  <tt class="py-line"><tt class="py-docstring">        help the management of this aspect.</tt> </tt>
+<a name="L67"></a><tt class="py-lineno"> 67</tt>  <tt class="py-line"><tt class="py-docstring">        """</tt> </tt>
+</div><a name="L68"></a><tt class="py-lineno"> 68</tt>  <tt class="py-line"> </tt>
+<a name="_BaseImporter.__init__"></a><div id="_BaseImporter.__init__-def"><a name="L69"></a><tt class="py-lineno"> 69</tt> <a class="py-toggle" href="#" id="_BaseImporter.__init__-toggle" onclick="return toggle('_BaseImporter.__init__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="web2py.gluon.custom_import._BaseImporter-class.html#__init__">__init__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="_BaseImporter.__init__-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="_BaseImporter.__init__-expanded"><a name="L70"></a><tt class="py-lineno"> 70</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_STANDARD_PYTHON_IMPORTER</tt> <tt class="py-op">=</tt> <tt class="py-name">_STANDARD_PYTHON_IMPORTER</tt> </tt>
+</div><a name="_BaseImporter.__call__"></a><div id="_BaseImporter.__call__-def"><a name="L71"></a><tt class="py-lineno"> 71</tt> <a class="py-toggle" href="#" id="_BaseImporter.__call__-toggle" onclick="return toggle('_BaseImporter.__call__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="web2py.gluon.custom_import._BaseImporter-class.html#__call__">__call__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">name</tt><tt class="py-op">,</tt> <tt class="py-param">globals</tt><tt class="py-op">=</tt><tt class="py-name">None</tt><tt class="py-op">,</tt> <tt class="py-param">locals</tt><tt class="py-op">=</tt><tt class="py-name">None</tt><tt class="py-op">,</tt> </tt>
+<a name="L72"></a><tt class="py-lineno"> 72</tt>  <tt class="py-line">                 <tt class="py-param">fromlist</tt><tt class="py-op">=</tt><tt class="py-name">None</tt><tt class="py-op">,</tt> <tt class="py-param">level</tt><tt class="py-op">=</tt><tt class="py-op">-</tt><tt class="py-number">1</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="_BaseImporter.__call__-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="_BaseImporter.__call__-expanded"><a name="L73"></a><tt class="py-lineno"> 73</tt>  <tt class="py-line">        <tt class="py-docstring">"""</tt> </tt>
+<a name="L74"></a><tt class="py-lineno"> 74</tt>  <tt class="py-line"><tt class="py-docstring">        The import method itself.</tt> </tt>
+<a name="L75"></a><tt class="py-lineno"> 75</tt>  <tt class="py-line"><tt class="py-docstring">        """</tt> </tt>
+<a name="L76"></a><tt class="py-lineno"> 76</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_STANDARD_PYTHON_IMPORTER</tt><tt class="py-op">(</tt><tt id="link-26" class="py-name" targets="Variable web2py.gluon.import_all.name=web2py.gluon.import_all-module.html#name"><a title="web2py.gluon.import_all.name" class="py-name" href="#" onclick="return doclink('link-26', 'name', 'link-26');">name</a></tt><tt class="py-op">,</tt> </tt>
+<a name="L77"></a><tt class="py-lineno"> 77</tt>  <tt class="py-line">                                         <tt id="link-27" class="py-name" targets="Module web2py.gluon.globals=web2py.gluon.globals-module.html"><a title="web2py.gluon.globals" class="py-name" href="#" onclick="return doclink('link-27', 'globals', 'link-27');">globals</a></tt><tt class="py-op">,</tt> </tt>
+<a name="L78"></a><tt class="py-lineno"> 78</tt>  <tt class="py-line">                                         <tt class="py-name">locals</tt><tt class="py-op">,</tt> </tt>
+<a name="L79"></a><tt class="py-lineno"> 79</tt>  <tt class="py-line">                                         <tt class="py-name">fromlist</tt><tt class="py-op">,</tt> </tt>
+<a name="L80"></a><tt class="py-lineno"> 80</tt>  <tt class="py-line">                                         <tt class="py-name">level</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L81"></a><tt class="py-lineno"> 81</tt>  <tt class="py-line"> </tt>
+<a name="_BaseImporter.end"></a><div id="_BaseImporter.end-def"><a name="L82"></a><tt class="py-lineno"> 82</tt> <a class="py-toggle" href="#" id="_BaseImporter.end-toggle" onclick="return toggle('_BaseImporter.end');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="web2py.gluon.custom_import._BaseImporter-class.html#end">end</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="_BaseImporter.end-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="_BaseImporter.end-expanded"><a name="L83"></a><tt class="py-lineno"> 83</tt>  <tt class="py-line">        <tt class="py-docstring">"""</tt> </tt>
+<a name="L84"></a><tt class="py-lineno"> 84</tt>  <tt class="py-line"><tt class="py-docstring">        Needed for clean up.</tt> </tt>
+<a name="L85"></a><tt class="py-lineno"> 85</tt>  <tt class="py-line"><tt class="py-docstring">        """</tt> </tt>
+</div></div><a name="L86"></a><tt class="py-lineno"> 86</tt>  <tt class="py-line"> </tt>
+<a name="L87"></a><tt class="py-lineno"> 87</tt>  <tt class="py-line"> </tt>
+<a name="_DateTrackerImporter"></a><div id="_DateTrackerImporter-def"><a name="L88"></a><tt class="py-lineno"> 88</tt> <a class="py-toggle" href="#" id="_DateTrackerImporter-toggle" onclick="return toggle('_DateTrackerImporter');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="web2py.gluon.custom_import._DateTrackerImporter-class.html">_DateTrackerImporter</a><tt class="py-op">(</tt><tt class="py-base-class">_BaseImporter</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="_DateTrackerImporter-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="_DateTrackerImporter-expanded"><a name="L89"></a><tt class="py-lineno"> 89</tt>  <tt class="py-line">    <tt class="py-docstring">"""</tt> </tt>
+<a name="L90"></a><tt class="py-lineno"> 90</tt>  <tt class="py-line"><tt class="py-docstring">    An importer tracking the date of the module files and reloading them when</tt> </tt>
+<a name="L91"></a><tt class="py-lineno"> 91</tt>  <tt class="py-line"><tt class="py-docstring">    they have changed.</tt> </tt>
+<a name="L92"></a><tt class="py-lineno"> 92</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L93"></a><tt class="py-lineno"> 93</tt>  <tt class="py-line"> </tt>
+<a name="L94"></a><tt class="py-lineno"> 94</tt>  <tt class="py-line">    <tt id="link-28" class="py-name" targets="Variable web2py.gluon.custom_import._DateTrackerImporter._PACKAGE_PATH_SUFFIX=web2py.gluon.custom_import._DateTrackerImporter-class.html#_PACKAGE_PATH_SUFFIX"><a title="web2py.gluon.custom_import._DateTrackerImporter._PACKAGE_PATH_SUFFIX" class="py-name" href="#" onclick="return doclink('link-28', '_PACKAGE_PATH_SUFFIX', 'link-28');">_PACKAGE_PATH_SUFFIX</a></tt> <tt class="py-op">=</tt> <tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">.</tt><tt class="py-name">sep</tt><tt class="py-op">+</tt><tt class="py-string">"__init__.py"</tt> </tt>
+<a name="L95"></a><tt class="py-lineno"> 95</tt>  <tt class="py-line"> </tt>
+<a name="_DateTrackerImporter.__init__"></a><div id="_DateTrackerImporter.__init__-def"><a name="L96"></a><tt class="py-lineno"> 96</tt> <a class="py-toggle" href="#" id="_DateTrackerImporter.__init__-toggle" onclick="return toggle('_DateTrackerImporter.__init__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="web2py.gluon.custom_import._DateTrackerImporter-class.html#__init__">__init__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="_DateTrackerImporter.__init__-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="_DateTrackerImporter.__init__-expanded"><a name="L97"></a><tt class="py-lineno"> 97</tt>  <tt class="py-line">        <tt class="py-name">super</tt><tt class="py-op">(</tt><tt id="link-29" class="py-name" targets="Class web2py.gluon.custom_import._DateTrackerImporter=web2py.gluon.custom_import._DateTrackerImporter-class.html"><a title="web2py.gluon.custom_import._DateTrackerImporter" class="py-name" href="#" onclick="return doclink('link-29', '_DateTrackerImporter', 'link-29');">_DateTrackerImporter</a></tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">)</tt><tt class="py-op">.</tt><tt id="link-30" class="py-name" targets="Method web2py.gluon.cache.Cache.__init__()=web2py.gluon.cache.Cache-class.html#__init__,Method web2py.gluon.cache.CacheAbstract.__init__()=web2py.gluon.cache.CacheAbstract-class.html#__init__,Method web2py.gluon.cache.CacheAction.__init__()=web2py.gluon.cache.CacheAction-class.html#__init__,Method web2py.gluon.cache.CacheInRam.__init__()=web2py.gluon.cache.CacheInRam-class.html#__init__,Method web2py.gluon.cache.CacheOnDisk.__init__()=web2py.gluon.cache.CacheOnDisk-class.html#__init__,Method web2py.gluon.compileapp.LoadFactory.__init__()=web2py.gluon.compileapp.LoadFactory-class.html#__init__,Method web2py.gluon.custom_import._BaseImporter.__init__()=web2py.gluon.custom_import._BaseImporter-class.html#__init__,Method web2py.gluon.custom_import._DateTrackerImporter.__init__()=web2py.gluon.custom_import._DateTrackerImporter-class.html#__init__,Method web2py.gluon.custom_import._Web2pyImporter.__init__()=web2py.gluon.custom_import._Web2pyImporter-class.html#__init__,Method web2py.gluon.dal.BaseAdapter.__init__()=web2py.gluon.dal.BaseAdapter-class.html#__init__,Method web2py.gluon.dal.CouchDBAdapter.__init__()=web2py.gluon.dal.CouchDBAdapter-class.html#__init__,Method web2py.gluon.dal.CubridAdapter.__init__()=web2py.gluon.dal.CubridAdapter-class.html#__init__,Method web2py.gluon.dal.DAL.__init__()=web2py.gluon.dal.DAL-class.html#__init__,Method web2py.gluon.dal.DB2Adapter.__init__()=web2py.gluon.dal.DB2Adapter-class.html#__init__,Method web2py.gluon.dal.DatabaseStoredFile.__init__()=web2py.gluon.dal.DatabaseStoredFile-class.html#__init__,Method web2py.gluon.dal.Expression.__init__()=web2py.gluon.dal.Expression-class.html#__init__,Method web2py.gluon.dal.Field.__init__()=web2py.gluon.dal.Field-class.html#__init__,Method web2py.gluon.dal.FieldLazy.__init__()=web2py.gluon.dal.FieldLazy-class.html#__init__,Method web2py.gluon.dal.FieldVirtual.__init__()=web2py.gluon.dal.FieldVirtual-class.html#__init__,Method web2py.gluon.dal.FireBirdAdapter.__init__()=web2py.gluon.dal.FireBirdAdapter-class.html#__init__,Method web2py.gluon.dal.FireBirdEmbeddedAdapter.__init__()=web2py.gluon.dal.FireBirdEmbeddedAdapter-class.html#__init__,Method web2py.gluon.dal.GAEDecimalProperty.__init__()=web2py.gluon.dal.GAEDecimalProperty-class.html#__init__,Method web2py.gluon.dal.GAEF.__init__()=web2py.gluon.dal.GAEF-class.html#__init__,Method web2py.gluon.dal.GoogleDatastoreAdapter.__init__()=web2py.gluon.dal.GoogleDatastoreAdapter-class.html#__init__,Method web2py.gluon.dal.GoogleSQLAdapter.__init__()=web2py.gluon.dal.GoogleSQLAdapter-class.html#__init__,Method web2py.gluon.dal.IMAPAdapter.__init__()=web2py.gluon.dal.IMAPAdapter-class.html#__init__,Method web2py.gluon.dal.InformixAdapter.__init__()=web2py.gluon.dal.InformixAdapter-class.html#__init__,Method web2py.gluon.dal.IngresAdapter.__init__()=web2py.gluon.dal.IngresAdapter-class.html#__init__,Method web2py.gluon.dal.JDBCPostgreSQLAdapter.__init__()=web2py.gluon.dal.JDBCPostgreSQLAdapter-class.html#__init__,Method web2py.gluon.dal.JDBCSQLiteAdapter.__init__()=web2py.gluon.dal.JDBCSQLiteAdapter-class.html#__init__,Method web2py.gluon.dal.MSSQLAdapter.__init__()=web2py.gluon.dal.MSSQLAdapter-class.html#__init__,Method web2py.gluon.dal.MongoDBAdapter.__init__()=web2py.gluon.dal.MongoDBAdapter-class.html#__init__,Method web2py.gluon.dal.MySQLAdapter.__init__()=web2py.gluon.dal.MySQLAdapter-class.html#__init__,Method web2py.gluon.dal.OracleAdapter.__init__()=web2py.gluon.dal.OracleAdapter-class.html#__init__,Method web2py.gluon.dal.PostgreSQLAdapter.__init__()=web2py.gluon.dal.PostgreSQLAdapter-class.html#__init__,Method web2py.gluon.dal.Query.__init__()=web2py.gluon.dal.Query-class.html#__init__,Method web2py.gluon.dal.RecordDeleter.__init__()=web2py.gluon.dal.RecordDeleter-class.html#__init__,Method web2py.gluon.dal.RecordUpdater.__init__()=web2py.gluon.dal.RecordUpdater-class.html#__init__,Method web2py.gluon.dal.Row.__init__()=web2py.gluon.dal.Row-class.html#__init__,Method web2py.gluon.dal.Rows.__init__()=web2py.gluon.dal.Rows-class.html#__init__,Method web2py.gluon.dal.SAPDBAdapter.__init__()=web2py.gluon.dal.SAPDBAdapter-class.html#__init__,Method web2py.gluon.dal.SQLALL.__init__()=web2py.gluon.dal.SQLALL-class.html#__init__,Method web2py.gluon.dal.SQLCustomType.__init__()=web2py.gluon.dal.SQLCustomType-class.html#__init__,Method web2py.gluon.dal.SQLiteAdapter.__init__()=web2py.gluon.dal.SQLiteAdapter-class.html#__init__,Method web2py.gluon.dal.Set.__init__()=web2py.gluon.dal.Set-class.html#__init__,Method web2py.gluon.dal.SpatiaLiteAdapter.__init__()=web2py.gluon.dal.SpatiaLiteAdapter-class.html#__init__,Method web2py.gluon.dal.SybaseAdapter.__init__()=web2py.gluon.dal.SybaseAdapter-class.html#__init__,Method web2py.gluon.dal.Table.__init__()=web2py.gluon.dal.Table-class.html#__init__,Method web2py.gluon.dal.TeradataAdapter.__init__()=web2py.gluon.dal.TeradataAdapter-class.html#__init__,Method web2py.gluon.dal.VirtualCommand.__init__()=web2py.gluon.dal.VirtualCommand-class.html#__init__,Method web2py.gluon.debug.Pipe.__init__()=web2py.gluon.debug.Pipe-class.html#__init__,Method web2py.gluon.debug.WebDebugger.__init__()=web2py.gluon.debug.WebDebugger-class.html#__init__,Method web2py.gluon.globals.Request.__init__()=web2py.gluon.globals.Request-class.html#__init__,Method web2py.gluon.globals.Response.__init__()=web2py.gluon.globals.Response-class.html#__init__,Method web2py.gluon.highlight.Highlighter.__init__()=web2py.gluon.highlight.Highlighter-class.html#__init__,Method web2py.gluon.html.BEAUTIFY.__init__()=web2py.gluon.html.BEAUTIFY-class.html#__init__,Method web2py.gluon.html.DIV.__init__()=web2py.gluon.html.DIV-class.html#__init__,Method web2py.gluon.html.FORM.__init__()=web2py.gluon.html.FORM-class.html#__init__,Method web2py.gluon.html.MARKMIN.__init__()=web2py.gluon.html.MARKMIN-class.html#__init__,Method web2py.gluon.html.MENU.__init__()=web2py.gluon.html.MENU-class.html#__init__,Method web2py.gluon.html.XML.__init__()=web2py.gluon.html.XML-class.html#__init__,Method web2py.gluon.html.web2pyHTMLParser.__init__()=web2py.gluon.html.web2pyHTMLParser-class.html#__init__,Method web2py.gluon.http.HTTP.__init__()=web2py.gluon.http.HTTP-class.html#__init__,Method web2py.gluon.languages.lazyT.__init__()=web2py.gluon.languages.lazyT-class.html#__init__,Method web2py.gluon.languages.translator.__init__()=web2py.gluon.languages.translator-class.html#__init__,Method web2py.gluon.main.HttpServer.__init__()=web2py.gluon.main.HttpServer-class.html#__init__,Method web2py.gluon.messageboxhandler.MessageBoxHandler.__init__()=web2py.gluon.messageboxhandler.MessageBoxHandler-class.html#__init__,Method web2py.gluon.newcron.Token.__init__()=web2py.gluon.newcron.Token-class.html#__init__,Method web2py.gluon.newcron.cronlauncher.__init__()=web2py.gluon.newcron.cronlauncher-class.html#__init__,Method web2py.gluon.newcron.extcron.__init__()=web2py.gluon.newcron.extcron-class.html#__init__,Method web2py.gluon.newcron.hardcron.__init__()=web2py.gluon.newcron.hardcron-class.html#__init__,Method web2py.gluon.newcron.softcron.__init__()=web2py.gluon.newcron.softcron-class.html#__init__,Method web2py.gluon.portalocker.LockedFile.__init__()=web2py.gluon.portalocker.LockedFile-class.html#__init__,Method web2py.gluon.restricted.RestrictedError.__init__()=web2py.gluon.restricted.RestrictedError-class.html#__init__,Method web2py.gluon.restricted.TicketStorage.__init__()=web2py.gluon.restricted.TicketStorage-class.html#__init__,Method web2py.gluon.rewrite.MapUrlIn.__init__()=web2py.gluon.rewrite.MapUrlIn-class.html#__init__,Method web2py.gluon.rewrite.MapUrlOut.__init__()=web2py.gluon.rewrite.MapUrlOut-class.html#__init__,Method web2py.gluon.rocket.ChunkedReader.__init__()=web2py.gluon.rocket.ChunkedReader-class.html#__init__,Method web2py.gluon.rocket.Connection.__init__()=web2py.gluon.rocket.Connection-class.html#__init__,Method web2py.gluon.rocket.FileLikeSocket.__init__()=web2py.gluon.rocket.FileLikeSocket-class.html#__init__,Method web2py.gluon.rocket.FileSystemWorker.__init__()=web2py.gluon.rocket.FileSystemWorker-class.html#__init__,Method web2py.gluon.rocket.FuturesMiddleware.__init__()=web2py.gluon.rocket.FuturesMiddleware-class.html#__init__,Method web2py.gluon.rocket.LimitingFileWrapper.__init__()=web2py.gluon.rocket.LimitingFileWrapper-class.html#__init__,Method web2py.gluon.rocket.Listener.__init__()=web2py.gluon.rocket.Listener-class.html#__init__,Method web2py.gluon.rocket.Monitor.__init__()=web2py.gluon.rocket.Monitor-class.html#__init__,Method web2py.gluon.rocket.Rocket.__init__()=web2py.gluon.rocket.Rocket-class.html#__init__,Method web2py.gluon.rocket.ThreadPool.__init__()=web2py.gluon.rocket.ThreadPool-class.html#__init__,Method web2py.gluon.rocket.WSGIExecutor.__init__()=web2py.gluon.rocket.WSGIExecutor-class.html#__init__,Method web2py.gluon.rocket.WSGIFuture.__init__()=web2py.gluon.rocket.WSGIFuture-class.html#__init__,Method web2py.gluon.rocket.WSGIWorker.__init__()=web2py.gluon.rocket.WSGIWorker-class.html#__init__,Method web2py.gluon.rocket.Worker.__init__()=web2py.gluon.rocket.Worker-class.html#__init__,Method web2py.gluon.rocket._WorkItem.__init__()=web2py.gluon.rocket._WorkItem-class.html#__init__,Method web2py.gluon.sanitizer.XssCleaner.__init__()=web2py.gluon.sanitizer.XssCleaner-class.html#__init__,Method web2py.gluon.scheduler.MetaScheduler.__init__()=web2py.gluon.scheduler.MetaScheduler-class.html#__init__,Method web2py.gluon.scheduler.Scheduler.__init__()=web2py.gluon.scheduler.Scheduler-class.html#__init__,Method web2py.gluon.scheduler.TYPE.__init__()=web2py.gluon.scheduler.TYPE-class.html#__init__,Method web2py.gluon.scheduler.Task.__init__()=web2py.gluon.scheduler.Task-class.html#__init__,Method web2py.gluon.scheduler.TaskReport.__init__()=web2py.gluon.scheduler.TaskReport-class.html#__init__,Method web2py.gluon.sqlhtml.AutocompleteWidget.__init__()=web2py.gluon.sqlhtml.AutocompleteWidget-class.html#__init__,Method web2py.gluon.sqlhtml.ExportClass.__init__()=web2py.gluon.sqlhtml.ExportClass-class.html#__init__,Method web2py.gluon.sqlhtml.ExporterCSV.__init__()=web2py.gluon.sqlhtml.ExporterCSV-class.html#__init__,Method web2py.gluon.sqlhtml.ExporterHTML.__init__()=web2py.gluon.sqlhtml.ExporterHTML-class.html#__init__,Method web2py.gluon.sqlhtml.ExporterTSV.__init__()=web2py.gluon.sqlhtml.ExporterTSV-class.html#__init__,Method web2py.gluon.sqlhtml.ExporterXML.__init__()=web2py.gluon.sqlhtml.ExporterXML-class.html#__init__,Method web2py.gluon.sqlhtml.SQLFORM.__init__()=web2py.gluon.sqlhtml.SQLFORM-class.html#__init__,Method web2py.gluon.sqlhtml.SQLTABLE.__init__()=web2py.gluon.sqlhtml.SQLTABLE-class.html#__init__,Method web2py.gluon.storage.FastStorage.__init__()=web2py.gluon.storage.FastStorage-class.html#__init__,Method web2py.gluon.storage.Messages.__init__()=web2py.gluon.storage.Messages-class.html#__init__,Method web2py.gluon.template.BlockNode.__init__()=web2py.gluon.template.BlockNode-class.html#__init__,Method web2py.gluon.template.Content.__init__()=web2py.gluon.template.Content-class.html#__init__,Method web2py.gluon.template.DummyResponse.__init__()=web2py.gluon.template.DummyResponse-class.html#__init__,Method web2py.gluon.template.NOESCAPE.__init__()=web2py.gluon.template.NOESCAPE-class.html#__init__,Method web2py.gluon.template.Node.__init__()=web2py.gluon.template.Node-class.html#__init__,Method web2py.gluon.template.SuperNode.__init__()=web2py.gluon.template.SuperNode-class.html#__init__,Method web2py.gluon.template.TemplateParser.__init__()=web2py.gluon.template.TemplateParser-class.html#__init__,Method web2py.gluon.tools.Auth.__init__()=web2py.gluon.tools.Auth-class.html#__init__,Method web2py.gluon.tools.Crud.__init__()=web2py.gluon.tools.Crud-class.html#__init__,Method web2py.gluon.tools.Expose.__init__()=web2py.gluon.tools.Expose-class.html#__init__,Method web2py.gluon.tools.Mail.Attachment.__init__()=web2py.gluon.tools.Mail.Attachment-class.html#__init__,Method web2py.gluon.tools.Mail.__init__()=web2py.gluon.tools.Mail-class.html#__init__,Method web2py.gluon.tools.PluginManager.__init__()=web2py.gluon.tools.PluginManager-class.html#__init__,Method web2py.gluon.tools.Recaptcha.__init__()=web2py.gluon.tools.Recaptcha-class.html#__init__,Method web2py.gluon.tools.Service.JsonRpcException.__init__()=web2py.gluon.tools.Service.JsonRpcException-class.html#__init__,Method web2py.gluon.tools.Service.__init__()=web2py.gluon.tools.Service-class.html#__init__,Method web2py.gluon.tools.Wiki.__init__()=web2py.gluon.tools.Wiki-class.html#__init__,Method web2py.gluon.validators.CLEANUP.__init__()=web2py.gluon.validators.CLEANUP-class.html#__init__,Method web2py.gluon.validators.CRYPT.__init__()=web2py.gluon.validators.CRYPT-class.html#__init__,Method web2py.gluon.validators.IS_ALPHANUMERIC.__init__()=web2py.gluon.validators.IS_ALPHANUMERIC-class.html#__init__,Method web2py.gluon.validators.IS_DATE.__init__()=web2py.gluon.validators.IS_DATE-class.html#__init__,Method web2py.gluon.validators.IS_DATETIME.__init__()=web2py.gluon.validators.IS_DATETIME-class.html#__init__,Method web2py.gluon.validators.IS_DATETIME_IN_RANGE.__init__()=web2py.gluon.validators.IS_DATETIME_IN_RANGE-class.html#__init__,Method web2py.gluon.validators.IS_DATE_IN_RANGE.__init__()=web2py.gluon.validators.IS_DATE_IN_RANGE-class.html#__init__,Method web2py.gluon.validators.IS_DECIMAL_IN_RANGE.__init__()=web2py.gluon.validators.IS_DECIMAL_IN_RANGE-class.html#__init__,Method web2py.gluon.validators.IS_EMAIL.__init__()=web2py.gluon.validators.IS_EMAIL-class.html#__init__,Method web2py.gluon.validators.IS_EMPTY_OR.__init__()=web2py.gluon.validators.IS_EMPTY_OR-class.html#__init__,Method web2py.gluon.validators.IS_EQUAL_TO.__init__()=web2py.gluon.validators.IS_EQUAL_TO-class.html#__init__,Method web2py.gluon.validators.IS_EXPR.__init__()=web2py.gluon.validators.IS_EXPR-class.html#__init__,Method web2py.gluon.validators.IS_FLOAT_IN_RANGE.__init__()=web2py.gluon.validators.IS_FLOAT_IN_RANGE-class.html#__init__,Method web2py.gluon.validators.IS_GENERIC_URL.__init__()=web2py.gluon.validators.IS_GENERIC_URL-class.html#__init__,Method web2py.gluon.validators.IS_HTTP_URL.__init__()=web2py.gluon.validators.IS_HTTP_URL-class.html#__init__,Method web2py.gluon.validators.IS_IMAGE.__init__()=web2py.gluon.validators.IS_IMAGE-class.html#__init__,Method web2py.gluon.validators.IS_INT_IN_RANGE.__init__()=web2py.gluon.validators.IS_INT_IN_RANGE-class.html#__init__,Method web2py.gluon.validators.IS_IN_DB.__init__()=web2py.gluon.validators.IS_IN_DB-class.html#__init__,Method web2py.gluon.validators.IS_IN_SET.__init__()=web2py.gluon.validators.IS_IN_SET-class.html#__init__,Method web2py.gluon.validators.IS_IN_SUBSET.__init__()=web2py.gluon.validators.IS_IN_SUBSET-class.html#__init__,Method web2py.gluon.validators.IS_IPV4.__init__()=web2py.gluon.validators.IS_IPV4-class.html#__init__,Method web2py.gluon.validators.IS_LENGTH.__init__()=web2py.gluon.validators.IS_LENGTH-class.html#__init__,Method web2py.gluon.validators.IS_LIST_OF.__init__()=web2py.gluon.validators.IS_LIST_OF-class.html#__init__,Method web2py.gluon.validators.IS_MATCH.__init__()=web2py.gluon.validators.IS_MATCH-class.html#__init__,Method web2py.gluon.validators.IS_NOT_EMPTY.__init__()=web2py.gluon.validators.IS_NOT_EMPTY-class.html#__init__,Method web2py.gluon.validators.IS_NOT_IN_DB.__init__()=web2py.gluon.validators.IS_NOT_IN_DB-class.html#__init__,Method web2py.gluon.validators.IS_SLUG.__init__()=web2py.gluon.validators.IS_SLUG-class.html#__init__,Method web2py.gluon.validators.IS_STRONG.__init__()=web2py.gluon.validators.IS_STRONG-class.html#__init__,Method web2py.gluon.validators.IS_TIME.__init__()=web2py.gluon.validators.IS_TIME-class.html#__init__,Method web2py.gluon.validators.IS_UPLOAD_FILENAME.__init__()=web2py.gluon.validators.IS_UPLOAD_FILENAME-class.html#__init__,Method web2py.gluon.validators.IS_URL.__init__()=web2py.gluon.validators.IS_URL-class.html#__init__,Method web2py.gluon.validators.LazyCrypt.__init__()=web2py.gluon.validators.LazyCrypt-class.html#__init__,Method web2py.gluon.widget.IO.__init__()=web2py.gluon.widget.IO-class.html#__init__,Method web2py.gluon.widget.web2pyDialog.__init__()=web2py.gluon.widget.web2pyDialog-class.html#__init__,Method web2py.gluon.winservice.Service.__init__()=web2py.gluon.winservice.Service-class.html#__init__"><a title="web2py.gluon.cache.Cache.__init__
+web2py.gluon.cache.CacheAbstract.__init__
+web2py.gluon.cache.CacheAction.__init__
+web2py.gluon.cache.CacheInRam.__init__
+web2py.gluon.cache.CacheOnDisk.__init__
+web2py.gluon.compileapp.LoadFactory.__init__
+web2py.gluon.custom_import._BaseImporter.__init__
+web2py.gluon.custom_import._DateTrackerImporter.__init__
+web2py.gluon.custom_import._Web2pyImporter.__init__
+web2py.gluon.dal.BaseAdapter.__init__
+web2py.gluon.dal.CouchDBAdapter.__init__
+web2py.gluon.dal.CubridAdapter.__init__
+web2py.gluon.dal.DAL.__init__
+web2py.gluon.dal.DB2Adapter.__init__
+web2py.gluon.dal.DatabaseStoredFile.__init__
+web2py.gluon.dal.Expression.__init__
+web2py.gluon.dal.Field.__init__
+web2py.gluon.dal.FieldLazy.__init__
+web2py.gluon.dal.FieldVirtual.__init__
+web2py.gluon.dal.FireBirdAdapter.__init__
+web2py.gluon.dal.FireBirdEmbeddedAdapter.__init__
+web2py.gluon.dal.GAEDecimalProperty.__init__
+web2py.gluon.dal.GAEF.__init__
+web2py.gluon.dal.GoogleDatastoreAdapter.__init__
+web2py.gluon.dal.GoogleSQLAdapter.__init__
+web2py.gluon.dal.IMAPAdapter.__init__
+web2py.gluon.dal.InformixAdapter.__init__
+web2py.gluon.dal.IngresAdapter.__init__
+web2py.gluon.dal.JDBCPostgreSQLAdapter.__init__
+web2py.gluon.dal.JDBCSQLiteAdapter.__init__
+web2py.gluon.dal.MSSQLAdapter.__init__
+web2py.gluon.dal.MongoDBAdapter.__init__
+web2py.gluon.dal.MySQLAdapter.__init__
+web2py.gluon.dal.OracleAdapter.__init__
+web2py.gluon.dal.PostgreSQLAdapter.__init__
+web2py.gluon.dal.Query.__init__
+web2py.gluon.dal.RecordDeleter.__init__
+web2py.gluon.dal.RecordUpdater.__init__
+web2py.gluon.dal.Row.__init__
+web2py.gluon.dal.Rows.__init__
+web2py.gluon.dal.SAPDBAdapter.__init__
+web2py.gluon.dal.SQLALL.__init__
+web2py.gluon.dal.SQLCustomType.__init__
+web2py.gluon.dal.SQLiteAdapter.__init__
+web2py.gluon.dal.Set.__init__
+web2py.gluon.dal.SpatiaLiteAdapter.__init__
+web2py.gluon.dal.SybaseAdapter.__init__
+web2py.gluon.dal.Table.__init__
+web2py.gluon.dal.TeradataAdapter.__init__
+web2py.gluon.dal.VirtualCommand.__init__
+web2py.gluon.debug.Pipe.__init__
+web2py.gluon.debug.WebDebugger.__init__
+web2py.gluon.globals.Request.__init__
+web2py.gluon.globals.Response.__init__
+web2py.gluon.highlight.Highlighter.__init__
+web2py.gluon.html.BEAUTIFY.__init__
+web2py.gluon.html.DIV.__init__
+web2py.gluon.html.FORM.__init__
+web2py.gluon.html.MARKMIN.__init__
+web2py.gluon.html.MENU.__init__
+web2py.gluon.html.XML.__init__
+web2py.gluon.html.web2pyHTMLParser.__init__
+web2py.gluon.http.HTTP.__init__
+web2py.gluon.languages.lazyT.__init__
+web2py.gluon.languages.translator.__init__
+web2py.gluon.main.HttpServer.__init__
+web2py.gluon.messageboxhandler.MessageBoxHandler.__init__
+web2py.gluon.newcron.Token.__init__
+web2py.gluon.newcron.cronlauncher.__init__
+web2py.gluon.newcron.extcron.__init__
+web2py.gluon.newcron.hardcron.__init__
+web2py.gluon.newcron.softcron.__init__
+web2py.gluon.portalocker.LockedFile.__init__
+web2py.gluon.restricted.RestrictedError.__init__
+web2py.gluon.restricted.TicketStorage.__init__
+web2py.gluon.rewrite.MapUrlIn.__init__
+web2py.gluon.rewrite.MapUrlOut.__init__
+web2py.gluon.rocket.ChunkedReader.__init__
+web2py.gluon.rocket.Connection.__init__
+web2py.gluon.rocket.FileLikeSocket.__init__
+web2py.gluon.rocket.FileSystemWorker.__init__
+web2py.gluon.rocket.FuturesMiddleware.__init__
+web2py.gluon.rocket.LimitingFileWrapper.__init__
+web2py.gluon.rocket.Listener.__init__
+web2py.gluon.rocket.Monitor.__init__
+web2py.gluon.rocket.Rocket.__init__
+web2py.gluon.rocket.ThreadPool.__init__
+web2py.gluon.rocket.WSGIExecutor.__init__
+web2py.gluon.rocket.WSGIFuture.__init__
+web2py.gluon.rocket.WSGIWorker.__init__
+web2py.gluon.rocket.Worker.__init__
+web2py.gluon.rocket._WorkItem.__init__
+web2py.gluon.sanitizer.XssCleaner.__init__
+web2py.gluon.scheduler.MetaScheduler.__init__
+web2py.gluon.scheduler.Scheduler.__init__
+web2py.gluon.scheduler.TYPE.__init__
+web2py.gluon.scheduler.Task.__init__
+web2py.gluon.scheduler.TaskReport.__init__
+web2py.gluon.sqlhtml.AutocompleteWidget.__init__
+web2py.gluon.sqlhtml.ExportClass.__init__
+web2py.gluon.sqlhtml.ExporterCSV.__init__
+web2py.gluon.sqlhtml.ExporterHTML.__init__
+web2py.gluon.sqlhtml.ExporterTSV.__init__
+web2py.gluon.sqlhtml.ExporterXML.__init__
+web2py.gluon.sqlhtml.SQLFORM.__init__
+web2py.gluon.sqlhtml.SQLTABLE.__init__
+web2py.gluon.storage.FastStorage.__init__
+web2py.gluon.storage.Messages.__init__
+web2py.gluon.template.BlockNode.__init__
+web2py.gluon.template.Content.__init__
+web2py.gluon.template.DummyResponse.__init__
+web2py.gluon.template.NOESCAPE.__init__
+web2py.gluon.template.Node.__init__
+web2py.gluon.template.SuperNode.__init__
+web2py.gluon.template.TemplateParser.__init__
+web2py.gluon.tools.Auth.__init__
+web2py.gluon.tools.Crud.__init__
+web2py.gluon.tools.Expose.__init__
+web2py.gluon.tools.Mail.Attachment.__init__
+web2py.gluon.tools.Mail.__init__
+web2py.gluon.tools.PluginManager.__init__
+web2py.gluon.tools.Recaptcha.__init__
+web2py.gluon.tools.Service.JsonRpcException.__init__
+web2py.gluon.tools.Service.__init__
+web2py.gluon.tools.Wiki.__init__
+web2py.gluon.validators.CLEANUP.__init__
+web2py.gluon.validators.CRYPT.__init__
+web2py.gluon.validators.IS_ALPHANUMERIC.__init__
+web2py.gluon.validators.IS_DATE.__init__
+web2py.gluon.validators.IS_DATETIME.__init__
+web2py.gluon.validators.IS_DATETIME_IN_RANGE.__init__
+web2py.gluon.validators.IS_DATE_IN_RANGE.__init__
+web2py.gluon.validators.IS_DECIMAL_IN_RANGE.__init__
+web2py.gluon.validators.IS_EMAIL.__init__
+web2py.gluon.validators.IS_EMPTY_OR.__init__
+web2py.gluon.validators.IS_EQUAL_TO.__init__
+web2py.gluon.validators.IS_EXPR.__init__
+web2py.gluon.validators.IS_FLOAT_IN_RANGE.__init__
+web2py.gluon.validators.IS_GENERIC_URL.__init__
+web2py.gluon.validators.IS_HTTP_URL.__init__
+web2py.gluon.validators.IS_IMAGE.__init__
+web2py.gluon.validators.IS_INT_IN_RANGE.__init__
+web2py.gluon.validators.IS_IN_DB.__init__
+web2py.gluon.validators.IS_IN_SET.__init__
+web2py.gluon.validators.IS_IN_SUBSET.__init__
+web2py.gluon.validators.IS_IPV4.__init__
+web2py.gluon.validators.IS_LENGTH.__init__
+web2py.gluon.validators.IS_LIST_OF.__init__
+web2py.gluon.validators.IS_MATCH.__init__
+web2py.gluon.validators.IS_NOT_EMPTY.__init__
+web2py.gluon.validators.IS_NOT_IN_DB.__init__
+web2py.gluon.validators.IS_SLUG.__init__
+web2py.gluon.validators.IS_STRONG.__init__
+web2py.gluon.validators.IS_TIME.__init__
+web2py.gluon.validators.IS_UPLOAD_FILENAME.__init__
+web2py.gluon.validators.IS_URL.__init__
+web2py.gluon.validators.LazyCrypt.__init__
+web2py.gluon.widget.IO.__init__
+web2py.gluon.widget.web2pyDialog.__init__
+web2py.gluon.winservice.Service.__init__" class="py-name" href="#" onclick="return doclink('link-30', '__init__', 'link-30');">__init__</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L98"></a><tt class="py-lineno"> 98</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_import_dates</tt> <tt class="py-op">=</tt> <tt class="py-op">{</tt><tt class="py-op">}</tt> <tt class="py-comment"># Import dates of the files of the modules</tt> </tt>
+<a name="L99"></a><tt class="py-lineno"> 99</tt>  <tt class="py-line">        <tt class="py-comment"># Avoid reloading cause by file modifications of reload:</tt> </tt>
+<a name="L100"></a><tt class="py-lineno">100</tt>  <tt class="py-line"><tt class="py-comment"></tt>        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_tl</tt> <tt class="py-op">=</tt> <tt class="py-name">threading</tt><tt class="py-op">.</tt><tt class="py-name">local</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L101"></a><tt class="py-lineno">101</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_tl</tt><tt class="py-op">.</tt><tt class="py-name">_modules_loaded</tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+</div><a name="L102"></a><tt class="py-lineno">102</tt>  <tt class="py-line"> </tt>
+<a name="_DateTrackerImporter.begin"></a><div id="_DateTrackerImporter.begin-def"><a name="L103"></a><tt class="py-lineno">103</tt> <a class="py-toggle" href="#" id="_DateTrackerImporter.begin-toggle" onclick="return toggle('_DateTrackerImporter.begin');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="web2py.gluon.custom_import._DateTrackerImporter-class.html#begin">begin</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="_DateTrackerImporter.begin-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="_DateTrackerImporter.begin-expanded"><a name="L104"></a><tt class="py-lineno">104</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_tl</tt><tt class="py-op">.</tt><tt class="py-name">_modules_loaded</tt> <tt class="py-op">=</tt> <tt class="py-name">set</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L105"></a><tt class="py-lineno">105</tt>  <tt class="py-line"> </tt>
+<a name="_DateTrackerImporter.__call__"></a><div id="_DateTrackerImporter.__call__-def"><a name="L106"></a><tt class="py-lineno">106</tt> <a class="py-toggle" href="#" id="_DateTrackerImporter.__call__-toggle" onclick="return toggle('_DateTrackerImporter.__call__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="web2py.gluon.custom_import._DateTrackerImporter-class.html#__call__">__call__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">name</tt><tt class="py-op">,</tt> <tt class="py-param">globals</tt><tt class="py-op">=</tt><tt class="py-name">None</tt><tt class="py-op">,</tt> <tt class="py-param">locals</tt><tt class="py-op">=</tt><tt class="py-name">None</tt><tt class="py-op">,</tt> </tt>
+<a name="L107"></a><tt class="py-lineno">107</tt>  <tt class="py-line">                 <tt class="py-param">fromlist</tt><tt class="py-op">=</tt><tt class="py-name">None</tt><tt class="py-op">,</tt> <tt class="py-param">level</tt><tt class="py-op">=</tt><tt class="py-op">-</tt><tt class="py-number">1</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="_DateTrackerImporter.__call__-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="_DateTrackerImporter.__call__-expanded"><a name="L108"></a><tt class="py-lineno">108</tt>  <tt class="py-line">        <tt class="py-docstring">"""</tt> </tt>
+<a name="L109"></a><tt class="py-lineno">109</tt>  <tt class="py-line"><tt class="py-docstring">        The import method itself.</tt> </tt>
+<a name="L110"></a><tt class="py-lineno">110</tt>  <tt class="py-line"><tt class="py-docstring">        """</tt> </tt>
+<a name="L111"></a><tt class="py-lineno">111</tt>  <tt class="py-line"> </tt>
+<a name="L112"></a><tt class="py-lineno">112</tt>  <tt class="py-line">        <tt id="link-31" class="py-name"><a title="web2py.gluon.globals" class="py-name" href="#" onclick="return doclink('link-31', 'globals', 'link-27');">globals</a></tt> <tt class="py-op">=</tt> <tt id="link-32" class="py-name"><a title="web2py.gluon.globals" class="py-name" href="#" onclick="return doclink('link-32', 'globals', 'link-27');">globals</a></tt> <tt class="py-keyword">or</tt> <tt class="py-op">{</tt><tt class="py-op">}</tt> </tt>
+<a name="L113"></a><tt class="py-lineno">113</tt>  <tt class="py-line">        <tt class="py-name">locals</tt> <tt class="py-op">=</tt> <tt class="py-name">locals</tt> <tt class="py-keyword">or</tt> <tt class="py-op">{</tt><tt class="py-op">}</tt> </tt>
+<a name="L114"></a><tt class="py-lineno">114</tt>  <tt class="py-line">        <tt class="py-name">fromlist</tt> <tt class="py-op">=</tt> <tt class="py-name">fromlist</tt> <tt class="py-keyword">or</tt> <tt class="py-op">[</tt><tt class="py-op">]</tt> </tt>
+<a name="L115"></a><tt class="py-lineno">115</tt>  <tt class="py-line"> </tt>
+<a name="L116"></a><tt class="py-lineno">116</tt>  <tt class="py-line">        <tt class="py-name">call_begin_end</tt> <tt class="py-op">=</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_tl</tt><tt class="py-op">.</tt><tt class="py-name">_modules_loaded</tt> <tt class="py-keyword">is</tt> <tt class="py-name">None</tt> </tt>
+<a name="L117"></a><tt class="py-lineno">117</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">call_begin_end</tt><tt class="py-op">:</tt> </tt>
+<a name="L118"></a><tt class="py-lineno">118</tt>  <tt class="py-line">            <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-33" class="py-name" targets="Method web2py.gluon.custom_import._BaseImporter.begin()=web2py.gluon.custom_import._BaseImporter-class.html#begin,Method web2py.gluon.custom_import._DateTrackerImporter.begin()=web2py.gluon.custom_import._DateTrackerImporter-class.html#begin"><a title="web2py.gluon.custom_import._BaseImporter.begin
+web2py.gluon.custom_import._DateTrackerImporter.begin" class="py-name" href="#" onclick="return doclink('link-33', 'begin', 'link-33');">begin</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L119"></a><tt class="py-lineno">119</tt>  <tt class="py-line">        <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L120"></a><tt class="py-lineno">120</tt>  <tt class="py-line">            <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_tl</tt><tt class="py-op">.</tt><tt id="link-34" class="py-name"><a title="web2py.gluon.globals" class="py-name" href="#" onclick="return doclink('link-34', 'globals', 'link-27');">globals</a></tt> <tt class="py-op">=</tt> <tt id="link-35" class="py-name"><a title="web2py.gluon.globals" class="py-name" href="#" onclick="return doclink('link-35', 'globals', 'link-27');">globals</a></tt> </tt>
+<a name="L121"></a><tt class="py-lineno">121</tt>  <tt class="py-line">            <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_tl</tt><tt class="py-op">.</tt><tt class="py-name">locals</tt> <tt class="py-op">=</tt> <tt class="py-name">locals</tt> </tt>
+<a name="L122"></a><tt class="py-lineno">122</tt>  <tt class="py-line">            <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_tl</tt><tt class="py-op">.</tt><tt class="py-name">level</tt> <tt class="py-op">=</tt> <tt class="py-name">level</tt> </tt>
+<a name="L123"></a><tt class="py-lineno">123</tt>  <tt class="py-line"> </tt>
+<a name="L124"></a><tt class="py-lineno">124</tt>  <tt class="py-line">            <tt class="py-comment"># Check the date and reload if needed:</tt> </tt>
+<a name="L125"></a><tt class="py-lineno">125</tt>  <tt class="py-line"><tt class="py-comment"></tt>            <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-36" class="py-name" targets="Method web2py.gluon.custom_import._DateTrackerImporter._update_dates()=web2py.gluon.custom_import._DateTrackerImporter-class.html#_update_dates"><a title="web2py.gluon.custom_import._DateTrackerImporter._update_dates" class="py-name" href="#" onclick="return doclink('link-36', '_update_dates', 'link-36');">_update_dates</a></tt><tt class="py-op">(</tt><tt id="link-37" class="py-name"><a title="web2py.gluon.import_all.name" class="py-name" href="#" onclick="return doclink('link-37', 'name', 'link-26');">name</a></tt><tt class="py-op">,</tt> <tt class="py-name">fromlist</tt><tt class="py-op">)</tt> </tt>
+<a name="L126"></a><tt class="py-lineno">126</tt>  <tt class="py-line"> </tt>
+<a name="L127"></a><tt class="py-lineno">127</tt>  <tt class="py-line">            <tt class="py-comment"># Try to load the module and update the dates if it works:</tt> </tt>
+<a name="L128"></a><tt class="py-lineno">128</tt>  <tt class="py-line"><tt class="py-comment"></tt>            <tt class="py-name">result</tt> <tt class="py-op">=</tt> <tt class="py-name">super</tt><tt class="py-op">(</tt><tt id="link-38" class="py-name"><a title="web2py.gluon.custom_import._DateTrackerImporter" class="py-name" href="#" onclick="return doclink('link-38', '_DateTrackerImporter', 'link-29');">_DateTrackerImporter</a></tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">)</tt> \ </tt>
+<a name="L129"></a><tt class="py-lineno">129</tt>  <tt class="py-line">              <tt class="py-op">.</tt><tt id="link-39" class="py-name" targets="Method web2py.gluon.cache.Cache.__call__()=web2py.gluon.cache.Cache-class.html#__call__,Method web2py.gluon.cache.CacheAbstract.__call__()=web2py.gluon.cache.CacheAbstract-class.html#__call__,Method web2py.gluon.cache.CacheAction.__call__()=web2py.gluon.cache.CacheAction-class.html#__call__,Method web2py.gluon.cache.CacheInRam.__call__()=web2py.gluon.cache.CacheInRam-class.html#__call__,Method web2py.gluon.cache.CacheOnDisk.__call__()=web2py.gluon.cache.CacheOnDisk-class.html#__call__,Method web2py.gluon.compileapp.LoadFactory.__call__()=web2py.gluon.compileapp.LoadFactory-class.html#__call__,Method web2py.gluon.custom_import._BaseImporter.__call__()=web2py.gluon.custom_import._BaseImporter-class.html#__call__,Method web2py.gluon.custom_import._DateTrackerImporter.__call__()=web2py.gluon.custom_import._DateTrackerImporter-class.html#__call__,Method web2py.gluon.custom_import._Web2pyImporter.__call__()=web2py.gluon.custom_import._Web2pyImporter-class.html#__call__,Method web2py.gluon.dal.DAL.__call__()=web2py.gluon.dal.DAL-class.html#__call__,Method web2py.gluon.dal.RecordDeleter.__call__()=web2py.gluon.dal.RecordDeleter-class.html#__call__,Method web2py.gluon.dal.RecordUpdater.__call__()=web2py.gluon.dal.RecordUpdater-class.html#__call__,Method web2py.gluon.dal.SQLCallableList.__call__()=web2py.gluon.dal.SQLCallableList-class.html#__call__,Method web2py.gluon.dal.Set.__call__()=web2py.gluon.dal.Set-class.html#__call__,Method web2py.gluon.dal.Table.__call__()=web2py.gluon.dal.Table-class.html#__call__,Method web2py.gluon.dal.VirtualCommand.__call__()=web2py.gluon.dal.VirtualCommand-class.html#__call__,Method web2py.gluon.html.__TAG__.__call__()=web2py.gluon.html.__TAG__-class.html#__call__,Method web2py.gluon.languages.translator.__call__()=web2py.gluon.languages.translator-class.html#__call__,Method web2py.gluon.rocket.FuturesMiddleware.__call__()=web2py.gluon.rocket.FuturesMiddleware-class.html#__call__,Method web2py.gluon.scheduler.TYPE.__call__()=web2py.gluon.scheduler.TYPE-class.html#__call__,Method web2py.gluon.sqlhtml.AutocompleteWidget.__call__()=web2py.gluon.sqlhtml.AutocompleteWidget-class.html#__call__,Method web2py.gluon.storage.List.__call__()=web2py.gluon.storage.List-class.html#__call__,Method web2py.gluon.tools.Auth.__call__()=web2py.gluon.tools.Auth-class.html#__call__,Method web2py.gluon.tools.Crud.__call__()=web2py.gluon.tools.Crud-class.html#__call__,Method web2py.gluon.tools.Service.__call__()=web2py.gluon.tools.Service-class.html#__call__,Method web2py.gluon.tools.Wiki.__call__()=web2py.gluon.tools.Wiki-class.html#__call__,Method web2py.gluon.validators.CLEANUP.__call__()=web2py.gluon.validators.CLEANUP-class.html#__call__,Method web2py.gluon.validators.CRYPT.__call__()=web2py.gluon.validators.CRYPT-class.html#__call__,Method web2py.gluon.validators.IS_DATE.__call__()=web2py.gluon.validators.IS_DATE-class.html#__call__,Method web2py.gluon.validators.IS_DATETIME.__call__()=web2py.gluon.validators.IS_DATETIME-class.html#__call__,Method web2py.gluon.validators.IS_DATETIME_IN_RANGE.__call__()=web2py.gluon.validators.IS_DATETIME_IN_RANGE-class.html#__call__,Method web2py.gluon.validators.IS_DATE_IN_RANGE.__call__()=web2py.gluon.validators.IS_DATE_IN_RANGE-class.html#__call__,Method web2py.gluon.validators.IS_DECIMAL_IN_RANGE.__call__()=web2py.gluon.validators.IS_DECIMAL_IN_RANGE-class.html#__call__,Method web2py.gluon.validators.IS_EMAIL.__call__()=web2py.gluon.validators.IS_EMAIL-class.html#__call__,Method web2py.gluon.validators.IS_EMPTY_OR.__call__()=web2py.gluon.validators.IS_EMPTY_OR-class.html#__call__,Method web2py.gluon.validators.IS_EQUAL_TO.__call__()=web2py.gluon.validators.IS_EQUAL_TO-class.html#__call__,Method web2py.gluon.validators.IS_EXPR.__call__()=web2py.gluon.validators.IS_EXPR-class.html#__call__,Method web2py.gluon.validators.IS_FLOAT_IN_RANGE.__call__()=web2py.gluon.validators.IS_FLOAT_IN_RANGE-class.html#__call__,Method web2py.gluon.validators.IS_GENERIC_URL.__call__()=web2py.gluon.validators.IS_GENERIC_URL-class.html#__call__,Method web2py.gluon.validators.IS_HTTP_URL.__call__()=web2py.gluon.validators.IS_HTTP_URL-class.html#__call__,Method web2py.gluon.validators.IS_IMAGE.__call__()=web2py.gluon.validators.IS_IMAGE-class.html#__call__,Method web2py.gluon.validators.IS_INT_IN_RANGE.__call__()=web2py.gluon.validators.IS_INT_IN_RANGE-class.html#__call__,Method web2py.gluon.validators.IS_IN_DB.__call__()=web2py.gluon.validators.IS_IN_DB-class.html#__call__,Method web2py.gluon.validators.IS_IN_SET.__call__()=web2py.gluon.validators.IS_IN_SET-class.html#__call__,Method web2py.gluon.validators.IS_IN_SUBSET.__call__()=web2py.gluon.validators.IS_IN_SUBSET-class.html#__call__,Method web2py.gluon.validators.IS_IPV4.__call__()=web2py.gluon.validators.IS_IPV4-class.html#__call__,Method web2py.gluon.validators.IS_LENGTH.__call__()=web2py.gluon.validators.IS_LENGTH-class.html#__call__,Method web2py.gluon.validators.IS_LIST_OF.__call__()=web2py.gluon.validators.IS_LIST_OF-class.html#__call__,Method web2py.gluon.validators.IS_LOWER.__call__()=web2py.gluon.validators.IS_LOWER-class.html#__call__,Method web2py.gluon.validators.IS_MATCH.__call__()=web2py.gluon.validators.IS_MATCH-class.html#__call__,Method web2py.gluon.validators.IS_NOT_EMPTY.__call__()=web2py.gluon.validators.IS_NOT_EMPTY-class.html#__call__,Method web2py.gluon.validators.IS_NOT_IN_DB.__call__()=web2py.gluon.validators.IS_NOT_IN_DB-class.html#__call__,Method web2py.gluon.validators.IS_SLUG.__call__()=web2py.gluon.validators.IS_SLUG-class.html#__call__,Method web2py.gluon.validators.IS_STRONG.__call__()=web2py.gluon.validators.IS_STRONG-class.html#__call__,Method web2py.gluon.validators.IS_TIME.__call__()=web2py.gluon.validators.IS_TIME-class.html#__call__,Method web2py.gluon.validators.IS_UPLOAD_FILENAME.__call__()=web2py.gluon.validators.IS_UPLOAD_FILENAME-class.html#__call__,Method web2py.gluon.validators.IS_UPPER.__call__()=web2py.gluon.validators.IS_UPPER-class.html#__call__,Method web2py.gluon.validators.IS_URL.__call__()=web2py.gluon.validators.IS_URL-class.html#__call__"><a title="web2py.gluon.cache.Cache.__call__
+web2py.gluon.cache.CacheAbstract.__call__
+web2py.gluon.cache.CacheAction.__call__
+web2py.gluon.cache.CacheInRam.__call__
+web2py.gluon.cache.CacheOnDisk.__call__
+web2py.gluon.compileapp.LoadFactory.__call__
+web2py.gluon.custom_import._BaseImporter.__call__
+web2py.gluon.custom_import._DateTrackerImporter.__call__
+web2py.gluon.custom_import._Web2pyImporter.__call__
+web2py.gluon.dal.DAL.__call__
+web2py.gluon.dal.RecordDeleter.__call__
+web2py.gluon.dal.RecordUpdater.__call__
+web2py.gluon.dal.SQLCallableList.__call__
+web2py.gluon.dal.Set.__call__
+web2py.gluon.dal.Table.__call__
+web2py.gluon.dal.VirtualCommand.__call__
+web2py.gluon.html.__TAG__.__call__
+web2py.gluon.languages.translator.__call__
+web2py.gluon.rocket.FuturesMiddleware.__call__
+web2py.gluon.scheduler.TYPE.__call__
+web2py.gluon.sqlhtml.AutocompleteWidget.__call__
+web2py.gluon.storage.List.__call__
+web2py.gluon.tools.Auth.__call__
+web2py.gluon.tools.Crud.__call__
+web2py.gluon.tools.Service.__call__
+web2py.gluon.tools.Wiki.__call__
+web2py.gluon.validators.CLEANUP.__call__
+web2py.gluon.validators.CRYPT.__call__
+web2py.gluon.validators.IS_DATE.__call__
+web2py.gluon.validators.IS_DATETIME.__call__
+web2py.gluon.validators.IS_DATETIME_IN_RANGE.__call__
+web2py.gluon.validators.IS_DATE_IN_RANGE.__call__
+web2py.gluon.validators.IS_DECIMAL_IN_RANGE.__call__
+web2py.gluon.validators.IS_EMAIL.__call__
+web2py.gluon.validators.IS_EMPTY_OR.__call__
+web2py.gluon.validators.IS_EQUAL_TO.__call__
+web2py.gluon.validators.IS_EXPR.__call__
+web2py.gluon.validators.IS_FLOAT_IN_RANGE.__call__
+web2py.gluon.validators.IS_GENERIC_URL.__call__
+web2py.gluon.validators.IS_HTTP_URL.__call__
+web2py.gluon.validators.IS_IMAGE.__call__
+web2py.gluon.validators.IS_INT_IN_RANGE.__call__
+web2py.gluon.validators.IS_IN_DB.__call__
+web2py.gluon.validators.IS_IN_SET.__call__
+web2py.gluon.validators.IS_IN_SUBSET.__call__
+web2py.gluon.validators.IS_IPV4.__call__
+web2py.gluon.validators.IS_LENGTH.__call__
+web2py.gluon.validators.IS_LIST_OF.__call__
+web2py.gluon.validators.IS_LOWER.__call__
+web2py.gluon.validators.IS_MATCH.__call__
+web2py.gluon.validators.IS_NOT_EMPTY.__call__
+web2py.gluon.validators.IS_NOT_IN_DB.__call__
+web2py.gluon.validators.IS_SLUG.__call__
+web2py.gluon.validators.IS_STRONG.__call__
+web2py.gluon.validators.IS_TIME.__call__
+web2py.gluon.validators.IS_UPLOAD_FILENAME.__call__
+web2py.gluon.validators.IS_UPPER.__call__
+web2py.gluon.validators.IS_URL.__call__" class="py-name" href="#" onclick="return doclink('link-39', '__call__', 'link-39');">__call__</a></tt><tt class="py-op">(</tt><tt id="link-40" class="py-name"><a title="web2py.gluon.import_all.name" class="py-name" href="#" onclick="return doclink('link-40', 'name', 'link-26');">name</a></tt><tt class="py-op">,</tt> <tt id="link-41" class="py-name"><a title="web2py.gluon.globals" class="py-name" href="#" onclick="return doclink('link-41', 'globals', 'link-27');">globals</a></tt><tt class="py-op">,</tt> <tt class="py-name">locals</tt><tt class="py-op">,</tt> <tt class="py-name">fromlist</tt><tt class="py-op">,</tt> <tt class="py-name">level</tt><tt class="py-op">)</tt> </tt>
+<a name="L130"></a><tt class="py-lineno">130</tt>  <tt class="py-line">            <tt class="py-comment"># Module maybe loaded for the 1st time so we need to set the date</tt> </tt>
+<a name="L131"></a><tt class="py-lineno">131</tt>  <tt class="py-line"><tt class="py-comment"></tt>            <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-42" class="py-name"><a title="web2py.gluon.custom_import._DateTrackerImporter._update_dates" class="py-name" href="#" onclick="return doclink('link-42', '_update_dates', 'link-36');">_update_dates</a></tt><tt class="py-op">(</tt><tt id="link-43" class="py-name"><a title="web2py.gluon.import_all.name" class="py-name" href="#" onclick="return doclink('link-43', 'name', 'link-26');">name</a></tt><tt class="py-op">,</tt> <tt class="py-name">fromlist</tt><tt class="py-op">)</tt> </tt>
+<a name="L132"></a><tt class="py-lineno">132</tt>  <tt class="py-line">            <tt class="py-keyword">return</tt> <tt class="py-name">result</tt> </tt>
+<a name="L133"></a><tt class="py-lineno">133</tt>  <tt class="py-line">        <tt class="py-keyword">except</tt> <tt id="link-44" class="py-name" targets="Class exceptions.Exception=exceptions.Exception-class.html"><a title="exceptions.Exception" class="py-name" href="#" onclick="return doclink('link-44', 'Exception', 'link-44');">Exception</a></tt><tt class="py-op">:</tt> </tt>
+<a name="L134"></a><tt class="py-lineno">134</tt>  <tt class="py-line">            <tt class="py-keyword">raise</tt> <tt class="py-comment"># Don't hide something that went wrong</tt> </tt>
+<a name="L135"></a><tt class="py-lineno">135</tt>  <tt class="py-line">        <tt class="py-keyword">finally</tt><tt class="py-op">:</tt> </tt>
+<a name="L136"></a><tt class="py-lineno">136</tt>  <tt class="py-line">            <tt class="py-keyword">if</tt> <tt class="py-name">call_begin_end</tt><tt class="py-op">:</tt> </tt>
+<a name="L137"></a><tt class="py-lineno">137</tt>  <tt class="py-line">                <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-45" class="py-name" targets="Method web2py.gluon.custom_import._BaseImporter.end()=web2py.gluon.custom_import._BaseImporter-class.html#end,Method web2py.gluon.custom_import._DateTrackerImporter.end()=web2py.gluon.custom_import._DateTrackerImporter-class.html#end"><a title="web2py.gluon.custom_import._BaseImporter.end
+web2py.gluon.custom_import._DateTrackerImporter.end" class="py-name" href="#" onclick="return doclink('link-45', 'end', 'link-45');">end</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L138"></a><tt class="py-lineno">138</tt>  <tt class="py-line"> </tt>
+<a name="_DateTrackerImporter._update_dates"></a><div id="_DateTrackerImporter._update_dates-def"><a name="L139"></a><tt class="py-lineno">139</tt> <a class="py-toggle" href="#" id="_DateTrackerImporter._update_dates-toggle" onclick="return toggle('_DateTrackerImporter._update_dates');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="web2py.gluon.custom_import._DateTrackerImporter-class.html#_update_dates">_update_dates</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">name</tt><tt class="py-op">,</tt> <tt class="py-param">fromlist</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="_DateTrackerImporter._update_dates-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="_DateTrackerImporter._update_dates-expanded"><a name="L140"></a><tt class="py-lineno">140</tt>  <tt class="py-line">        <tt class="py-docstring">"""</tt> </tt>
+<a name="L141"></a><tt class="py-lineno">141</tt>  <tt class="py-line"><tt class="py-docstring">        Update all the dates associated to the statement import. A single</tt> </tt>
+<a name="L142"></a><tt class="py-lineno">142</tt>  <tt class="py-line"><tt class="py-docstring">        import statement may import many modules.</tt> </tt>
+<a name="L143"></a><tt class="py-lineno">143</tt>  <tt class="py-line"><tt class="py-docstring">        """</tt> </tt>
+<a name="L144"></a><tt class="py-lineno">144</tt>  <tt class="py-line"> </tt>
+<a name="L145"></a><tt class="py-lineno">145</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-46" class="py-name" targets="Method web2py.gluon.custom_import._DateTrackerImporter._reload_check()=web2py.gluon.custom_import._DateTrackerImporter-class.html#_reload_check"><a title="web2py.gluon.custom_import._DateTrackerImporter._reload_check" class="py-name" href="#" onclick="return doclink('link-46', '_reload_check', 'link-46');">_reload_check</a></tt><tt class="py-op">(</tt><tt id="link-47" class="py-name"><a title="web2py.gluon.import_all.name" class="py-name" href="#" onclick="return doclink('link-47', 'name', 'link-26');">name</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L146"></a><tt class="py-lineno">146</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">fromlist</tt><tt class="py-op">:</tt> </tt>
+<a name="L147"></a><tt class="py-lineno">147</tt>  <tt class="py-line">            <tt class="py-keyword">for</tt> <tt class="py-name">fromlist_name</tt> <tt class="py-keyword">in</tt> <tt class="py-name">fromlist</tt><tt class="py-op">:</tt> </tt>
+<a name="L148"></a><tt class="py-lineno">148</tt>  <tt class="py-line">                <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-48" class="py-name"><a title="web2py.gluon.custom_import._DateTrackerImporter._reload_check" class="py-name" href="#" onclick="return doclink('link-48', '_reload_check', 'link-46');">_reload_check</a></tt><tt class="py-op">(</tt><tt class="py-string">"%s.%s"</tt> <tt class="py-op">%</tt> <tt class="py-op">(</tt><tt id="link-49" class="py-name"><a title="web2py.gluon.import_all.name" class="py-name" href="#" onclick="return doclink('link-49', 'name', 'link-26');">name</a></tt><tt class="py-op">,</tt> <tt class="py-name">fromlist_name</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L149"></a><tt class="py-lineno">149</tt>  <tt class="py-line"> </tt>
+<a name="_DateTrackerImporter._reload_check"></a><div id="_DateTrackerImporter._reload_check-def"><a name="L150"></a><tt class="py-lineno">150</tt> <a class="py-toggle" href="#" id="_DateTrackerImporter._reload_check-toggle" onclick="return toggle('_DateTrackerImporter._reload_check');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="web2py.gluon.custom_import._DateTrackerImporter-class.html#_reload_check">_reload_check</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">name</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="_DateTrackerImporter._reload_check-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="_DateTrackerImporter._reload_check-expanded"><a name="L151"></a><tt class="py-lineno">151</tt>  <tt class="py-line">        <tt class="py-docstring">"""</tt> </tt>
+<a name="L152"></a><tt class="py-lineno">152</tt>  <tt class="py-line"><tt class="py-docstring">        Update the date associated to the module and reload the module if</tt> </tt>
+<a name="L153"></a><tt class="py-lineno">153</tt>  <tt class="py-line"><tt class="py-docstring">        the file has changed.</tt> </tt>
+<a name="L154"></a><tt class="py-lineno">154</tt>  <tt class="py-line"><tt class="py-docstring">        """</tt> </tt>
+<a name="L155"></a><tt class="py-lineno">155</tt>  <tt class="py-line"> </tt>
+<a name="L156"></a><tt class="py-lineno">156</tt>  <tt class="py-line">        <tt id="link-50" class="py-name" targets="Variable web2py.gluon.import_all.module=web2py.gluon.import_all-module.html#module"><a title="web2py.gluon.import_all.module" class="py-name" href="#" onclick="return doclink('link-50', 'module', 'link-50');">module</a></tt> <tt class="py-op">=</tt> <tt class="py-name">sys</tt><tt class="py-op">.</tt><tt class="py-name">modules</tt><tt class="py-op">.</tt><tt id="link-51" class="py-name" targets="Method web2py.gluon.dal.DAL.get()=web2py.gluon.dal.DAL-class.html#get,Method web2py.gluon.dal.Reference.get()=web2py.gluon.dal.Reference-class.html#get,Method web2py.gluon.dal.Row.get()=web2py.gluon.dal.Row-class.html#get"><a title="web2py.gluon.dal.DAL.get
+web2py.gluon.dal.Reference.get
+web2py.gluon.dal.Row.get" class="py-name" href="#" onclick="return doclink('link-51', 'get', 'link-51');">get</a></tt><tt class="py-op">(</tt><tt id="link-52" class="py-name"><a title="web2py.gluon.import_all.name" class="py-name" href="#" onclick="return doclink('link-52', 'name', 'link-26');">name</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L157"></a><tt class="py-lineno">157</tt>  <tt class="py-line">        <tt class="py-name">file</tt> <tt class="py-op">=</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-53" class="py-name" targets="Class Method web2py.gluon.custom_import._DateTrackerImporter._get_module_file()=web2py.gluon.custom_import._DateTrackerImporter-class.html#_get_module_file"><a title="web2py.gluon.custom_import._DateTrackerImporter._get_module_file" class="py-name" href="#" onclick="return doclink('link-53', '_get_module_file', 'link-53');">_get_module_file</a></tt><tt class="py-op">(</tt><tt id="link-54" class="py-name"><a title="web2py.gluon.import_all.module" class="py-name" href="#" onclick="return doclink('link-54', 'module', 'link-50');">module</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L158"></a><tt class="py-lineno">158</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">file</tt><tt class="py-op">:</tt> </tt>
+<a name="L159"></a><tt class="py-lineno">159</tt>  <tt class="py-line">            <tt class="py-name">date</tt> <tt class="py-op">=</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_import_dates</tt><tt class="py-op">.</tt><tt id="link-55" class="py-name"><a title="web2py.gluon.dal.DAL.get
+web2py.gluon.dal.Reference.get
+web2py.gluon.dal.Row.get" class="py-name" href="#" onclick="return doclink('link-55', 'get', 'link-51');">get</a></tt><tt class="py-op">(</tt><tt class="py-name">file</tt><tt class="py-op">)</tt> </tt>
+<a name="L160"></a><tt class="py-lineno">160</tt>  <tt class="py-line">            <tt class="py-name">new_date</tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L161"></a><tt class="py-lineno">161</tt>  <tt class="py-line">            <tt class="py-name">reload_mod</tt> <tt class="py-op">=</tt> <tt class="py-name">False</tt> </tt>
+<a name="L162"></a><tt class="py-lineno">162</tt>  <tt class="py-line">            <tt class="py-name">mod_to_pack</tt> <tt class="py-op">=</tt> <tt class="py-name">False</tt> <tt class="py-comment"># Module turning into a package? (special case)</tt> </tt>
+<a name="L163"></a><tt class="py-lineno">163</tt>  <tt class="py-line">            <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L164"></a><tt class="py-lineno">164</tt>  <tt class="py-line">                <tt class="py-name">new_date</tt> <tt class="py-op">=</tt> <tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">.</tt><tt class="py-name">getmtime</tt><tt class="py-op">(</tt><tt class="py-name">file</tt><tt class="py-op">)</tt> </tt>
+<a name="L165"></a><tt class="py-lineno">165</tt>  <tt class="py-line">            <tt class="py-keyword">except</tt><tt class="py-op">:</tt> </tt>
+<a name="L166"></a><tt class="py-lineno">166</tt>  <tt class="py-line">                <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_import_dates</tt><tt class="py-op">.</tt><tt class="py-name">pop</tt><tt class="py-op">(</tt><tt class="py-name">file</tt><tt class="py-op">,</tt> <tt class="py-name">None</tt><tt class="py-op">)</tt>  <tt class="py-comment"># Clean up</tt> </tt>
+<a name="L167"></a><tt class="py-lineno">167</tt>  <tt class="py-line">                <tt class="py-comment"># Handle module changing in package and</tt> </tt>
+<a name="L168"></a><tt class="py-lineno">168</tt>  <tt class="py-line"><tt class="py-comment"></tt>                <tt class="py-comment">#package changing in module:</tt> </tt>
+<a name="L169"></a><tt class="py-lineno">169</tt>  <tt class="py-line"><tt class="py-comment"></tt>                <tt class="py-keyword">if</tt> <tt class="py-name">file</tt><tt class="py-op">.</tt><tt id="link-56" class="py-name" targets="Method web2py.gluon.dal.Expression.endswith()=web2py.gluon.dal.Expression-class.html#endswith,Method web2py.gluon.utf8.Utf8.endswith()=web2py.gluon.utf8.Utf8-class.html#endswith"><a title="web2py.gluon.dal.Expression.endswith
+web2py.gluon.utf8.Utf8.endswith" class="py-name" href="#" onclick="return doclink('link-56', 'endswith', 'link-56');">endswith</a></tt><tt class="py-op">(</tt><tt class="py-string">".py"</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L170"></a><tt class="py-lineno">170</tt>  <tt class="py-line">                    <tt class="py-comment"># Get path without file ext:</tt> </tt>
+<a name="L171"></a><tt class="py-lineno">171</tt>  <tt class="py-line"><tt class="py-comment"></tt>                    <tt class="py-name">file</tt> <tt class="py-op">=</tt> <tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">.</tt><tt class="py-name">splitext</tt><tt class="py-op">(</tt><tt class="py-name">file</tt><tt class="py-op">)</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt> </tt>
+<a name="L172"></a><tt class="py-lineno">172</tt>  <tt class="py-line">                    <tt class="py-name">reload_mod</tt> <tt class="py-op">=</tt> <tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">.</tt><tt class="py-name">isdir</tt><tt class="py-op">(</tt><tt class="py-name">file</tt><tt class="py-op">)</tt> \ </tt>
+<a name="L173"></a><tt class="py-lineno">173</tt>  <tt class="py-line">                      <tt class="py-keyword">and</tt> <tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">.</tt><tt class="py-name">isfile</tt><tt class="py-op">(</tt><tt class="py-name">file</tt><tt class="py-op">+</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-57" class="py-name"><a title="web2py.gluon.custom_import._DateTrackerImporter._PACKAGE_PATH_SUFFIX" class="py-name" href="#" onclick="return doclink('link-57', '_PACKAGE_PATH_SUFFIX', 'link-28');">_PACKAGE_PATH_SUFFIX</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L174"></a><tt class="py-lineno">174</tt>  <tt class="py-line">                    <tt class="py-name">mod_to_pack</tt> <tt class="py-op">=</tt> <tt class="py-name">reload_mod</tt> </tt>
+<a name="L175"></a><tt class="py-lineno">175</tt>  <tt class="py-line">                <tt class="py-keyword">else</tt><tt class="py-op">:</tt> <tt class="py-comment"># Package turning into module?</tt> </tt>
+<a name="L176"></a><tt class="py-lineno">176</tt>  <tt class="py-line">                    <tt class="py-name">file</tt> <tt class="py-op">+=</tt> <tt class="py-string">".py"</tt> </tt>
+<a name="L177"></a><tt class="py-lineno">177</tt>  <tt class="py-line">                    <tt class="py-name">reload_mod</tt> <tt class="py-op">=</tt> <tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">.</tt><tt class="py-name">isfile</tt><tt class="py-op">(</tt><tt class="py-name">file</tt><tt class="py-op">)</tt> </tt>
+<a name="L178"></a><tt class="py-lineno">178</tt>  <tt class="py-line">                <tt class="py-keyword">if</tt> <tt class="py-name">reload_mod</tt><tt class="py-op">:</tt> </tt>
+<a name="L179"></a><tt class="py-lineno">179</tt>  <tt class="py-line">                    <tt class="py-name">new_date</tt> <tt class="py-op">=</tt> <tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">.</tt><tt class="py-name">getmtime</tt><tt class="py-op">(</tt><tt class="py-name">file</tt><tt class="py-op">)</tt> <tt class="py-comment"># Refresh file date</tt> </tt>
+<a name="L180"></a><tt class="py-lineno">180</tt>  <tt class="py-line">            <tt class="py-keyword">if</tt> <tt class="py-name">reload_mod</tt> <tt class="py-keyword">or</tt> <tt class="py-keyword">not</tt> <tt class="py-name">date</tt> <tt class="py-keyword">or</tt> <tt class="py-name">new_date</tt> <tt class="py-op">&gt;</tt> <tt class="py-name">date</tt><tt class="py-op">:</tt> </tt>
+<a name="L181"></a><tt class="py-lineno">181</tt>  <tt class="py-line">                <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_import_dates</tt><tt class="py-op">[</tt><tt class="py-name">file</tt><tt class="py-op">]</tt> <tt class="py-op">=</tt> <tt class="py-name">new_date</tt> </tt>
+<a name="L182"></a><tt class="py-lineno">182</tt>  <tt class="py-line">            <tt class="py-keyword">if</tt> <tt class="py-name">reload_mod</tt> <tt class="py-keyword">or</tt> <tt class="py-op">(</tt><tt class="py-name">date</tt> <tt class="py-keyword">and</tt> <tt class="py-name">new_date</tt> <tt class="py-op">&gt;</tt> <tt class="py-name">date</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L183"></a><tt class="py-lineno">183</tt>  <tt class="py-line">                <tt class="py-keyword">if</tt> <tt id="link-58" class="py-name"><a title="web2py.gluon.import_all.module" class="py-name" href="#" onclick="return doclink('link-58', 'module', 'link-50');">module</a></tt> <tt class="py-keyword">not</tt> <tt class="py-keyword">in</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_tl</tt><tt class="py-op">.</tt><tt class="py-name">_modules_loaded</tt><tt class="py-op">:</tt> </tt>
+<a name="L184"></a><tt class="py-lineno">184</tt>  <tt class="py-line">                    <tt class="py-keyword">if</tt> <tt class="py-name">mod_to_pack</tt><tt class="py-op">:</tt> </tt>
+<a name="L185"></a><tt class="py-lineno">185</tt>  <tt class="py-line">                        <tt class="py-comment"># Module turning into a package:</tt> </tt>
+<a name="L186"></a><tt class="py-lineno">186</tt>  <tt class="py-line"><tt class="py-comment"></tt>                        <tt class="py-name">mod_name</tt> <tt class="py-op">=</tt> <tt id="link-59" class="py-name"><a title="web2py.gluon.import_all.module" class="py-name" href="#" onclick="return doclink('link-59', 'module', 'link-50');">module</a></tt><tt class="py-op">.</tt><tt class="py-name">__name__</tt> </tt>
+<a name="L187"></a><tt class="py-lineno">187</tt>  <tt class="py-line">                        <tt class="py-keyword">del</tt> <tt class="py-name">sys</tt><tt class="py-op">.</tt><tt class="py-name">modules</tt><tt class="py-op">[</tt><tt class="py-name">mod_name</tt><tt class="py-op">]</tt> <tt class="py-comment"># Delete the module</tt> </tt>
+<a name="L188"></a><tt class="py-lineno">188</tt>  <tt class="py-line">                        <tt class="py-comment"># Reload the module:</tt> </tt>
+<a name="L189"></a><tt class="py-lineno">189</tt>  <tt class="py-line"><tt class="py-comment"></tt>                        <tt class="py-name">super</tt><tt class="py-op">(</tt><tt id="link-60" class="py-name"><a title="web2py.gluon.custom_import._DateTrackerImporter" class="py-name" href="#" onclick="return doclink('link-60', '_DateTrackerImporter', 'link-29');">_DateTrackerImporter</a></tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">)</tt><tt class="py-op">.</tt><tt id="link-61" class="py-name"><a title="web2py.gluon.cache.Cache.__call__
+web2py.gluon.cache.CacheAbstract.__call__
+web2py.gluon.cache.CacheAction.__call__
+web2py.gluon.cache.CacheInRam.__call__
+web2py.gluon.cache.CacheOnDisk.__call__
+web2py.gluon.compileapp.LoadFactory.__call__
+web2py.gluon.custom_import._BaseImporter.__call__
+web2py.gluon.custom_import._DateTrackerImporter.__call__
+web2py.gluon.custom_import._Web2pyImporter.__call__
+web2py.gluon.dal.DAL.__call__
+web2py.gluon.dal.RecordDeleter.__call__
+web2py.gluon.dal.RecordUpdater.__call__
+web2py.gluon.dal.SQLCallableList.__call__
+web2py.gluon.dal.Set.__call__
+web2py.gluon.dal.Table.__call__
+web2py.gluon.dal.VirtualCommand.__call__
+web2py.gluon.html.__TAG__.__call__
+web2py.gluon.languages.translator.__call__
+web2py.gluon.rocket.FuturesMiddleware.__call__
+web2py.gluon.scheduler.TYPE.__call__
+web2py.gluon.sqlhtml.AutocompleteWidget.__call__
+web2py.gluon.storage.List.__call__
+web2py.gluon.tools.Auth.__call__
+web2py.gluon.tools.Crud.__call__
+web2py.gluon.tools.Service.__call__
+web2py.gluon.tools.Wiki.__call__
+web2py.gluon.validators.CLEANUP.__call__
+web2py.gluon.validators.CRYPT.__call__
+web2py.gluon.validators.IS_DATE.__call__
+web2py.gluon.validators.IS_DATETIME.__call__
+web2py.gluon.validators.IS_DATETIME_IN_RANGE.__call__
+web2py.gluon.validators.IS_DATE_IN_RANGE.__call__
+web2py.gluon.validators.IS_DECIMAL_IN_RANGE.__call__
+web2py.gluon.validators.IS_EMAIL.__call__
+web2py.gluon.validators.IS_EMPTY_OR.__call__
+web2py.gluon.validators.IS_EQUAL_TO.__call__
+web2py.gluon.validators.IS_EXPR.__call__
+web2py.gluon.validators.IS_FLOAT_IN_RANGE.__call__
+web2py.gluon.validators.IS_GENERIC_URL.__call__
+web2py.gluon.validators.IS_HTTP_URL.__call__
+web2py.gluon.validators.IS_IMAGE.__call__
+web2py.gluon.validators.IS_INT_IN_RANGE.__call__
+web2py.gluon.validators.IS_IN_DB.__call__
+web2py.gluon.validators.IS_IN_SET.__call__
+web2py.gluon.validators.IS_IN_SUBSET.__call__
+web2py.gluon.validators.IS_IPV4.__call__
+web2py.gluon.validators.IS_LENGTH.__call__
+web2py.gluon.validators.IS_LIST_OF.__call__
+web2py.gluon.validators.IS_LOWER.__call__
+web2py.gluon.validators.IS_MATCH.__call__
+web2py.gluon.validators.IS_NOT_EMPTY.__call__
+web2py.gluon.validators.IS_NOT_IN_DB.__call__
+web2py.gluon.validators.IS_SLUG.__call__
+web2py.gluon.validators.IS_STRONG.__call__
+web2py.gluon.validators.IS_TIME.__call__
+web2py.gluon.validators.IS_UPLOAD_FILENAME.__call__
+web2py.gluon.validators.IS_UPPER.__call__
+web2py.gluon.validators.IS_URL.__call__" class="py-name" href="#" onclick="return doclink('link-61', '__call__', 'link-39');">__call__</a></tt> \ </tt>
+<a name="L190"></a><tt class="py-lineno">190</tt>  <tt class="py-line">                          <tt class="py-op">(</tt><tt class="py-name">mod_name</tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_tl</tt><tt class="py-op">.</tt><tt id="link-62" class="py-name"><a title="web2py.gluon.globals" class="py-name" href="#" onclick="return doclink('link-62', 'globals', 'link-27');">globals</a></tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_tl</tt><tt class="py-op">.</tt><tt class="py-name">locals</tt><tt class="py-op">,</tt> <tt class="py-op">[</tt><tt class="py-op">]</tt><tt class="py-op">,</tt> </tt>
+<a name="L191"></a><tt class="py-lineno">191</tt>  <tt class="py-line">                           <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_tl</tt><tt class="py-op">.</tt><tt class="py-name">level</tt><tt class="py-op">)</tt> </tt>
+<a name="L192"></a><tt class="py-lineno">192</tt>  <tt class="py-line">                    <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="L193"></a><tt class="py-lineno">193</tt>  <tt class="py-line">                        <tt class="py-name">reload</tt><tt class="py-op">(</tt><tt id="link-63" class="py-name"><a title="web2py.gluon.import_all.module" class="py-name" href="#" onclick="return doclink('link-63', 'module', 'link-50');">module</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L194"></a><tt class="py-lineno">194</tt>  <tt class="py-line">                        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_tl</tt><tt class="py-op">.</tt><tt class="py-name">_modules_loaded</tt><tt class="py-op">.</tt><tt class="py-name">add</tt><tt class="py-op">(</tt><tt id="link-64" class="py-name"><a title="web2py.gluon.import_all.module" class="py-name" href="#" onclick="return doclink('link-64', 'module', 'link-50');">module</a></tt><tt class="py-op">)</tt> </tt>
+</div><a name="L195"></a><tt class="py-lineno">195</tt>  <tt class="py-line"> </tt>
+<a name="_DateTrackerImporter.end"></a><div id="_DateTrackerImporter.end-def"><a name="L196"></a><tt class="py-lineno">196</tt> <a class="py-toggle" href="#" id="_DateTrackerImporter.end-toggle" onclick="return toggle('_DateTrackerImporter.end');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="web2py.gluon.custom_import._DateTrackerImporter-class.html#end">end</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="_DateTrackerImporter.end-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="_DateTrackerImporter.end-expanded"><a name="L197"></a><tt class="py-lineno">197</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_tl</tt><tt class="py-op">.</tt><tt class="py-name">_modules_loaded</tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+</div><a name="L198"></a><tt class="py-lineno">198</tt>  <tt class="py-line"> </tt>
+<a name="L199"></a><tt class="py-lineno">199</tt>  <tt class="py-line">    <tt class="py-decorator">@</tt><tt class="py-decorator">classmethod</tt> </tt>
+<a name="_DateTrackerImporter._get_module_file"></a><div id="_DateTrackerImporter._get_module_file-def"><a name="L200"></a><tt class="py-lineno">200</tt> <a class="py-toggle" href="#" id="_DateTrackerImporter._get_module_file-toggle" onclick="return toggle('_DateTrackerImporter._get_module_file');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="web2py.gluon.custom_import._DateTrackerImporter-class.html#_get_module_file">_get_module_file</a><tt class="py-op">(</tt><tt class="py-param">cls</tt><tt class="py-op">,</tt> <tt class="py-param">module</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="_DateTrackerImporter._get_module_file-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="_DateTrackerImporter._get_module_file-expanded"><a name="L201"></a><tt class="py-lineno">201</tt>  <tt class="py-line">        <tt class="py-docstring">"""</tt> </tt>
+<a name="L202"></a><tt class="py-lineno">202</tt>  <tt class="py-line"><tt class="py-docstring">        Get the absolute path file associated to the module or None.</tt> </tt>
+<a name="L203"></a><tt class="py-lineno">203</tt>  <tt class="py-line"><tt class="py-docstring">        """</tt> </tt>
+<a name="L204"></a><tt class="py-lineno">204</tt>  <tt class="py-line"> </tt>
+<a name="L205"></a><tt class="py-lineno">205</tt>  <tt class="py-line">        <tt class="py-name">file</tt> <tt class="py-op">=</tt> <tt class="py-name">getattr</tt><tt class="py-op">(</tt><tt id="link-65" class="py-name"><a title="web2py.gluon.import_all.module" class="py-name" href="#" onclick="return doclink('link-65', 'module', 'link-50');">module</a></tt><tt class="py-op">,</tt> <tt class="py-string">"__file__"</tt><tt class="py-op">,</tt> <tt class="py-name">None</tt><tt class="py-op">)</tt> </tt>
+<a name="L206"></a><tt class="py-lineno">206</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">file</tt><tt class="py-op">:</tt> </tt>
+<a name="L207"></a><tt class="py-lineno">207</tt>  <tt class="py-line">            <tt class="py-comment"># Make path absolute if not:</tt> </tt>
+<a name="L208"></a><tt class="py-lineno">208</tt>  <tt class="py-line"><tt class="py-comment"></tt>            <tt class="py-comment">#file = os.path.join(cls.web2py_path, file)</tt> </tt>
+<a name="L209"></a><tt class="py-lineno">209</tt>  <tt class="py-line"><tt class="py-comment"></tt> </tt>
+<a name="L210"></a><tt class="py-lineno">210</tt>  <tt class="py-line">            <tt class="py-name">file</tt> <tt class="py-op">=</tt> <tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">.</tt><tt class="py-name">splitext</tt><tt class="py-op">(</tt><tt class="py-name">file</tt><tt class="py-op">)</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt><tt class="py-op">+</tt><tt class="py-string">".py"</tt> <tt class="py-comment"># Change .pyc for .py</tt> </tt>
+<a name="L211"></a><tt class="py-lineno">211</tt>  <tt class="py-line">            <tt class="py-keyword">if</tt> <tt class="py-name">file</tt><tt class="py-op">.</tt><tt id="link-66" class="py-name"><a title="web2py.gluon.dal.Expression.endswith
+web2py.gluon.utf8.Utf8.endswith" class="py-name" href="#" onclick="return doclink('link-66', 'endswith', 'link-56');">endswith</a></tt><tt class="py-op">(</tt><tt class="py-name">cls</tt><tt class="py-op">.</tt><tt id="link-67" class="py-name"><a title="web2py.gluon.custom_import._DateTrackerImporter._PACKAGE_PATH_SUFFIX" class="py-name" href="#" onclick="return doclink('link-67', '_PACKAGE_PATH_SUFFIX', 'link-28');">_PACKAGE_PATH_SUFFIX</a></tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L212"></a><tt class="py-lineno">212</tt>  <tt class="py-line">                <tt class="py-name">file</tt> <tt class="py-op">=</tt> <tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">.</tt><tt class="py-name">dirname</tt><tt class="py-op">(</tt><tt class="py-name">file</tt><tt class="py-op">)</tt>  <tt class="py-comment"># Track dir for packages</tt> </tt>
+<a name="L213"></a><tt class="py-lineno">213</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">file</tt> </tt>
+</div></div><a name="L214"></a><tt class="py-lineno">214</tt>  <tt class="py-line"> </tt>
+<a name="_Web2pyImporter"></a><div id="_Web2pyImporter-def"><a name="L215"></a><tt class="py-lineno">215</tt> <a class="py-toggle" href="#" id="_Web2pyImporter-toggle" onclick="return toggle('_Web2pyImporter');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="web2py.gluon.custom_import._Web2pyImporter-class.html">_Web2pyImporter</a><tt class="py-op">(</tt><tt class="py-base-class">_BaseImporter</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="_Web2pyImporter-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="_Web2pyImporter-expanded"><a name="L216"></a><tt class="py-lineno">216</tt>  <tt class="py-line">    <tt class="py-docstring">"""</tt> </tt>
+<a name="L217"></a><tt class="py-lineno">217</tt>  <tt class="py-line"><tt class="py-docstring">    The standard web2py importer. Like the standard Python importer but it</tt> </tt>
+<a name="L218"></a><tt class="py-lineno">218</tt>  <tt class="py-line"><tt class="py-docstring">    tries to transform import statements as something like</tt> </tt>
+<a name="L219"></a><tt class="py-lineno">219</tt>  <tt class="py-line"><tt class="py-docstring">    "import applications.app_name.modules.x". If the import failed, fall back</tt> </tt>
+<a name="L220"></a><tt class="py-lineno">220</tt>  <tt class="py-line"><tt class="py-docstring">    on _BaseImporter.</tt> </tt>
+<a name="L221"></a><tt class="py-lineno">221</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L222"></a><tt class="py-lineno">222</tt>  <tt class="py-line"> </tt>
+<a name="L223"></a><tt class="py-lineno">223</tt>  <tt class="py-line">    <tt id="link-68" class="py-name" targets="Variable web2py.gluon.custom_import._Web2pyImporter._RE_ESCAPED_PATH_SEP=web2py.gluon.custom_import._Web2pyImporter-class.html#_RE_ESCAPED_PATH_SEP"><a title="web2py.gluon.custom_import._Web2pyImporter._RE_ESCAPED_PATH_SEP" class="py-name" href="#" onclick="return doclink('link-68', '_RE_ESCAPED_PATH_SEP', 'link-68');">_RE_ESCAPED_PATH_SEP</a></tt> <tt class="py-op">=</tt> <tt class="py-name">re</tt><tt class="py-op">.</tt><tt id="link-69" class="py-name" targets="Method web2py.gluon.dal.DatabaseStoredFile.escape()=web2py.gluon.dal.DatabaseStoredFile-class.html#escape"><a title="web2py.gluon.dal.DatabaseStoredFile.escape" class="py-name" href="#" onclick="return doclink('link-69', 'escape', 'link-69');">escape</a></tt><tt class="py-op">(</tt><tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">.</tt><tt class="py-name">sep</tt><tt class="py-op">)</tt>  <tt class="py-comment"># os.path.sep escaped for re</tt> </tt>
+<a name="L224"></a><tt class="py-lineno">224</tt>  <tt class="py-line"> </tt>
+<a name="_Web2pyImporter.__init__"></a><div id="_Web2pyImporter.__init__-def"><a name="L225"></a><tt class="py-lineno">225</tt> <a class="py-toggle" href="#" id="_Web2pyImporter.__init__-toggle" onclick="return toggle('_Web2pyImporter.__init__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="web2py.gluon.custom_import._Web2pyImporter-class.html#__init__">__init__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">web2py_path</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="_Web2pyImporter.__init__-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="_Web2pyImporter.__init__-expanded"><a name="L226"></a><tt class="py-lineno">226</tt>  <tt class="py-line">        <tt class="py-docstring">"""</tt> </tt>
+<a name="L227"></a><tt class="py-lineno">227</tt>  <tt class="py-line"><tt class="py-docstring">        @param web2py_path: The absolute path of the web2py installation.</tt> </tt>
+<a name="L228"></a><tt class="py-lineno">228</tt>  <tt class="py-line"><tt class="py-docstring">        """</tt> </tt>
+<a name="L229"></a><tt class="py-lineno">229</tt>  <tt class="py-line"> </tt>
+<a name="L230"></a><tt class="py-lineno">230</tt>  <tt class="py-line">        <tt class="py-keyword">global</tt> <tt class="py-name">DEBUG</tt> </tt>
+<a name="L231"></a><tt class="py-lineno">231</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">super_class</tt> <tt class="py-op">=</tt> <tt class="py-name">super</tt><tt class="py-op">(</tt><tt id="link-70" class="py-name"><a title="web2py.gluon.custom_import._Web2pyImporter" class="py-name" href="#" onclick="return doclink('link-70', '_Web2pyImporter', 'link-2');">_Web2pyImporter</a></tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">)</tt> </tt>
+<a name="L232"></a><tt class="py-lineno">232</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">super_class</tt><tt class="py-op">.</tt><tt id="link-71" class="py-name"><a title="web2py.gluon.cache.Cache.__init__
+web2py.gluon.cache.CacheAbstract.__init__
+web2py.gluon.cache.CacheAction.__init__
+web2py.gluon.cache.CacheInRam.__init__
+web2py.gluon.cache.CacheOnDisk.__init__
+web2py.gluon.compileapp.LoadFactory.__init__
+web2py.gluon.custom_import._BaseImporter.__init__
+web2py.gluon.custom_import._DateTrackerImporter.__init__
+web2py.gluon.custom_import._Web2pyImporter.__init__
+web2py.gluon.dal.BaseAdapter.__init__
+web2py.gluon.dal.CouchDBAdapter.__init__
+web2py.gluon.dal.CubridAdapter.__init__
+web2py.gluon.dal.DAL.__init__
+web2py.gluon.dal.DB2Adapter.__init__
+web2py.gluon.dal.DatabaseStoredFile.__init__
+web2py.gluon.dal.Expression.__init__
+web2py.gluon.dal.Field.__init__
+web2py.gluon.dal.FieldLazy.__init__
+web2py.gluon.dal.FieldVirtual.__init__
+web2py.gluon.dal.FireBirdAdapter.__init__
+web2py.gluon.dal.FireBirdEmbeddedAdapter.__init__
+web2py.gluon.dal.GAEDecimalProperty.__init__
+web2py.gluon.dal.GAEF.__init__
+web2py.gluon.dal.GoogleDatastoreAdapter.__init__
+web2py.gluon.dal.GoogleSQLAdapter.__init__
+web2py.gluon.dal.IMAPAdapter.__init__
+web2py.gluon.dal.InformixAdapter.__init__
+web2py.gluon.dal.IngresAdapter.__init__
+web2py.gluon.dal.JDBCPostgreSQLAdapter.__init__
+web2py.gluon.dal.JDBCSQLiteAdapter.__init__
+web2py.gluon.dal.MSSQLAdapter.__init__
+web2py.gluon.dal.MongoDBAdapter.__init__
+web2py.gluon.dal.MySQLAdapter.__init__
+web2py.gluon.dal.OracleAdapter.__init__
+web2py.gluon.dal.PostgreSQLAdapter.__init__
+web2py.gluon.dal.Query.__init__
+web2py.gluon.dal.RecordDeleter.__init__
+web2py.gluon.dal.RecordUpdater.__init__
+web2py.gluon.dal.Row.__init__
+web2py.gluon.dal.Rows.__init__
+web2py.gluon.dal.SAPDBAdapter.__init__
+web2py.gluon.dal.SQLALL.__init__
+web2py.gluon.dal.SQLCustomType.__init__
+web2py.gluon.dal.SQLiteAdapter.__init__
+web2py.gluon.dal.Set.__init__
+web2py.gluon.dal.SpatiaLiteAdapter.__init__
+web2py.gluon.dal.SybaseAdapter.__init__
+web2py.gluon.dal.Table.__init__
+web2py.gluon.dal.TeradataAdapter.__init__
+web2py.gluon.dal.VirtualCommand.__init__
+web2py.gluon.debug.Pipe.__init__
+web2py.gluon.debug.WebDebugger.__init__
+web2py.gluon.globals.Request.__init__
+web2py.gluon.globals.Response.__init__
+web2py.gluon.highlight.Highlighter.__init__
+web2py.gluon.html.BEAUTIFY.__init__
+web2py.gluon.html.DIV.__init__
+web2py.gluon.html.FORM.__init__
+web2py.gluon.html.MARKMIN.__init__
+web2py.gluon.html.MENU.__init__
+web2py.gluon.html.XML.__init__
+web2py.gluon.html.web2pyHTMLParser.__init__
+web2py.gluon.http.HTTP.__init__
+web2py.gluon.languages.lazyT.__init__
+web2py.gluon.languages.translator.__init__
+web2py.gluon.main.HttpServer.__init__
+web2py.gluon.messageboxhandler.MessageBoxHandler.__init__
+web2py.gluon.newcron.Token.__init__
+web2py.gluon.newcron.cronlauncher.__init__
+web2py.gluon.newcron.extcron.__init__
+web2py.gluon.newcron.hardcron.__init__
+web2py.gluon.newcron.softcron.__init__
+web2py.gluon.portalocker.LockedFile.__init__
+web2py.gluon.restricted.RestrictedError.__init__
+web2py.gluon.restricted.TicketStorage.__init__
+web2py.gluon.rewrite.MapUrlIn.__init__
+web2py.gluon.rewrite.MapUrlOut.__init__
+web2py.gluon.rocket.ChunkedReader.__init__
+web2py.gluon.rocket.Connection.__init__
+web2py.gluon.rocket.FileLikeSocket.__init__
+web2py.gluon.rocket.FileSystemWorker.__init__
+web2py.gluon.rocket.FuturesMiddleware.__init__
+web2py.gluon.rocket.LimitingFileWrapper.__init__
+web2py.gluon.rocket.Listener.__init__
+web2py.gluon.rocket.Monitor.__init__
+web2py.gluon.rocket.Rocket.__init__
+web2py.gluon.rocket.ThreadPool.__init__
+web2py.gluon.rocket.WSGIExecutor.__init__
+web2py.gluon.rocket.WSGIFuture.__init__
+web2py.gluon.rocket.WSGIWorker.__init__
+web2py.gluon.rocket.Worker.__init__
+web2py.gluon.rocket._WorkItem.__init__
+web2py.gluon.sanitizer.XssCleaner.__init__
+web2py.gluon.scheduler.MetaScheduler.__init__
+web2py.gluon.scheduler.Scheduler.__init__
+web2py.gluon.scheduler.TYPE.__init__
+web2py.gluon.scheduler.Task.__init__
+web2py.gluon.scheduler.TaskReport.__init__
+web2py.gluon.sqlhtml.AutocompleteWidget.__init__
+web2py.gluon.sqlhtml.ExportClass.__init__
+web2py.gluon.sqlhtml.ExporterCSV.__init__
+web2py.gluon.sqlhtml.ExporterHTML.__init__
+web2py.gluon.sqlhtml.ExporterTSV.__init__
+web2py.gluon.sqlhtml.ExporterXML.__init__
+web2py.gluon.sqlhtml.SQLFORM.__init__
+web2py.gluon.sqlhtml.SQLTABLE.__init__
+web2py.gluon.storage.FastStorage.__init__
+web2py.gluon.storage.Messages.__init__
+web2py.gluon.template.BlockNode.__init__
+web2py.gluon.template.Content.__init__
+web2py.gluon.template.DummyResponse.__init__
+web2py.gluon.template.NOESCAPE.__init__
+web2py.gluon.template.Node.__init__
+web2py.gluon.template.SuperNode.__init__
+web2py.gluon.template.TemplateParser.__init__
+web2py.gluon.tools.Auth.__init__
+web2py.gluon.tools.Crud.__init__
+web2py.gluon.tools.Expose.__init__
+web2py.gluon.tools.Mail.Attachment.__init__
+web2py.gluon.tools.Mail.__init__
+web2py.gluon.tools.PluginManager.__init__
+web2py.gluon.tools.Recaptcha.__init__
+web2py.gluon.tools.Service.JsonRpcException.__init__
+web2py.gluon.tools.Service.__init__
+web2py.gluon.tools.Wiki.__init__
+web2py.gluon.validators.CLEANUP.__init__
+web2py.gluon.validators.CRYPT.__init__
+web2py.gluon.validators.IS_ALPHANUMERIC.__init__
+web2py.gluon.validators.IS_DATE.__init__
+web2py.gluon.validators.IS_DATETIME.__init__
+web2py.gluon.validators.IS_DATETIME_IN_RANGE.__init__
+web2py.gluon.validators.IS_DATE_IN_RANGE.__init__
+web2py.gluon.validators.IS_DECIMAL_IN_RANGE.__init__
+web2py.gluon.validators.IS_EMAIL.__init__
+web2py.gluon.validators.IS_EMPTY_OR.__init__
+web2py.gluon.validators.IS_EQUAL_TO.__init__
+web2py.gluon.validators.IS_EXPR.__init__
+web2py.gluon.validators.IS_FLOAT_IN_RANGE.__init__
+web2py.gluon.validators.IS_GENERIC_URL.__init__
+web2py.gluon.validators.IS_HTTP_URL.__init__
+web2py.gluon.validators.IS_IMAGE.__init__
+web2py.gluon.validators.IS_INT_IN_RANGE.__init__
+web2py.gluon.validators.IS_IN_DB.__init__
+web2py.gluon.validators.IS_IN_SET.__init__
+web2py.gluon.validators.IS_IN_SUBSET.__init__
+web2py.gluon.validators.IS_IPV4.__init__
+web2py.gluon.validators.IS_LENGTH.__init__
+web2py.gluon.validators.IS_LIST_OF.__init__
+web2py.gluon.validators.IS_MATCH.__init__
+web2py.gluon.validators.IS_NOT_EMPTY.__init__
+web2py.gluon.validators.IS_NOT_IN_DB.__init__
+web2py.gluon.validators.IS_SLUG.__init__
+web2py.gluon.validators.IS_STRONG.__init__
+web2py.gluon.validators.IS_TIME.__init__
+web2py.gluon.validators.IS_UPLOAD_FILENAME.__init__
+web2py.gluon.validators.IS_URL.__init__
+web2py.gluon.validators.LazyCrypt.__init__
+web2py.gluon.widget.IO.__init__
+web2py.gluon.widget.web2pyDialog.__init__
+web2py.gluon.winservice.Service.__init__" class="py-name" href="#" onclick="return doclink('link-71', '__init__', 'link-30');">__init__</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L233"></a><tt class="py-lineno">233</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-72" class="py-name"><a title="web2py.gluon.main.web2py_path" class="py-name" href="#" onclick="return doclink('link-72', 'web2py_path', 'link-4');">web2py_path</a></tt> <tt class="py-op">=</tt>  <tt id="link-73" class="py-name"><a title="web2py.gluon.main.web2py_path" class="py-name" href="#" onclick="return doclink('link-73', 'web2py_path', 'link-4');">web2py_path</a></tt> </tt>
+<a name="L234"></a><tt class="py-lineno">234</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">__web2py_path_os_path_sep</tt> <tt class="py-op">=</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-74" class="py-name"><a title="web2py.gluon.main.web2py_path" class="py-name" href="#" onclick="return doclink('link-74', 'web2py_path', 'link-4');">web2py_path</a></tt><tt class="py-op">+</tt><tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">.</tt><tt class="py-name">sep</tt> </tt>
+<a name="L235"></a><tt class="py-lineno">235</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">__web2py_path_os_path_sep_len</tt> <tt class="py-op">=</tt> <tt id="link-75" class="py-name" targets="Method web2py.gluon.dal.Expression.len()=web2py.gluon.dal.Expression-class.html#len"><a title="web2py.gluon.dal.Expression.len" class="py-name" href="#" onclick="return doclink('link-75', 'len', 'link-75');">len</a></tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">__web2py_path_os_path_sep</tt><tt class="py-op">)</tt> </tt>
+<a name="L236"></a><tt class="py-lineno">236</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">__RE_APP_DIR</tt> <tt class="py-op">=</tt> <tt class="py-name">re</tt><tt class="py-op">.</tt><tt class="py-name">compile</tt><tt class="py-op">(</tt> </tt>
+<a name="L237"></a><tt class="py-lineno">237</tt>  <tt class="py-line">          <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-76" class="py-name"><a title="web2py.gluon.custom_import._Web2pyImporter._RE_ESCAPED_PATH_SEP" class="py-name" href="#" onclick="return doclink('link-76', '_RE_ESCAPED_PATH_SEP', 'link-68');">_RE_ESCAPED_PATH_SEP</a></tt><tt class="py-op">.</tt><tt id="link-77" class="py-name" targets="Function web2py.gluon.html.join()=web2py.gluon.html-module.html#join,Method web2py.gluon.rocket.Listener.join()=web2py.gluon.rocket.Listener-class.html#join,Method web2py.gluon.utf8.Utf8.join()=web2py.gluon.utf8.Utf8-class.html#join"><a title="web2py.gluon.html.join
+web2py.gluon.rocket.Listener.join
+web2py.gluon.utf8.Utf8.join" class="py-name" href="#" onclick="return doclink('link-77', 'join', 'link-77');">join</a></tt><tt class="py-op">(</tt> \ </tt>
+<a name="L238"></a><tt class="py-lineno">238</tt>  <tt class="py-line">          <tt class="py-op">(</tt> \ </tt>
+<a name="L239"></a><tt class="py-lineno">239</tt>  <tt class="py-line">            <tt class="py-comment">#"^" + re.escape(web2py_path),   # Not working with Python 2.5</tt> </tt>
+<a name="L240"></a><tt class="py-lineno">240</tt>  <tt class="py-line">            <tt class="py-string">"^("</tt> <tt class="py-op">+</tt> <tt class="py-string">"applications"</tt><tt class="py-op">,</tt> </tt>
+<a name="L241"></a><tt class="py-lineno">241</tt>  <tt class="py-line">            <tt class="py-string">"[^"</tt><tt class="py-op">,</tt> </tt>
+<a name="L242"></a><tt class="py-lineno">242</tt>  <tt class="py-line">            <tt class="py-string">"]+)"</tt><tt class="py-op">,</tt> </tt>
+<a name="L243"></a><tt class="py-lineno">243</tt>  <tt class="py-line">            <tt class="py-string">""</tt><tt class="py-op">,</tt> </tt>
+<a name="L244"></a><tt class="py-lineno">244</tt>  <tt class="py-line">          <tt class="py-op">)</tt> <tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L245"></a><tt class="py-lineno">245</tt>  <tt class="py-line"> </tt>
+<a name="_Web2pyImporter._matchAppDir"></a><div id="_Web2pyImporter._matchAppDir-def"><a name="L246"></a><tt class="py-lineno">246</tt> <a class="py-toggle" href="#" id="_Web2pyImporter._matchAppDir-toggle" onclick="return toggle('_Web2pyImporter._matchAppDir');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="web2py.gluon.custom_import._Web2pyImporter-class.html#_matchAppDir">_matchAppDir</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">file_path</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="_Web2pyImporter._matchAppDir-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="_Web2pyImporter._matchAppDir-expanded"><a name="L247"></a><tt class="py-lineno">247</tt>  <tt class="py-line">        <tt class="py-docstring">"""</tt> </tt>
+<a name="L248"></a><tt class="py-lineno">248</tt>  <tt class="py-line"><tt class="py-docstring">        Does the file in a directory inside the "applications" directory?</tt> </tt>
+<a name="L249"></a><tt class="py-lineno">249</tt>  <tt class="py-line"><tt class="py-docstring">        """</tt> </tt>
+<a name="L250"></a><tt class="py-lineno">250</tt>  <tt class="py-line"> </tt>
+<a name="L251"></a><tt class="py-lineno">251</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">file_path</tt><tt class="py-op">.</tt><tt id="link-78" class="py-name" targets="Method web2py.gluon.dal.Expression.startswith()=web2py.gluon.dal.Expression-class.html#startswith,Method web2py.gluon.dal.SQLCustomType.startswith()=web2py.gluon.dal.SQLCustomType-class.html#startswith,Method web2py.gluon.utf8.Utf8.startswith()=web2py.gluon.utf8.Utf8-class.html#startswith"><a title="web2py.gluon.dal.Expression.startswith
+web2py.gluon.dal.SQLCustomType.startswith
+web2py.gluon.utf8.Utf8.startswith" class="py-name" href="#" onclick="return doclink('link-78', 'startswith', 'link-78');">startswith</a></tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">__web2py_path_os_path_sep</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L252"></a><tt class="py-lineno">252</tt>  <tt class="py-line">            <tt class="py-name">file_path</tt> <tt class="py-op">=</tt> <tt class="py-name">file_path</tt><tt class="py-op">[</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">__web2py_path_os_path_sep_len</tt><tt class="py-op">:</tt><tt class="py-op">]</tt> </tt>
+<a name="L253"></a><tt class="py-lineno">253</tt>  <tt class="py-line">            <tt class="py-keyword">return</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">__RE_APP_DIR</tt><tt class="py-op">.</tt><tt class="py-name">match</tt><tt class="py-op">(</tt><tt class="py-name">file_path</tt><tt class="py-op">)</tt> </tt>
+<a name="L254"></a><tt class="py-lineno">254</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">False</tt> </tt>
+</div><a name="L255"></a><tt class="py-lineno">255</tt>  <tt class="py-line"> </tt>
+<a name="_Web2pyImporter.__call__"></a><div id="_Web2pyImporter.__call__-def"><a name="L256"></a><tt class="py-lineno">256</tt> <a class="py-toggle" href="#" id="_Web2pyImporter.__call__-toggle" onclick="return toggle('_Web2pyImporter.__call__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="web2py.gluon.custom_import._Web2pyImporter-class.html#__call__">__call__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">name</tt><tt class="py-op">,</tt> <tt class="py-param">globals</tt><tt class="py-op">=</tt><tt class="py-name">None</tt><tt class="py-op">,</tt> <tt class="py-param">locals</tt><tt class="py-op">=</tt><tt class="py-name">None</tt><tt class="py-op">,</tt> </tt>
+<a name="L257"></a><tt class="py-lineno">257</tt>  <tt class="py-line">                 <tt class="py-param">fromlist</tt><tt class="py-op">=</tt><tt class="py-name">None</tt><tt class="py-op">,</tt> <tt class="py-param">level</tt><tt class="py-op">=</tt><tt class="py-op">-</tt><tt class="py-number">1</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="_Web2pyImporter.__call__-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="_Web2pyImporter.__call__-expanded"><a name="L258"></a><tt class="py-lineno">258</tt>  <tt class="py-line">        <tt class="py-docstring">"""</tt> </tt>
+<a name="L259"></a><tt class="py-lineno">259</tt>  <tt class="py-line"><tt class="py-docstring">        The import method itself.</tt> </tt>
+<a name="L260"></a><tt class="py-lineno">260</tt>  <tt class="py-line"><tt class="py-docstring">        """</tt> </tt>
+<a name="L261"></a><tt class="py-lineno">261</tt>  <tt class="py-line"> </tt>
+<a name="L262"></a><tt class="py-lineno">262</tt>  <tt class="py-line">        <tt id="link-79" class="py-name"><a title="web2py.gluon.globals" class="py-name" href="#" onclick="return doclink('link-79', 'globals', 'link-27');">globals</a></tt> <tt class="py-op">=</tt> <tt id="link-80" class="py-name"><a title="web2py.gluon.globals" class="py-name" href="#" onclick="return doclink('link-80', 'globals', 'link-27');">globals</a></tt> <tt class="py-keyword">or</tt> <tt class="py-op">{</tt><tt class="py-op">}</tt> </tt>
+<a name="L263"></a><tt class="py-lineno">263</tt>  <tt class="py-line">        <tt class="py-name">locals</tt> <tt class="py-op">=</tt> <tt class="py-name">locals</tt> <tt class="py-keyword">or</tt> <tt class="py-op">{</tt><tt class="py-op">}</tt> </tt>
+<a name="L264"></a><tt class="py-lineno">264</tt>  <tt class="py-line">        <tt class="py-name">fromlist</tt> <tt class="py-op">=</tt> <tt class="py-name">fromlist</tt> <tt class="py-keyword">or</tt> <tt class="py-op">[</tt><tt class="py-op">]</tt> </tt>
+<a name="L265"></a><tt class="py-lineno">265</tt>  <tt class="py-line"> </tt>
+<a name="L266"></a><tt class="py-lineno">266</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-81" class="py-name"><a title="web2py.gluon.custom_import._BaseImporter.begin
+web2py.gluon.custom_import._DateTrackerImporter.begin" class="py-name" href="#" onclick="return doclink('link-81', 'begin', 'link-33');">begin</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L267"></a><tt class="py-lineno">267</tt>  <tt class="py-line">        <tt class="py-comment">#try:</tt> </tt>
+<a name="L268"></a><tt class="py-lineno">268</tt>  <tt class="py-line"><tt class="py-comment"></tt>        <tt class="py-comment"># if not relative and not from applications:</tt> </tt>
+<a name="L269"></a><tt class="py-lineno">269</tt>  <tt class="py-line"><tt class="py-comment"></tt>        <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt id="link-82" class="py-name"><a title="web2py.gluon.import_all.name" class="py-name" href="#" onclick="return doclink('link-82', 'name', 'link-26');">name</a></tt><tt class="py-op">.</tt><tt id="link-83" class="py-name"><a title="web2py.gluon.dal.Expression.startswith
+web2py.gluon.dal.SQLCustomType.startswith
+web2py.gluon.utf8.Utf8.startswith" class="py-name" href="#" onclick="return doclink('link-83', 'startswith', 'link-78');">startswith</a></tt><tt class="py-op">(</tt><tt class="py-string">"."</tt><tt class="py-op">)</tt> <tt class="py-keyword">and</tt> <tt class="py-name">level</tt> <tt class="py-op">&lt;=</tt> <tt class="py-number">0</tt> \ </tt>
+<a name="L270"></a><tt class="py-lineno">270</tt>  <tt class="py-line">                    <tt class="py-keyword">and</tt> <tt class="py-keyword">not</tt> <tt id="link-84" class="py-name"><a title="web2py.gluon.import_all.name" class="py-name" href="#" onclick="return doclink('link-84', 'name', 'link-26');">name</a></tt><tt class="py-op">.</tt><tt id="link-85" class="py-name"><a title="web2py.gluon.dal.Expression.startswith
+web2py.gluon.dal.SQLCustomType.startswith
+web2py.gluon.utf8.Utf8.startswith" class="py-name" href="#" onclick="return doclink('link-85', 'startswith', 'link-78');">startswith</a></tt><tt class="py-op">(</tt><tt class="py-string">"applications."</tt><tt class="py-op">)</tt> \ </tt>
+<a name="L271"></a><tt class="py-lineno">271</tt>  <tt class="py-line">                    <tt class="py-keyword">and</tt> <tt class="py-name">isinstance</tt><tt class="py-op">(</tt><tt id="link-86" class="py-name"><a title="web2py.gluon.globals" class="py-name" href="#" onclick="return doclink('link-86', 'globals', 'link-27');">globals</a></tt><tt class="py-op">,</tt> <tt id="link-87" class="py-name" targets="Class dict=dict-class.html"><a title="dict" class="py-name" href="#" onclick="return doclink('link-87', 'dict', 'link-87');">dict</a></tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L272"></a><tt class="py-lineno">272</tt>  <tt class="py-line">            <tt class="py-comment"># Get the name of the file do the import</tt> </tt>
+<a name="L273"></a><tt class="py-lineno">273</tt>  <tt class="py-line"><tt class="py-comment"></tt>            <tt class="py-name">caller_file_name</tt> <tt class="py-op">=</tt> <tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">.</tt><tt id="link-88" class="py-name"><a title="web2py.gluon.html.join
+web2py.gluon.rocket.Listener.join
+web2py.gluon.utf8.Utf8.join" class="py-name" href="#" onclick="return doclink('link-88', 'join', 'link-77');">join</a></tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-89" class="py-name"><a title="web2py.gluon.main.web2py_path" class="py-name" href="#" onclick="return doclink('link-89', 'web2py_path', 'link-4');">web2py_path</a></tt><tt class="py-op">,</tt> \ </tt>
+<a name="L274"></a><tt class="py-lineno">274</tt>  <tt class="py-line">                                            <tt id="link-90" class="py-name"><a title="web2py.gluon.globals" class="py-name" href="#" onclick="return doclink('link-90', 'globals', 'link-27');">globals</a></tt><tt class="py-op">.</tt><tt id="link-91" class="py-name"><a title="web2py.gluon.dal.DAL.get
+web2py.gluon.dal.Reference.get
+web2py.gluon.dal.Row.get" class="py-name" href="#" onclick="return doclink('link-91', 'get', 'link-51');">get</a></tt><tt class="py-op">(</tt><tt class="py-string">"__file__"</tt><tt class="py-op">,</tt> <tt class="py-string">""</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L275"></a><tt class="py-lineno">275</tt>  <tt class="py-line">            <tt class="py-comment"># Is the path in an application directory?</tt> </tt>
+<a name="L276"></a><tt class="py-lineno">276</tt>  <tt class="py-line"><tt class="py-comment"></tt>            <tt class="py-name">match_app_dir</tt> <tt class="py-op">=</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-92" class="py-name" targets="Method web2py.gluon.custom_import._Web2pyImporter._matchAppDir()=web2py.gluon.custom_import._Web2pyImporter-class.html#_matchAppDir"><a title="web2py.gluon.custom_import._Web2pyImporter._matchAppDir" class="py-name" href="#" onclick="return doclink('link-92', '_matchAppDir', 'link-92');">_matchAppDir</a></tt><tt class="py-op">(</tt><tt class="py-name">caller_file_name</tt><tt class="py-op">)</tt> </tt>
+<a name="L277"></a><tt class="py-lineno">277</tt>  <tt class="py-line">            <tt class="py-keyword">if</tt> <tt class="py-name">match_app_dir</tt><tt class="py-op">:</tt> </tt>
+<a name="L278"></a><tt class="py-lineno">278</tt>  <tt class="py-line">                <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L279"></a><tt class="py-lineno">279</tt>  <tt class="py-line">                    <tt class="py-comment"># Get the prefix to add for the import</tt> </tt>
+<a name="L280"></a><tt class="py-lineno">280</tt>  <tt class="py-line"><tt class="py-comment"></tt>                    <tt class="py-comment"># (like applications.app_name.modules):</tt> </tt>
+<a name="L281"></a><tt class="py-lineno">281</tt>  <tt class="py-line"><tt class="py-comment"></tt>                    <tt class="py-name">modules_prefix</tt> <tt class="py-op">=</tt> \ </tt>
+<a name="L282"></a><tt class="py-lineno">282</tt>  <tt class="py-line">                        <tt class="py-string">"."</tt><tt class="py-op">.</tt><tt id="link-93" class="py-name"><a title="web2py.gluon.html.join
+web2py.gluon.rocket.Listener.join
+web2py.gluon.utf8.Utf8.join" class="py-name" href="#" onclick="return doclink('link-93', 'join', 'link-77');">join</a></tt><tt class="py-op">(</tt><tt class="py-op">(</tt><tt class="py-name">match_app_dir</tt><tt class="py-op">.</tt><tt class="py-name">group</tt><tt class="py-op">(</tt><tt class="py-number">1</tt><tt class="py-op">)</tt><tt class="py-op">.</tt> \ </tt>
+<a name="L283"></a><tt class="py-lineno">283</tt>  <tt class="py-line">                        <tt id="link-94" class="py-name" targets="Method web2py.gluon.utf8.Utf8.replace()=web2py.gluon.utf8.Utf8-class.html#replace"><a title="web2py.gluon.utf8.Utf8.replace" class="py-name" href="#" onclick="return doclink('link-94', 'replace', 'link-94');">replace</a></tt><tt class="py-op">(</tt><tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">.</tt><tt class="py-name">sep</tt><tt class="py-op">,</tt> <tt class="py-string">"."</tt><tt class="py-op">)</tt><tt class="py-op">,</tt> <tt class="py-string">"modules"</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L284"></a><tt class="py-lineno">284</tt>  <tt class="py-line">                    <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt class="py-name">fromlist</tt><tt class="py-op">:</tt> </tt>
+<a name="L285"></a><tt class="py-lineno">285</tt>  <tt class="py-line">                        <tt class="py-comment"># import like "import x" or "import x.y"</tt> </tt>
+<a name="L286"></a><tt class="py-lineno">286</tt>  <tt class="py-line"><tt class="py-comment"></tt>                        <tt class="py-keyword">return</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-95" class="py-name" targets="Method web2py.gluon.custom_import._Web2pyImporter.__import__dot()=web2py.gluon.custom_import._Web2pyImporter-class.html#__import__dot"><a title="web2py.gluon.custom_import._Web2pyImporter.__import__dot" class="py-name" href="#" onclick="return doclink('link-95', '__import__dot', 'link-95');">__import__dot</a></tt><tt class="py-op">(</tt><tt class="py-name">modules_prefix</tt><tt class="py-op">,</tt> <tt id="link-96" class="py-name"><a title="web2py.gluon.import_all.name" class="py-name" href="#" onclick="return doclink('link-96', 'name', 'link-26');">name</a></tt><tt class="py-op">,</tt> </tt>
+<a name="L287"></a><tt class="py-lineno">287</tt>  <tt class="py-line">                            <tt id="link-97" class="py-name"><a title="web2py.gluon.globals" class="py-name" href="#" onclick="return doclink('link-97', 'globals', 'link-27');">globals</a></tt><tt class="py-op">,</tt> <tt class="py-name">locals</tt><tt class="py-op">,</tt> <tt class="py-name">fromlist</tt><tt class="py-op">,</tt> <tt class="py-name">level</tt><tt class="py-op">)</tt> </tt>
+<a name="L288"></a><tt class="py-lineno">288</tt>  <tt class="py-line">                    <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="L289"></a><tt class="py-lineno">289</tt>  <tt class="py-line">                        <tt class="py-comment"># import like "from x import a, b, ..."</tt> </tt>
+<a name="L290"></a><tt class="py-lineno">290</tt>  <tt class="py-line"><tt class="py-comment"></tt>                        <tt class="py-keyword">return</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">super_class</tt> \ </tt>
+<a name="L291"></a><tt class="py-lineno">291</tt>  <tt class="py-line">                            <tt class="py-op">.</tt><tt id="link-98" class="py-name"><a title="web2py.gluon.cache.Cache.__call__
+web2py.gluon.cache.CacheAbstract.__call__
+web2py.gluon.cache.CacheAction.__call__
+web2py.gluon.cache.CacheInRam.__call__
+web2py.gluon.cache.CacheOnDisk.__call__
+web2py.gluon.compileapp.LoadFactory.__call__
+web2py.gluon.custom_import._BaseImporter.__call__
+web2py.gluon.custom_import._DateTrackerImporter.__call__
+web2py.gluon.custom_import._Web2pyImporter.__call__
+web2py.gluon.dal.DAL.__call__
+web2py.gluon.dal.RecordDeleter.__call__
+web2py.gluon.dal.RecordUpdater.__call__
+web2py.gluon.dal.SQLCallableList.__call__
+web2py.gluon.dal.Set.__call__
+web2py.gluon.dal.Table.__call__
+web2py.gluon.dal.VirtualCommand.__call__
+web2py.gluon.html.__TAG__.__call__
+web2py.gluon.languages.translator.__call__
+web2py.gluon.rocket.FuturesMiddleware.__call__
+web2py.gluon.scheduler.TYPE.__call__
+web2py.gluon.sqlhtml.AutocompleteWidget.__call__
+web2py.gluon.storage.List.__call__
+web2py.gluon.tools.Auth.__call__
+web2py.gluon.tools.Crud.__call__
+web2py.gluon.tools.Service.__call__
+web2py.gluon.tools.Wiki.__call__
+web2py.gluon.validators.CLEANUP.__call__
+web2py.gluon.validators.CRYPT.__call__
+web2py.gluon.validators.IS_DATE.__call__
+web2py.gluon.validators.IS_DATETIME.__call__
+web2py.gluon.validators.IS_DATETIME_IN_RANGE.__call__
+web2py.gluon.validators.IS_DATE_IN_RANGE.__call__
+web2py.gluon.validators.IS_DECIMAL_IN_RANGE.__call__
+web2py.gluon.validators.IS_EMAIL.__call__
+web2py.gluon.validators.IS_EMPTY_OR.__call__
+web2py.gluon.validators.IS_EQUAL_TO.__call__
+web2py.gluon.validators.IS_EXPR.__call__
+web2py.gluon.validators.IS_FLOAT_IN_RANGE.__call__
+web2py.gluon.validators.IS_GENERIC_URL.__call__
+web2py.gluon.validators.IS_HTTP_URL.__call__
+web2py.gluon.validators.IS_IMAGE.__call__
+web2py.gluon.validators.IS_INT_IN_RANGE.__call__
+web2py.gluon.validators.IS_IN_DB.__call__
+web2py.gluon.validators.IS_IN_SET.__call__
+web2py.gluon.validators.IS_IN_SUBSET.__call__
+web2py.gluon.validators.IS_IPV4.__call__
+web2py.gluon.validators.IS_LENGTH.__call__
+web2py.gluon.validators.IS_LIST_OF.__call__
+web2py.gluon.validators.IS_LOWER.__call__
+web2py.gluon.validators.IS_MATCH.__call__
+web2py.gluon.validators.IS_NOT_EMPTY.__call__
+web2py.gluon.validators.IS_NOT_IN_DB.__call__
+web2py.gluon.validators.IS_SLUG.__call__
+web2py.gluon.validators.IS_STRONG.__call__
+web2py.gluon.validators.IS_TIME.__call__
+web2py.gluon.validators.IS_UPLOAD_FILENAME.__call__
+web2py.gluon.validators.IS_UPPER.__call__
+web2py.gluon.validators.IS_URL.__call__" class="py-name" href="#" onclick="return doclink('link-98', '__call__', 'link-39');">__call__</a></tt><tt class="py-op">(</tt><tt class="py-name">modules_prefix</tt><tt class="py-op">+</tt><tt class="py-string">"."</tt><tt class="py-op">+</tt><tt id="link-99" class="py-name"><a title="web2py.gluon.import_all.name" class="py-name" href="#" onclick="return doclink('link-99', 'name', 'link-26');">name</a></tt><tt class="py-op">,</tt> </tt>
+<a name="L292"></a><tt class="py-lineno">292</tt>  <tt class="py-line">                                    <tt id="link-100" class="py-name"><a title="web2py.gluon.globals" class="py-name" href="#" onclick="return doclink('link-100', 'globals', 'link-27');">globals</a></tt><tt class="py-op">,</tt> <tt class="py-name">locals</tt><tt class="py-op">,</tt> <tt class="py-name">fromlist</tt><tt class="py-op">,</tt> <tt class="py-name">level</tt><tt class="py-op">)</tt> </tt>
+<a name="L293"></a><tt class="py-lineno">293</tt>  <tt class="py-line">                <tt class="py-keyword">except</tt> <tt class="py-name">ImportError</tt><tt class="py-op">,</tt> <tt class="py-name">e</tt><tt class="py-op">:</tt> </tt>
+<a name="L294"></a><tt class="py-lineno">294</tt>  <tt class="py-line">                    <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L295"></a><tt class="py-lineno">295</tt>  <tt class="py-line">                        <tt class="py-keyword">return</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">super_class</tt><tt class="py-op">.</tt><tt id="link-101" class="py-name"><a title="web2py.gluon.cache.Cache.__call__
+web2py.gluon.cache.CacheAbstract.__call__
+web2py.gluon.cache.CacheAction.__call__
+web2py.gluon.cache.CacheInRam.__call__
+web2py.gluon.cache.CacheOnDisk.__call__
+web2py.gluon.compileapp.LoadFactory.__call__
+web2py.gluon.custom_import._BaseImporter.__call__
+web2py.gluon.custom_import._DateTrackerImporter.__call__
+web2py.gluon.custom_import._Web2pyImporter.__call__
+web2py.gluon.dal.DAL.__call__
+web2py.gluon.dal.RecordDeleter.__call__
+web2py.gluon.dal.RecordUpdater.__call__
+web2py.gluon.dal.SQLCallableList.__call__
+web2py.gluon.dal.Set.__call__
+web2py.gluon.dal.Table.__call__
+web2py.gluon.dal.VirtualCommand.__call__
+web2py.gluon.html.__TAG__.__call__
+web2py.gluon.languages.translator.__call__
+web2py.gluon.rocket.FuturesMiddleware.__call__
+web2py.gluon.scheduler.TYPE.__call__
+web2py.gluon.sqlhtml.AutocompleteWidget.__call__
+web2py.gluon.storage.List.__call__
+web2py.gluon.tools.Auth.__call__
+web2py.gluon.tools.Crud.__call__
+web2py.gluon.tools.Service.__call__
+web2py.gluon.tools.Wiki.__call__
+web2py.gluon.validators.CLEANUP.__call__
+web2py.gluon.validators.CRYPT.__call__
+web2py.gluon.validators.IS_DATE.__call__
+web2py.gluon.validators.IS_DATETIME.__call__
+web2py.gluon.validators.IS_DATETIME_IN_RANGE.__call__
+web2py.gluon.validators.IS_DATE_IN_RANGE.__call__
+web2py.gluon.validators.IS_DECIMAL_IN_RANGE.__call__
+web2py.gluon.validators.IS_EMAIL.__call__
+web2py.gluon.validators.IS_EMPTY_OR.__call__
+web2py.gluon.validators.IS_EQUAL_TO.__call__
+web2py.gluon.validators.IS_EXPR.__call__
+web2py.gluon.validators.IS_FLOAT_IN_RANGE.__call__
+web2py.gluon.validators.IS_GENERIC_URL.__call__
+web2py.gluon.validators.IS_HTTP_URL.__call__
+web2py.gluon.validators.IS_IMAGE.__call__
+web2py.gluon.validators.IS_INT_IN_RANGE.__call__
+web2py.gluon.validators.IS_IN_DB.__call__
+web2py.gluon.validators.IS_IN_SET.__call__
+web2py.gluon.validators.IS_IN_SUBSET.__call__
+web2py.gluon.validators.IS_IPV4.__call__
+web2py.gluon.validators.IS_LENGTH.__call__
+web2py.gluon.validators.IS_LIST_OF.__call__
+web2py.gluon.validators.IS_LOWER.__call__
+web2py.gluon.validators.IS_MATCH.__call__
+web2py.gluon.validators.IS_NOT_EMPTY.__call__
+web2py.gluon.validators.IS_NOT_IN_DB.__call__
+web2py.gluon.validators.IS_SLUG.__call__
+web2py.gluon.validators.IS_STRONG.__call__
+web2py.gluon.validators.IS_TIME.__call__
+web2py.gluon.validators.IS_UPLOAD_FILENAME.__call__
+web2py.gluon.validators.IS_UPPER.__call__
+web2py.gluon.validators.IS_URL.__call__" class="py-name" href="#" onclick="return doclink('link-101', '__call__', 'link-39');">__call__</a></tt><tt class="py-op">(</tt><tt id="link-102" class="py-name"><a title="web2py.gluon.import_all.name" class="py-name" href="#" onclick="return doclink('link-102', 'name', 'link-26');">name</a></tt><tt class="py-op">,</tt> <tt id="link-103" class="py-name"><a title="web2py.gluon.globals" class="py-name" href="#" onclick="return doclink('link-103', 'globals', 'link-27');">globals</a></tt><tt class="py-op">,</tt> <tt class="py-name">locals</tt><tt class="py-op">,</tt> </tt>
+<a name="L296"></a><tt class="py-lineno">296</tt>  <tt class="py-line">                                                    <tt class="py-name">fromlist</tt><tt class="py-op">,</tt> <tt class="py-name">level</tt><tt class="py-op">)</tt> </tt>
+<a name="L297"></a><tt class="py-lineno">297</tt>  <tt class="py-line">                    <tt class="py-keyword">except</tt> <tt class="py-name">ImportError</tt><tt class="py-op">,</tt> <tt class="py-name">e1</tt><tt class="py-op">:</tt> </tt>
+<a name="L298"></a><tt class="py-lineno">298</tt>  <tt class="py-line">                        <tt class="py-keyword">raise</tt> <tt class="py-name">e</tt> </tt>
+<a name="L299"></a><tt class="py-lineno">299</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">super_class</tt><tt class="py-op">.</tt><tt id="link-104" class="py-name"><a title="web2py.gluon.cache.Cache.__call__
+web2py.gluon.cache.CacheAbstract.__call__
+web2py.gluon.cache.CacheAction.__call__
+web2py.gluon.cache.CacheInRam.__call__
+web2py.gluon.cache.CacheOnDisk.__call__
+web2py.gluon.compileapp.LoadFactory.__call__
+web2py.gluon.custom_import._BaseImporter.__call__
+web2py.gluon.custom_import._DateTrackerImporter.__call__
+web2py.gluon.custom_import._Web2pyImporter.__call__
+web2py.gluon.dal.DAL.__call__
+web2py.gluon.dal.RecordDeleter.__call__
+web2py.gluon.dal.RecordUpdater.__call__
+web2py.gluon.dal.SQLCallableList.__call__
+web2py.gluon.dal.Set.__call__
+web2py.gluon.dal.Table.__call__
+web2py.gluon.dal.VirtualCommand.__call__
+web2py.gluon.html.__TAG__.__call__
+web2py.gluon.languages.translator.__call__
+web2py.gluon.rocket.FuturesMiddleware.__call__
+web2py.gluon.scheduler.TYPE.__call__
+web2py.gluon.sqlhtml.AutocompleteWidget.__call__
+web2py.gluon.storage.List.__call__
+web2py.gluon.tools.Auth.__call__
+web2py.gluon.tools.Crud.__call__
+web2py.gluon.tools.Service.__call__
+web2py.gluon.tools.Wiki.__call__
+web2py.gluon.validators.CLEANUP.__call__
+web2py.gluon.validators.CRYPT.__call__
+web2py.gluon.validators.IS_DATE.__call__
+web2py.gluon.validators.IS_DATETIME.__call__
+web2py.gluon.validators.IS_DATETIME_IN_RANGE.__call__
+web2py.gluon.validators.IS_DATE_IN_RANGE.__call__
+web2py.gluon.validators.IS_DECIMAL_IN_RANGE.__call__
+web2py.gluon.validators.IS_EMAIL.__call__
+web2py.gluon.validators.IS_EMPTY_OR.__call__
+web2py.gluon.validators.IS_EQUAL_TO.__call__
+web2py.gluon.validators.IS_EXPR.__call__
+web2py.gluon.validators.IS_FLOAT_IN_RANGE.__call__
+web2py.gluon.validators.IS_GENERIC_URL.__call__
+web2py.gluon.validators.IS_HTTP_URL.__call__
+web2py.gluon.validators.IS_IMAGE.__call__
+web2py.gluon.validators.IS_INT_IN_RANGE.__call__
+web2py.gluon.validators.IS_IN_DB.__call__
+web2py.gluon.validators.IS_IN_SET.__call__
+web2py.gluon.validators.IS_IN_SUBSET.__call__
+web2py.gluon.validators.IS_IPV4.__call__
+web2py.gluon.validators.IS_LENGTH.__call__
+web2py.gluon.validators.IS_LIST_OF.__call__
+web2py.gluon.validators.IS_LOWER.__call__
+web2py.gluon.validators.IS_MATCH.__call__
+web2py.gluon.validators.IS_NOT_EMPTY.__call__
+web2py.gluon.validators.IS_NOT_IN_DB.__call__
+web2py.gluon.validators.IS_SLUG.__call__
+web2py.gluon.validators.IS_STRONG.__call__
+web2py.gluon.validators.IS_TIME.__call__
+web2py.gluon.validators.IS_UPLOAD_FILENAME.__call__
+web2py.gluon.validators.IS_UPPER.__call__
+web2py.gluon.validators.IS_URL.__call__" class="py-name" href="#" onclick="return doclink('link-104', '__call__', 'link-39');">__call__</a></tt><tt class="py-op">(</tt><tt id="link-105" class="py-name"><a title="web2py.gluon.import_all.name" class="py-name" href="#" onclick="return doclink('link-105', 'name', 'link-26');">name</a></tt><tt class="py-op">,</tt> <tt id="link-106" class="py-name"><a title="web2py.gluon.globals" class="py-name" href="#" onclick="return doclink('link-106', 'globals', 'link-27');">globals</a></tt><tt class="py-op">,</tt> <tt class="py-name">locals</tt><tt class="py-op">,</tt> </tt>
+<a name="L300"></a><tt class="py-lineno">300</tt>  <tt class="py-line">                                                    <tt class="py-name">fromlist</tt><tt class="py-op">,</tt> <tt class="py-name">level</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L301"></a><tt class="py-lineno">301</tt>  <tt class="py-line"> </tt>
+<a name="_Web2pyImporter.__import__dot"></a><div id="_Web2pyImporter.__import__dot-def"><a name="L302"></a><tt class="py-lineno">302</tt> <a class="py-toggle" href="#" id="_Web2pyImporter.__import__dot-toggle" onclick="return toggle('_Web2pyImporter.__import__dot');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="web2py.gluon.custom_import._Web2pyImporter-class.html#__import__dot">__import__dot</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">prefix</tt><tt class="py-op">,</tt> <tt class="py-param">name</tt><tt class="py-op">,</tt> <tt class="py-param">globals</tt><tt class="py-op">,</tt> <tt class="py-param">locals</tt><tt class="py-op">,</tt> <tt class="py-param">fromlist</tt><tt class="py-op">,</tt> </tt>
+<a name="L303"></a><tt class="py-lineno">303</tt>  <tt class="py-line">                      <tt class="py-param">level</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="_Web2pyImporter.__import__dot-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="_Web2pyImporter.__import__dot-expanded"><a name="L304"></a><tt class="py-lineno">304</tt>  <tt class="py-line">        <tt class="py-docstring">"""</tt> </tt>
+<a name="L305"></a><tt class="py-lineno">305</tt>  <tt class="py-line"><tt class="py-docstring">        Here we will import x.y.z as many imports like:</tt> </tt>
+<a name="L306"></a><tt class="py-lineno">306</tt>  <tt class="py-line"><tt class="py-docstring">        from applications.app_name.modules import x</tt> </tt>
+<a name="L307"></a><tt class="py-lineno">307</tt>  <tt class="py-line"><tt class="py-docstring">        from applications.app_name.modules.x import y</tt> </tt>
+<a name="L308"></a><tt class="py-lineno">308</tt>  <tt class="py-line"><tt class="py-docstring">        from applications.app_name.modules.x.y import z.</tt> </tt>
+<a name="L309"></a><tt class="py-lineno">309</tt>  <tt class="py-line"><tt class="py-docstring">        x will be the module returned.</tt> </tt>
+<a name="L310"></a><tt class="py-lineno">310</tt>  <tt class="py-line"><tt class="py-docstring">        """</tt> </tt>
+<a name="L311"></a><tt class="py-lineno">311</tt>  <tt class="py-line"> </tt>
+<a name="L312"></a><tt class="py-lineno">312</tt>  <tt class="py-line">        <tt class="py-name">result</tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L313"></a><tt class="py-lineno">313</tt>  <tt class="py-line">        <tt class="py-keyword">for</tt> <tt id="link-107" class="py-name"><a title="web2py.gluon.import_all.name" class="py-name" href="#" onclick="return doclink('link-107', 'name', 'link-26');">name</a></tt> <tt class="py-keyword">in</tt> <tt id="link-108" class="py-name"><a title="web2py.gluon.import_all.name" class="py-name" href="#" onclick="return doclink('link-108', 'name', 'link-26');">name</a></tt><tt class="py-op">.</tt><tt id="link-109" class="py-name" targets="Method web2py.gluon.utf8.Utf8.split()=web2py.gluon.utf8.Utf8-class.html#split"><a title="web2py.gluon.utf8.Utf8.split" class="py-name" href="#" onclick="return doclink('link-109', 'split', 'link-109');">split</a></tt><tt class="py-op">(</tt><tt class="py-string">"."</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L314"></a><tt class="py-lineno">314</tt>  <tt class="py-line">            <tt class="py-name">new_mod</tt> <tt class="py-op">=</tt> <tt class="py-name">super</tt><tt class="py-op">(</tt><tt id="link-110" class="py-name"><a title="web2py.gluon.custom_import._Web2pyImporter" class="py-name" href="#" onclick="return doclink('link-110', '_Web2pyImporter', 'link-2');">_Web2pyImporter</a></tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">)</tt><tt class="py-op">.</tt><tt id="link-111" class="py-name"><a title="web2py.gluon.cache.Cache.__call__
+web2py.gluon.cache.CacheAbstract.__call__
+web2py.gluon.cache.CacheAction.__call__
+web2py.gluon.cache.CacheInRam.__call__
+web2py.gluon.cache.CacheOnDisk.__call__
+web2py.gluon.compileapp.LoadFactory.__call__
+web2py.gluon.custom_import._BaseImporter.__call__
+web2py.gluon.custom_import._DateTrackerImporter.__call__
+web2py.gluon.custom_import._Web2pyImporter.__call__
+web2py.gluon.dal.DAL.__call__
+web2py.gluon.dal.RecordDeleter.__call__
+web2py.gluon.dal.RecordUpdater.__call__
+web2py.gluon.dal.SQLCallableList.__call__
+web2py.gluon.dal.Set.__call__
+web2py.gluon.dal.Table.__call__
+web2py.gluon.dal.VirtualCommand.__call__
+web2py.gluon.html.__TAG__.__call__
+web2py.gluon.languages.translator.__call__
+web2py.gluon.rocket.FuturesMiddleware.__call__
+web2py.gluon.scheduler.TYPE.__call__
+web2py.gluon.sqlhtml.AutocompleteWidget.__call__
+web2py.gluon.storage.List.__call__
+web2py.gluon.tools.Auth.__call__
+web2py.gluon.tools.Crud.__call__
+web2py.gluon.tools.Service.__call__
+web2py.gluon.tools.Wiki.__call__
+web2py.gluon.validators.CLEANUP.__call__
+web2py.gluon.validators.CRYPT.__call__
+web2py.gluon.validators.IS_DATE.__call__
+web2py.gluon.validators.IS_DATETIME.__call__
+web2py.gluon.validators.IS_DATETIME_IN_RANGE.__call__
+web2py.gluon.validators.IS_DATE_IN_RANGE.__call__
+web2py.gluon.validators.IS_DECIMAL_IN_RANGE.__call__
+web2py.gluon.validators.IS_EMAIL.__call__
+web2py.gluon.validators.IS_EMPTY_OR.__call__
+web2py.gluon.validators.IS_EQUAL_TO.__call__
+web2py.gluon.validators.IS_EXPR.__call__
+web2py.gluon.validators.IS_FLOAT_IN_RANGE.__call__
+web2py.gluon.validators.IS_GENERIC_URL.__call__
+web2py.gluon.validators.IS_HTTP_URL.__call__
+web2py.gluon.validators.IS_IMAGE.__call__
+web2py.gluon.validators.IS_INT_IN_RANGE.__call__
+web2py.gluon.validators.IS_IN_DB.__call__
+web2py.gluon.validators.IS_IN_SET.__call__
+web2py.gluon.validators.IS_IN_SUBSET.__call__
+web2py.gluon.validators.IS_IPV4.__call__
+web2py.gluon.validators.IS_LENGTH.__call__
+web2py.gluon.validators.IS_LIST_OF.__call__
+web2py.gluon.validators.IS_LOWER.__call__
+web2py.gluon.validators.IS_MATCH.__call__
+web2py.gluon.validators.IS_NOT_EMPTY.__call__
+web2py.gluon.validators.IS_NOT_IN_DB.__call__
+web2py.gluon.validators.IS_SLUG.__call__
+web2py.gluon.validators.IS_STRONG.__call__
+web2py.gluon.validators.IS_TIME.__call__
+web2py.gluon.validators.IS_UPLOAD_FILENAME.__call__
+web2py.gluon.validators.IS_UPPER.__call__
+web2py.gluon.validators.IS_URL.__call__" class="py-name" href="#" onclick="return doclink('link-111', '__call__', 'link-39');">__call__</a></tt><tt class="py-op">(</tt><tt class="py-name">prefix</tt><tt class="py-op">,</tt> <tt id="link-112" class="py-name"><a title="web2py.gluon.globals" class="py-name" href="#" onclick="return doclink('link-112', 'globals', 'link-27');">globals</a></tt><tt class="py-op">,</tt> </tt>
+<a name="L315"></a><tt class="py-lineno">315</tt>  <tt class="py-line">                                                        <tt class="py-name">locals</tt><tt class="py-op">,</tt> <tt class="py-op">[</tt><tt id="link-113" class="py-name"><a title="web2py.gluon.import_all.name" class="py-name" href="#" onclick="return doclink('link-113', 'name', 'link-26');">name</a></tt><tt class="py-op">]</tt><tt class="py-op">,</tt> <tt class="py-name">level</tt><tt class="py-op">)</tt> </tt>
+<a name="L316"></a><tt class="py-lineno">316</tt>  <tt class="py-line">            <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L317"></a><tt class="py-lineno">317</tt>  <tt class="py-line">                <tt class="py-name">result</tt> <tt class="py-op">=</tt> <tt class="py-name">result</tt> <tt class="py-keyword">or</tt> <tt class="py-name">new_mod</tt><tt class="py-op">.</tt><tt class="py-name">__dict__</tt><tt class="py-op">[</tt><tt id="link-114" class="py-name"><a title="web2py.gluon.import_all.name" class="py-name" href="#" onclick="return doclink('link-114', 'name', 'link-26');">name</a></tt><tt class="py-op">]</tt> </tt>
+<a name="L318"></a><tt class="py-lineno">318</tt>  <tt class="py-line">            <tt class="py-keyword">except</tt> <tt class="py-name">KeyError</tt><tt class="py-op">,</tt> <tt class="py-name">e</tt><tt class="py-op">:</tt> </tt>
+<a name="L319"></a><tt class="py-lineno">319</tt>  <tt class="py-line">                <tt class="py-keyword">raise</tt> <tt class="py-name">ImportError</tt><tt class="py-op">,</tt> <tt class="py-string">'Cannot import module %s'</tt> <tt class="py-op">%</tt> <tt class="py-name">str</tt><tt class="py-op">(</tt><tt class="py-name">e</tt><tt class="py-op">)</tt> </tt>
+<a name="L320"></a><tt class="py-lineno">320</tt>  <tt class="py-line">            <tt class="py-name">prefix</tt> <tt class="py-op">+=</tt> <tt class="py-string">"."</tt> <tt class="py-op">+</tt> <tt id="link-115" class="py-name"><a title="web2py.gluon.import_all.name" class="py-name" href="#" onclick="return doclink('link-115', 'name', 'link-26');">name</a></tt> </tt>
+<a name="L321"></a><tt class="py-lineno">321</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">result</tt> </tt>
+</div></div><a name="L322"></a><tt class="py-lineno">322</tt>  <tt class="py-line"> </tt>
+<a name="_Web2pyDateTrackerImporter"></a><div id="_Web2pyDateTrackerImporter-def"><a name="L323"></a><tt class="py-lineno">323</tt> <a class="py-toggle" href="#" id="_Web2pyDateTrackerImporter-toggle" onclick="return toggle('_Web2pyDateTrackerImporter');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="web2py.gluon.custom_import._Web2pyDateTrackerImporter-class.html">_Web2pyDateTrackerImporter</a><tt class="py-op">(</tt><tt class="py-base-class">_Web2pyImporter</tt><tt class="py-op">,</tt> <tt class="py-base-class">_DateTrackerImporter</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="_Web2pyDateTrackerImporter-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="_Web2pyDateTrackerImporter-expanded"><a name="L324"></a><tt class="py-lineno">324</tt>  <tt class="py-line">    <tt class="py-docstring">"""</tt> </tt>
+<a name="L325"></a><tt class="py-lineno">325</tt>  <tt class="py-line"><tt class="py-docstring">    Like _Web2pyImporter but using a _DateTrackerImporter.</tt> </tt>
+<a name="L326"></a><tt class="py-lineno">326</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+</div><a name="L327"></a><tt class="py-lineno">327</tt>  <tt class="py-line"> </tt><script type="text/javascript">
+<!--
+expandto(location.href);
+// -->
+</script>
+</pre>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="web2py.gluon-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://www.web2py.com">web2py Web Framework</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0beta1 on Thu Sep 13 23:51:26 2012
+    </td>
+    <td align="right" class="footer">
+      <a href="http://epydoc.sourceforge.net">http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie()
+  // -->
+</script>
+  
+</body>
+</html>

@@ -906,6 +906,8 @@ def console():
         global_settings.cronjob = True  # tell the world
         options.nocron = True   # don't start cron jobs
         options.plain = True    # cronjobs use a plain shell
+        options.nobanner = True
+        options.nogui = True
 
     options.folder = os.path.abspath(options.folder)
 
@@ -1004,9 +1006,9 @@ def start(cron=True):
         print ProgramAuthor
         print ProgramVersion
 
-    from dal import drivers
+    from dal import DRIVERS
     if not options.nobanner:
-        print 'Database drivers available: %s' % ', '.join(drivers)
+        print 'Database drivers available: %s' % ', '.join(DRIVERS)
 
 
     # ## if -L load options from options.config file

@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>web2py.gluon.messageboxhandler</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="web2py.gluon-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://www.web2py.com">web2py Web Framework</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        Package&nbsp;web2py ::
+        <a href="web2py.gluon-module.html">Package&nbsp;gluon</a> ::
+        Module&nbsp;messageboxhandler
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="web2py.gluon.messageboxhandler-pysrc.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<h1 class="epydoc">Source Code for <a href="web2py.gluon.messageboxhandler-module.html">Module web2py.gluon.messageboxhandler</a></h1>
+<pre class="py-src">
+<a name="L1"></a><tt class="py-lineno"> 1</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">logging</tt> </tt>
+<a name="L2"></a><tt class="py-lineno"> 2</tt>  <tt class="py-line"> </tt>
+<a name="L3"></a><tt class="py-lineno"> 3</tt>  <tt class="py-line"><tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L4"></a><tt class="py-lineno"> 4</tt>  <tt class="py-line">    <tt class="py-keyword">import</tt> <tt class="py-name">tkMessageBox</tt> </tt>
+<a name="L5"></a><tt class="py-lineno"> 5</tt>  <tt class="py-line"><tt class="py-keyword">except</tt><tt class="py-op">:</tt> </tt>
+<a name="L6"></a><tt class="py-lineno"> 6</tt>  <tt class="py-line">    <tt class="py-name">tkMessageBox</tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L7"></a><tt class="py-lineno"> 7</tt>  <tt class="py-line"> </tt>
+<a name="MessageBoxHandler"></a><div id="MessageBoxHandler-def"><a name="L8"></a><tt class="py-lineno"> 8</tt> <a class="py-toggle" href="#" id="MessageBoxHandler-toggle" onclick="return toggle('MessageBoxHandler');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="web2py.gluon.messageboxhandler.MessageBoxHandler-class.html">MessageBoxHandler</a><tt class="py-op">(</tt><tt class="py-base-class">logging</tt><tt class="py-op">.</tt><tt class="py-base-class">Handler</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="MessageBoxHandler-collapsed" style="display:none;" pad="++" indent="++++"></div><div id="MessageBoxHandler-expanded"><a name="MessageBoxHandler.__init__"></a><div id="MessageBoxHandler.__init__-def"><a name="L9"></a><tt class="py-lineno"> 9</tt> <a class="py-toggle" href="#" id="MessageBoxHandler.__init__-toggle" onclick="return toggle('MessageBoxHandler.__init__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="web2py.gluon.messageboxhandler.MessageBoxHandler-class.html#__init__">__init__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="MessageBoxHandler.__init__-collapsed" style="display:none;" pad="++" indent="++++++++"></div><div id="MessageBoxHandler.__init__-expanded"><a name="L10"></a><tt class="py-lineno">10</tt>  <tt class="py-line">        <tt class="py-name">logging</tt><tt class="py-op">.</tt><tt class="py-name">Handler</tt><tt class="py-op">.</tt><tt id="link-0" class="py-name" targets="Method web2py.gluon.cache.Cache.__init__()=web2py.gluon.cache.Cache-class.html#__init__,Method web2py.gluon.cache.CacheAbstract.__init__()=web2py.gluon.cache.CacheAbstract-class.html#__init__,Method web2py.gluon.cache.CacheAction.__init__()=web2py.gluon.cache.CacheAction-class.html#__init__,Method web2py.gluon.cache.CacheInRam.__init__()=web2py.gluon.cache.CacheInRam-class.html#__init__,Method web2py.gluon.cache.CacheOnDisk.__init__()=web2py.gluon.cache.CacheOnDisk-class.html#__init__,Method web2py.gluon.compileapp.LoadFactory.__init__()=web2py.gluon.compileapp.LoadFactory-class.html#__init__,Method web2py.gluon.custom_import._BaseImporter.__init__()=web2py.gluon.custom_import._BaseImporter-class.html#__init__,Method web2py.gluon.custom_import._DateTrackerImporter.__init__()=web2py.gluon.custom_import._DateTrackerImporter-class.html#__init__,Method web2py.gluon.custom_import._Web2pyImporter.__init__()=web2py.gluon.custom_import._Web2pyImporter-class.html#__init__,Method web2py.gluon.dal.BaseAdapter.__init__()=web2py.gluon.dal.BaseAdapter-class.html#__init__,Method web2py.gluon.dal.CouchDBAdapter.__init__()=web2py.gluon.dal.CouchDBAdapter-class.html#__init__,Method web2py.gluon.dal.CubridAdapter.__init__()=web2py.gluon.dal.CubridAdapter-class.html#__init__,Method web2py.gluon.dal.DAL.__init__()=web2py.gluon.dal.DAL-class.html#__init__,Method web2py.gluon.dal.DB2Adapter.__init__()=web2py.gluon.dal.DB2Adapter-class.html#__init__,Method web2py.gluon.dal.DatabaseStoredFile.__init__()=web2py.gluon.dal.DatabaseStoredFile-class.html#__init__,Method web2py.gluon.dal.Expression.__init__()=web2py.gluon.dal.Expression-class.html#__init__,Method web2py.gluon.dal.Field.__init__()=web2py.gluon.dal.Field-class.html#__init__,Method web2py.gluon.dal.FieldLazy.__init__()=web2py.gluon.dal.FieldLazy-class.html#__init__,Method web2py.gluon.dal.FieldVirtual.__init__()=web2py.gluon.dal.FieldVirtual-class.html#__init__,Method web2py.gluon.dal.FireBirdAdapter.__init__()=web2py.gluon.dal.FireBirdAdapter-class.html#__init__,Method web2py.gluon.dal.FireBirdEmbeddedAdapter.__init__()=web2py.gluon.dal.FireBirdEmbeddedAdapter-class.html#__init__,Method web2py.gluon.dal.GAEDecimalProperty.__init__()=web2py.gluon.dal.GAEDecimalProperty-class.html#__init__,Method web2py.gluon.dal.GAEF.__init__()=web2py.gluon.dal.GAEF-class.html#__init__,Method web2py.gluon.dal.GoogleDatastoreAdapter.__init__()=web2py.gluon.dal.GoogleDatastoreAdapter-class.html#__init__,Method web2py.gluon.dal.GoogleSQLAdapter.__init__()=web2py.gluon.dal.GoogleSQLAdapter-class.html#__init__,Method web2py.gluon.dal.IMAPAdapter.__init__()=web2py.gluon.dal.IMAPAdapter-class.html#__init__,Method web2py.gluon.dal.InformixAdapter.__init__()=web2py.gluon.dal.InformixAdapter-class.html#__init__,Method web2py.gluon.dal.IngresAdapter.__init__()=web2py.gluon.dal.IngresAdapter-class.html#__init__,Method web2py.gluon.dal.JDBCPostgreSQLAdapter.__init__()=web2py.gluon.dal.JDBCPostgreSQLAdapter-class.html#__init__,Method web2py.gluon.dal.JDBCSQLiteAdapter.__init__()=web2py.gluon.dal.JDBCSQLiteAdapter-class.html#__init__,Method web2py.gluon.dal.MSSQLAdapter.__init__()=web2py.gluon.dal.MSSQLAdapter-class.html#__init__,Method web2py.gluon.dal.MongoDBAdapter.__init__()=web2py.gluon.dal.MongoDBAdapter-class.html#__init__,Method web2py.gluon.dal.MySQLAdapter.__init__()=web2py.gluon.dal.MySQLAdapter-class.html#__init__,Method web2py.gluon.dal.OracleAdapter.__init__()=web2py.gluon.dal.OracleAdapter-class.html#__init__,Method web2py.gluon.dal.PostgreSQLAdapter.__init__()=web2py.gluon.dal.PostgreSQLAdapter-class.html#__init__,Method web2py.gluon.dal.Query.__init__()=web2py.gluon.dal.Query-class.html#__init__,Method web2py.gluon.dal.RecordDeleter.__init__()=web2py.gluon.dal.RecordDeleter-class.html#__init__,Method web2py.gluon.dal.RecordUpdater.__init__()=web2py.gluon.dal.RecordUpdater-class.html#__init__,Method web2py.gluon.dal.Row.__init__()=web2py.gluon.dal.Row-class.html#__init__,Method web2py.gluon.dal.Rows.__init__()=web2py.gluon.dal.Rows-class.html#__init__,Method web2py.gluon.dal.SAPDBAdapter.__init__()=web2py.gluon.dal.SAPDBAdapter-class.html#__init__,Method web2py.gluon.dal.SQLALL.__init__()=web2py.gluon.dal.SQLALL-class.html#__init__,Method web2py.gluon.dal.SQLCustomType.__init__()=web2py.gluon.dal.SQLCustomType-class.html#__init__,Method web2py.gluon.dal.SQLiteAdapter.__init__()=web2py.gluon.dal.SQLiteAdapter-class.html#__init__,Method web2py.gluon.dal.Set.__init__()=web2py.gluon.dal.Set-class.html#__init__,Method web2py.gluon.dal.SpatiaLiteAdapter.__init__()=web2py.gluon.dal.SpatiaLiteAdapter-class.html#__init__,Method web2py.gluon.dal.SybaseAdapter.__init__()=web2py.gluon.dal.SybaseAdapter-class.html#__init__,Method web2py.gluon.dal.Table.__init__()=web2py.gluon.dal.Table-class.html#__init__,Method web2py.gluon.dal.TeradataAdapter.__init__()=web2py.gluon.dal.TeradataAdapter-class.html#__init__,Method web2py.gluon.dal.VirtualCommand.__init__()=web2py.gluon.dal.VirtualCommand-class.html#__init__,Method web2py.gluon.debug.Pipe.__init__()=web2py.gluon.debug.Pipe-class.html#__init__,Method web2py.gluon.debug.WebDebugger.__init__()=web2py.gluon.debug.WebDebugger-class.html#__init__,Method web2py.gluon.globals.Request.__init__()=web2py.gluon.globals.Request-class.html#__init__,Method web2py.gluon.globals.Response.__init__()=web2py.gluon.globals.Response-class.html#__init__,Method web2py.gluon.highlight.Highlighter.__init__()=web2py.gluon.highlight.Highlighter-class.html#__init__,Method web2py.gluon.html.BEAUTIFY.__init__()=web2py.gluon.html.BEAUTIFY-class.html#__init__,Method web2py.gluon.html.DIV.__init__()=web2py.gluon.html.DIV-class.html#__init__,Method web2py.gluon.html.FORM.__init__()=web2py.gluon.html.FORM-class.html#__init__,Method web2py.gluon.html.MARKMIN.__init__()=web2py.gluon.html.MARKMIN-class.html#__init__,Method web2py.gluon.html.MENU.__init__()=web2py.gluon.html.MENU-class.html#__init__,Method web2py.gluon.html.XML.__init__()=web2py.gluon.html.XML-class.html#__init__,Method web2py.gluon.html.web2pyHTMLParser.__init__()=web2py.gluon.html.web2pyHTMLParser-class.html#__init__,Method web2py.gluon.http.HTTP.__init__()=web2py.gluon.http.HTTP-class.html#__init__,Method web2py.gluon.languages.lazyT.__init__()=web2py.gluon.languages.lazyT-class.html#__init__,Method web2py.gluon.languages.translator.__init__()=web2py.gluon.languages.translator-class.html#__init__,Method web2py.gluon.main.HttpServer.__init__()=web2py.gluon.main.HttpServer-class.html#__init__,Method web2py.gluon.messageboxhandler.MessageBoxHandler.__init__()=web2py.gluon.messageboxhandler.MessageBoxHandler-class.html#__init__,Method web2py.gluon.newcron.Token.__init__()=web2py.gluon.newcron.Token-class.html#__init__,Method web2py.gluon.newcron.cronlauncher.__init__()=web2py.gluon.newcron.cronlauncher-class.html#__init__,Method web2py.gluon.newcron.extcron.__init__()=web2py.gluon.newcron.extcron-class.html#__init__,Method web2py.gluon.newcron.hardcron.__init__()=web2py.gluon.newcron.hardcron-class.html#__init__,Method web2py.gluon.newcron.softcron.__init__()=web2py.gluon.newcron.softcron-class.html#__init__,Method web2py.gluon.portalocker.LockedFile.__init__()=web2py.gluon.portalocker.LockedFile-class.html#__init__,Method web2py.gluon.restricted.RestrictedError.__init__()=web2py.gluon.restricted.RestrictedError-class.html#__init__,Method web2py.gluon.restricted.TicketStorage.__init__()=web2py.gluon.restricted.TicketStorage-class.html#__init__,Method web2py.gluon.rewrite.MapUrlIn.__init__()=web2py.gluon.rewrite.MapUrlIn-class.html#__init__,Method web2py.gluon.rewrite.MapUrlOut.__init__()=web2py.gluon.rewrite.MapUrlOut-class.html#__init__,Method web2py.gluon.rocket.ChunkedReader.__init__()=web2py.gluon.rocket.ChunkedReader-class.html#__init__,Method web2py.gluon.rocket.Connection.__init__()=web2py.gluon.rocket.Connection-class.html#__init__,Method web2py.gluon.rocket.FileLikeSocket.__init__()=web2py.gluon.rocket.FileLikeSocket-class.html#__init__,Method web2py.gluon.rocket.FileSystemWorker.__init__()=web2py.gluon.rocket.FileSystemWorker-class.html#__init__,Method web2py.gluon.rocket.FuturesMiddleware.__init__()=web2py.gluon.rocket.FuturesMiddleware-class.html#__init__,Method web2py.gluon.rocket.LimitingFileWrapper.__init__()=web2py.gluon.rocket.LimitingFileWrapper-class.html#__init__,Method web2py.gluon.rocket.Listener.__init__()=web2py.gluon.rocket.Listener-class.html#__init__,Method web2py.gluon.rocket.Monitor.__init__()=web2py.gluon.rocket.Monitor-class.html#__init__,Method web2py.gluon.rocket.Rocket.__init__()=web2py.gluon.rocket.Rocket-class.html#__init__,Method web2py.gluon.rocket.ThreadPool.__init__()=web2py.gluon.rocket.ThreadPool-class.html#__init__,Method web2py.gluon.rocket.WSGIExecutor.__init__()=web2py.gluon.rocket.WSGIExecutor-class.html#__init__,Method web2py.gluon.rocket.WSGIFuture.__init__()=web2py.gluon.rocket.WSGIFuture-class.html#__init__,Method web2py.gluon.rocket.WSGIWorker.__init__()=web2py.gluon.rocket.WSGIWorker-class.html#__init__,Method web2py.gluon.rocket.Worker.__init__()=web2py.gluon.rocket.Worker-class.html#__init__,Method web2py.gluon.rocket._WorkItem.__init__()=web2py.gluon.rocket._WorkItem-class.html#__init__,Method web2py.gluon.sanitizer.XssCleaner.__init__()=web2py.gluon.sanitizer.XssCleaner-class.html#__init__,Method web2py.gluon.scheduler.MetaScheduler.__init__()=web2py.gluon.scheduler.MetaScheduler-class.html#__init__,Method web2py.gluon.scheduler.Scheduler.__init__()=web2py.gluon.scheduler.Scheduler-class.html#__init__,Method web2py.gluon.scheduler.TYPE.__init__()=web2py.gluon.scheduler.TYPE-class.html#__init__,Method web2py.gluon.scheduler.Task.__init__()=web2py.gluon.scheduler.Task-class.html#__init__,Method web2py.gluon.scheduler.TaskReport.__init__()=web2py.gluon.scheduler.TaskReport-class.html#__init__,Method web2py.gluon.sqlhtml.AutocompleteWidget.__init__()=web2py.gluon.sqlhtml.AutocompleteWidget-class.html#__init__,Method web2py.gluon.sqlhtml.ExportClass.__init__()=web2py.gluon.sqlhtml.ExportClass-class.html#__init__,Method web2py.gluon.sqlhtml.ExporterCSV.__init__()=web2py.gluon.sqlhtml.ExporterCSV-class.html#__init__,Method web2py.gluon.sqlhtml.ExporterHTML.__init__()=web2py.gluon.sqlhtml.ExporterHTML-class.html#__init__,Method web2py.gluon.sqlhtml.ExporterTSV.__init__()=web2py.gluon.sqlhtml.ExporterTSV-class.html#__init__,Method web2py.gluon.sqlhtml.ExporterXML.__init__()=web2py.gluon.sqlhtml.ExporterXML-class.html#__init__,Method web2py.gluon.sqlhtml.SQLFORM.__init__()=web2py.gluon.sqlhtml.SQLFORM-class.html#__init__,Method web2py.gluon.sqlhtml.SQLTABLE.__init__()=web2py.gluon.sqlhtml.SQLTABLE-class.html#__init__,Method web2py.gluon.storage.FastStorage.__init__()=web2py.gluon.storage.FastStorage-class.html#__init__,Method web2py.gluon.storage.Messages.__init__()=web2py.gluon.storage.Messages-class.html#__init__,Method web2py.gluon.template.BlockNode.__init__()=web2py.gluon.template.BlockNode-class.html#__init__,Method web2py.gluon.template.Content.__init__()=web2py.gluon.template.Content-class.html#__init__,Method web2py.gluon.template.DummyResponse.__init__()=web2py.gluon.template.DummyResponse-class.html#__init__,Method web2py.gluon.template.NOESCAPE.__init__()=web2py.gluon.template.NOESCAPE-class.html#__init__,Method web2py.gluon.template.Node.__init__()=web2py.gluon.template.Node-class.html#__init__,Method web2py.gluon.template.SuperNode.__init__()=web2py.gluon.template.SuperNode-class.html#__init__,Method web2py.gluon.template.TemplateParser.__init__()=web2py.gluon.template.TemplateParser-class.html#__init__,Method web2py.gluon.tools.Auth.__init__()=web2py.gluon.tools.Auth-class.html#__init__,Method web2py.gluon.tools.Crud.__init__()=web2py.gluon.tools.Crud-class.html#__init__,Method web2py.gluon.tools.Expose.__init__()=web2py.gluon.tools.Expose-class.html#__init__,Method web2py.gluon.tools.Mail.Attachment.__init__()=web2py.gluon.tools.Mail.Attachment-class.html#__init__,Method web2py.gluon.tools.Mail.__init__()=web2py.gluon.tools.Mail-class.html#__init__,Method web2py.gluon.tools.PluginManager.__init__()=web2py.gluon.tools.PluginManager-class.html#__init__,Method web2py.gluon.tools.Recaptcha.__init__()=web2py.gluon.tools.Recaptcha-class.html#__init__,Method web2py.gluon.tools.Service.JsonRpcException.__init__()=web2py.gluon.tools.Service.JsonRpcException-class.html#__init__,Method web2py.gluon.tools.Service.__init__()=web2py.gluon.tools.Service-class.html#__init__,Method web2py.gluon.tools.Wiki.__init__()=web2py.gluon.tools.Wiki-class.html#__init__,Method web2py.gluon.validators.CLEANUP.__init__()=web2py.gluon.validators.CLEANUP-class.html#__init__,Method web2py.gluon.validators.CRYPT.__init__()=web2py.gluon.validators.CRYPT-class.html#__init__,Method web2py.gluon.validators.IS_ALPHANUMERIC.__init__()=web2py.gluon.validators.IS_ALPHANUMERIC-class.html#__init__,Method web2py.gluon.validators.IS_DATE.__init__()=web2py.gluon.validators.IS_DATE-class.html#__init__,Method web2py.gluon.validators.IS_DATETIME.__init__()=web2py.gluon.validators.IS_DATETIME-class.html#__init__,Method web2py.gluon.validators.IS_DATETIME_IN_RANGE.__init__()=web2py.gluon.validators.IS_DATETIME_IN_RANGE-class.html#__init__,Method web2py.gluon.validators.IS_DATE_IN_RANGE.__init__()=web2py.gluon.validators.IS_DATE_IN_RANGE-class.html#__init__,Method web2py.gluon.validators.IS_DECIMAL_IN_RANGE.__init__()=web2py.gluon.validators.IS_DECIMAL_IN_RANGE-class.html#__init__,Method web2py.gluon.validators.IS_EMAIL.__init__()=web2py.gluon.validators.IS_EMAIL-class.html#__init__,Method web2py.gluon.validators.IS_EMPTY_OR.__init__()=web2py.gluon.validators.IS_EMPTY_OR-class.html#__init__,Method web2py.gluon.validators.IS_EQUAL_TO.__init__()=web2py.gluon.validators.IS_EQUAL_TO-class.html#__init__,Method web2py.gluon.validators.IS_EXPR.__init__()=web2py.gluon.validators.IS_EXPR-class.html#__init__,Method web2py.gluon.validators.IS_FLOAT_IN_RANGE.__init__()=web2py.gluon.validators.IS_FLOAT_IN_RANGE-class.html#__init__,Method web2py.gluon.validators.IS_GENERIC_URL.__init__()=web2py.gluon.validators.IS_GENERIC_URL-class.html#__init__,Method web2py.gluon.validators.IS_HTTP_URL.__init__()=web2py.gluon.validators.IS_HTTP_URL-class.html#__init__,Method web2py.gluon.validators.IS_IMAGE.__init__()=web2py.gluon.validators.IS_IMAGE-class.html#__init__,Method web2py.gluon.validators.IS_INT_IN_RANGE.__init__()=web2py.gluon.validators.IS_INT_IN_RANGE-class.html#__init__,Method web2py.gluon.validators.IS_IN_DB.__init__()=web2py.gluon.validators.IS_IN_DB-class.html#__init__,Method web2py.gluon.validators.IS_IN_SET.__init__()=web2py.gluon.validators.IS_IN_SET-class.html#__init__,Method web2py.gluon.validators.IS_IN_SUBSET.__init__()=web2py.gluon.validators.IS_IN_SUBSET-class.html#__init__,Method web2py.gluon.validators.IS_IPV4.__init__()=web2py.gluon.validators.IS_IPV4-class.html#__init__,Method web2py.gluon.validators.IS_LENGTH.__init__()=web2py.gluon.validators.IS_LENGTH-class.html#__init__,Method web2py.gluon.validators.IS_LIST_OF.__init__()=web2py.gluon.validators.IS_LIST_OF-class.html#__init__,Method web2py.gluon.validators.IS_MATCH.__init__()=web2py.gluon.validators.IS_MATCH-class.html#__init__,Method web2py.gluon.validators.IS_NOT_EMPTY.__init__()=web2py.gluon.validators.IS_NOT_EMPTY-class.html#__init__,Method web2py.gluon.validators.IS_NOT_IN_DB.__init__()=web2py.gluon.validators.IS_NOT_IN_DB-class.html#__init__,Method web2py.gluon.validators.IS_SLUG.__init__()=web2py.gluon.validators.IS_SLUG-class.html#__init__,Method web2py.gluon.validators.IS_STRONG.__init__()=web2py.gluon.validators.IS_STRONG-class.html#__init__,Method web2py.gluon.validators.IS_TIME.__init__()=web2py.gluon.validators.IS_TIME-class.html#__init__,Method web2py.gluon.validators.IS_UPLOAD_FILENAME.__init__()=web2py.gluon.validators.IS_UPLOAD_FILENAME-class.html#__init__,Method web2py.gluon.validators.IS_URL.__init__()=web2py.gluon.validators.IS_URL-class.html#__init__,Method web2py.gluon.validators.LazyCrypt.__init__()=web2py.gluon.validators.LazyCrypt-class.html#__init__,Method web2py.gluon.widget.IO.__init__()=web2py.gluon.widget.IO-class.html#__init__,Method web2py.gluon.widget.web2pyDialog.__init__()=web2py.gluon.widget.web2pyDialog-class.html#__init__,Method web2py.gluon.winservice.Service.__init__()=web2py.gluon.winservice.Service-class.html#__init__"><a title="web2py.gluon.cache.Cache.__init__
+web2py.gluon.cache.CacheAbstract.__init__
+web2py.gluon.cache.CacheAction.__init__
+web2py.gluon.cache.CacheInRam.__init__
+web2py.gluon.cache.CacheOnDisk.__init__
+web2py.gluon.compileapp.LoadFactory.__init__
+web2py.gluon.custom_import._BaseImporter.__init__
+web2py.gluon.custom_import._DateTrackerImporter.__init__
+web2py.gluon.custom_import._Web2pyImporter.__init__
+web2py.gluon.dal.BaseAdapter.__init__
+web2py.gluon.dal.CouchDBAdapter.__init__
+web2py.gluon.dal.CubridAdapter.__init__
+web2py.gluon.dal.DAL.__init__
+web2py.gluon.dal.DB2Adapter.__init__
+web2py.gluon.dal.DatabaseStoredFile.__init__
+web2py.gluon.dal.Expression.__init__
+web2py.gluon.dal.Field.__init__
+web2py.gluon.dal.FieldLazy.__init__
+web2py.gluon.dal.FieldVirtual.__init__
+web2py.gluon.dal.FireBirdAdapter.__init__
+web2py.gluon.dal.FireBirdEmbeddedAdapter.__init__
+web2py.gluon.dal.GAEDecimalProperty.__init__
+web2py.gluon.dal.GAEF.__init__
+web2py.gluon.dal.GoogleDatastoreAdapter.__init__
+web2py.gluon.dal.GoogleSQLAdapter.__init__
+web2py.gluon.dal.IMAPAdapter.__init__
+web2py.gluon.dal.InformixAdapter.__init__
+web2py.gluon.dal.IngresAdapter.__init__
+web2py.gluon.dal.JDBCPostgreSQLAdapter.__init__
+web2py.gluon.dal.JDBCSQLiteAdapter.__init__
+web2py.gluon.dal.MSSQLAdapter.__init__
+web2py.gluon.dal.MongoDBAdapter.__init__
+web2py.gluon.dal.MySQLAdapter.__init__
+web2py.gluon.dal.OracleAdapter.__init__
+web2py.gluon.dal.PostgreSQLAdapter.__init__
+web2py.gluon.dal.Query.__init__
+web2py.gluon.dal.RecordDeleter.__init__
+web2py.gluon.dal.RecordUpdater.__init__
+web2py.gluon.dal.Row.__init__
+web2py.gluon.dal.Rows.__init__
+web2py.gluon.dal.SAPDBAdapter.__init__
+web2py.gluon.dal.SQLALL.__init__
+web2py.gluon.dal.SQLCustomType.__init__
+web2py.gluon.dal.SQLiteAdapter.__init__
+web2py.gluon.dal.Set.__init__
+web2py.gluon.dal.SpatiaLiteAdapter.__init__
+web2py.gluon.dal.SybaseAdapter.__init__
+web2py.gluon.dal.Table.__init__
+web2py.gluon.dal.TeradataAdapter.__init__
+web2py.gluon.dal.VirtualCommand.__init__
+web2py.gluon.debug.Pipe.__init__
+web2py.gluon.debug.WebDebugger.__init__
+web2py.gluon.globals.Request.__init__
+web2py.gluon.globals.Response.__init__
+web2py.gluon.highlight.Highlighter.__init__
+web2py.gluon.html.BEAUTIFY.__init__
+web2py.gluon.html.DIV.__init__
+web2py.gluon.html.FORM.__init__
+web2py.gluon.html.MARKMIN.__init__
+web2py.gluon.html.MENU.__init__
+web2py.gluon.html.XML.__init__
+web2py.gluon.html.web2pyHTMLParser.__init__
+web2py.gluon.http.HTTP.__init__
+web2py.gluon.languages.lazyT.__init__
+web2py.gluon.languages.translator.__init__
+web2py.gluon.main.HttpServer.__init__
+web2py.gluon.messageboxhandler.MessageBoxHandler.__init__
+web2py.gluon.newcron.Token.__init__
+web2py.gluon.newcron.cronlauncher.__init__
+web2py.gluon.newcron.extcron.__init__
+web2py.gluon.newcron.hardcron.__init__
+web2py.gluon.newcron.softcron.__init__
+web2py.gluon.portalocker.LockedFile.__init__
+web2py.gluon.restricted.RestrictedError.__init__
+web2py.gluon.restricted.TicketStorage.__init__
+web2py.gluon.rewrite.MapUrlIn.__init__
+web2py.gluon.rewrite.MapUrlOut.__init__
+web2py.gluon.rocket.ChunkedReader.__init__
+web2py.gluon.rocket.Connection.__init__
+web2py.gluon.rocket.FileLikeSocket.__init__
+web2py.gluon.rocket.FileSystemWorker.__init__
+web2py.gluon.rocket.FuturesMiddleware.__init__
+web2py.gluon.rocket.LimitingFileWrapper.__init__
+web2py.gluon.rocket.Listener.__init__
+web2py.gluon.rocket.Monitor.__init__
+web2py.gluon.rocket.Rocket.__init__
+web2py.gluon.rocket.ThreadPool.__init__
+web2py.gluon.rocket.WSGIExecutor.__init__
+web2py.gluon.rocket.WSGIFuture.__init__
+web2py.gluon.rocket.WSGIWorker.__init__
+web2py.gluon.rocket.Worker.__init__
+web2py.gluon.rocket._WorkItem.__init__
+web2py.gluon.sanitizer.XssCleaner.__init__
+web2py.gluon.scheduler.MetaScheduler.__init__
+web2py.gluon.scheduler.Scheduler.__init__
+web2py.gluon.scheduler.TYPE.__init__
+web2py.gluon.scheduler.Task.__init__
+web2py.gluon.scheduler.TaskReport.__init__
+web2py.gluon.sqlhtml.AutocompleteWidget.__init__
+web2py.gluon.sqlhtml.ExportClass.__init__
+web2py.gluon.sqlhtml.ExporterCSV.__init__
+web2py.gluon.sqlhtml.ExporterHTML.__init__
+web2py.gluon.sqlhtml.ExporterTSV.__init__
+web2py.gluon.sqlhtml.ExporterXML.__init__
+web2py.gluon.sqlhtml.SQLFORM.__init__
+web2py.gluon.sqlhtml.SQLTABLE.__init__
+web2py.gluon.storage.FastStorage.__init__
+web2py.gluon.storage.Messages.__init__
+web2py.gluon.template.BlockNode.__init__
+web2py.gluon.template.Content.__init__
+web2py.gluon.template.DummyResponse.__init__
+web2py.gluon.template.NOESCAPE.__init__
+web2py.gluon.template.Node.__init__
+web2py.gluon.template.SuperNode.__init__
+web2py.gluon.template.TemplateParser.__init__
+web2py.gluon.tools.Auth.__init__
+web2py.gluon.tools.Crud.__init__
+web2py.gluon.tools.Expose.__init__
+web2py.gluon.tools.Mail.Attachment.__init__
+web2py.gluon.tools.Mail.__init__
+web2py.gluon.tools.PluginManager.__init__
+web2py.gluon.tools.Recaptcha.__init__
+web2py.gluon.tools.Service.JsonRpcException.__init__
+web2py.gluon.tools.Service.__init__
+web2py.gluon.tools.Wiki.__init__
+web2py.gluon.validators.CLEANUP.__init__
+web2py.gluon.validators.CRYPT.__init__
+web2py.gluon.validators.IS_ALPHANUMERIC.__init__
+web2py.gluon.validators.IS_DATE.__init__
+web2py.gluon.validators.IS_DATETIME.__init__
+web2py.gluon.validators.IS_DATETIME_IN_RANGE.__init__
+web2py.gluon.validators.IS_DATE_IN_RANGE.__init__
+web2py.gluon.validators.IS_DECIMAL_IN_RANGE.__init__
+web2py.gluon.validators.IS_EMAIL.__init__
+web2py.gluon.validators.IS_EMPTY_OR.__init__
+web2py.gluon.validators.IS_EQUAL_TO.__init__
+web2py.gluon.validators.IS_EXPR.__init__
+web2py.gluon.validators.IS_FLOAT_IN_RANGE.__init__
+web2py.gluon.validators.IS_GENERIC_URL.__init__
+web2py.gluon.validators.IS_HTTP_URL.__init__
+web2py.gluon.validators.IS_IMAGE.__init__
+web2py.gluon.validators.IS_INT_IN_RANGE.__init__
+web2py.gluon.validators.IS_IN_DB.__init__
+web2py.gluon.validators.IS_IN_SET.__init__
+web2py.gluon.validators.IS_IN_SUBSET.__init__
+web2py.gluon.validators.IS_IPV4.__init__
+web2py.gluon.validators.IS_LENGTH.__init__
+web2py.gluon.validators.IS_LIST_OF.__init__
+web2py.gluon.validators.IS_MATCH.__init__
+web2py.gluon.validators.IS_NOT_EMPTY.__init__
+web2py.gluon.validators.IS_NOT_IN_DB.__init__
+web2py.gluon.validators.IS_SLUG.__init__
+web2py.gluon.validators.IS_STRONG.__init__
+web2py.gluon.validators.IS_TIME.__init__
+web2py.gluon.validators.IS_UPLOAD_FILENAME.__init__
+web2py.gluon.validators.IS_URL.__init__
+web2py.gluon.validators.LazyCrypt.__init__
+web2py.gluon.widget.IO.__init__
+web2py.gluon.widget.web2pyDialog.__init__
+web2py.gluon.winservice.Service.__init__" class="py-name" href="#" onclick="return doclink('link-0', '__init__', 'link-0');">__init__</a></tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L11"></a><tt class="py-lineno">11</tt>  <tt class="py-line"> </tt>
+<a name="MessageBoxHandler.emit"></a><div id="MessageBoxHandler.emit-def"><a name="L12"></a><tt class="py-lineno">12</tt> <a class="py-toggle" href="#" id="MessageBoxHandler.emit-toggle" onclick="return toggle('MessageBoxHandler.emit');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="web2py.gluon.messageboxhandler.MessageBoxHandler-class.html#emit">emit</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">record</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="MessageBoxHandler.emit-collapsed" style="display:none;" pad="++" indent="++++++++"></div><div id="MessageBoxHandler.emit-expanded"><a name="L13"></a><tt class="py-lineno">13</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">tkMessageBox</tt><tt class="py-op">:</tt> </tt>
+<a name="L14"></a><tt class="py-lineno">14</tt>  <tt class="py-line">            <tt id="link-1" class="py-name" targets="Variable web2py.gluon.widget.msg=web2py.gluon.widget-module.html#msg"><a title="web2py.gluon.widget.msg" class="py-name" href="#" onclick="return doclink('link-1', 'msg', 'link-1');">msg</a></tt> <tt class="py-op">=</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-2" class="py-name" targets="Method web2py.gluon.utf8.Utf8.format()=web2py.gluon.utf8.Utf8-class.html#format"><a title="web2py.gluon.utf8.Utf8.format" class="py-name" href="#" onclick="return doclink('link-2', 'format', 'link-2');">format</a></tt><tt class="py-op">(</tt><tt class="py-name">record</tt><tt class="py-op">)</tt> </tt>
+<a name="L15"></a><tt class="py-lineno">15</tt>  <tt class="py-line">            <tt class="py-name">tkMessageBox</tt><tt class="py-op">.</tt><tt class="py-name">showinfo</tt><tt class="py-op">(</tt><tt class="py-string">'info1'</tt><tt class="py-op">,</tt> <tt id="link-3" class="py-name"><a title="web2py.gluon.widget.msg" class="py-name" href="#" onclick="return doclink('link-3', 'msg', 'link-1');">msg</a></tt><tt class="py-op">)</tt> </tt>
+</div></div><a name="L16"></a><tt class="py-lineno">16</tt>  <tt class="py-line"> </tt><script type="text/javascript">
+<!--
+expandto(location.href);
+// -->
+</script>
+</pre>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="web2py.gluon-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://www.web2py.com">web2py Web Framework</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0beta1 on Thu Sep 13 23:51:30 2012
+    </td>
+    <td align="right" class="footer">
+      <a href="http://epydoc.sourceforge.net">http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie()
+  // -->
+</script>
+  
+</body>
+</html>

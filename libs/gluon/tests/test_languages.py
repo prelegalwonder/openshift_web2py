@@ -59,7 +59,10 @@ try:
 
         def setUp(self):
             self.request = Storage()
-            self.request.folder = 'applications/welcome'
+            if os.path.isdir('gluon'):
+                self.request.folder = 'applications/welcome'
+            else:
+                self.request.folder = os.path.realpath('../../applications/welcome')
             self.request.env = Storage()
             self.request.env.http_accept_language = 'en'
 
@@ -81,6 +84,10 @@ try:
                              '1 shop')
             self.assertEqual(str(T('%s %%{shop[0]}', 2)),
                              '2 shops')
+            self.assertEqual(str(T('%s %%{quark[0]}', 1)),
+                             '1 quark')
+            self.assertEqual(str(T('%s %%{quark[0]}', 2)),
+                             '2 quarks')
             self.assertEqual(str(T.M('**Hello World**')),
                              '<strong>Hello World</strong>')
             T.force('it')

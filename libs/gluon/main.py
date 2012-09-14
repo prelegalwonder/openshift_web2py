@@ -30,7 +30,7 @@ import string
 import urllib2
 from thread import allocate_lock
 
-from fileutils import abspath, write_file, parse_version
+from fileutils import abspath, write_file, parse_version, copystream
 from settings import global_settings
 from admin import add_path_first, create_missing_folders, create_missing_app_folders
 from globals import current
@@ -84,7 +84,6 @@ from http import HTTP, redirect
 from globals import Request, Response, Session
 from compileapp import build_environment, run_models_in, \
     run_controller_in, run_view_in
-from fileutils import copystream, parse_version
 from contenttype import contenttype
 from dal import BaseAdapter
 from settings import global_settings
@@ -92,7 +91,8 @@ from validators import CRYPT
 from cache import Cache
 from html import URL, xmlescape
 from utils import is_valid_ip_address
-from rewrite import load, url_in, thread as rwthread, try_rewrite_on_error
+from rewrite import load, url_in, thread as rwthread, \
+    try_rewrite_on_error, fixup_missing_path_info
 import newcron
 
 __all__ = ['wsgibase', 'save_password', 'appfactory', 'HttpServer']
@@ -149,10 +149,11 @@ def copystream_progress(request, chunk_size= 10**5):
     and stores progress upload status in cache.ram
     X-Progress-ID:length and X-Progress-ID:uploaded
     """
-    if not request.env.content_length:
+    env = request.env
+    if not env.content_length:
         return cStringIO.StringIO()
-    source = request.env.wsgi_input
-    size = int(request.env.content_length)
+    source = env.wsgi_input
+    size = int(env.content_length)
     dest = tempfile.TemporaryFile()
     if not 'X-Progress-ID' in request.vars:
         copystream(source, dest, size, chunk_size)
@@ -225,6 +226,20 @@ def serve_controller(request, response, session):
     requests = ('requests' in globals()) and (requests+1) % 100 or 0
     if not requests: gc.collect()
     # end garbage collection logic
+
+    # ##################################################
+    # set default headers it not set
+    # ##################################################
+
+    default_headers = [
+        ('Content-Type', contenttype('.'+request.extension)),
+        ('Cache-Control','no-store, no-cache, must-revalidate, post-check=0, pre-check=0'),
+        ('Expires', time.strftime('%a, %d %b %Y %H:%M:%S GMT', 
+                                  time.gmtime())),
+        ('Pragma', 'no-cache')]
+    for key,value in default_headers:
+        response.headers.setdefault(key,value)
+
     raise HTTP(response.status, page, **response.headers)
 
 
@@ -275,7 +290,8 @@ def environ_aux(environ,request):
 def parse_get_post_vars(request, environ):
 
     # always parse variables in URL for GET, POST, PUT, DELETE, etc. in get_vars
-    dget = cgi.parse_qsl(request.env.query_string or '', keep_blank_values=1)
+    env = request.env
+    dget = cgi.parse_qsl(env.query_string or '', keep_blank_values=1)
     for (key, value) in dget:
         if key in request.get_vars:
             if isinstance(request.get_vars[key], list):
@@ -291,7 +307,7 @@ def parse_get_post_vars(request, environ):
         request.body = body = copystream_progress(request)
     except IOError:
         raise HTTP(400,"Bad Request - HTTP body is incomplete")
-    if (body and request.env.request_method in ('POST', 'PUT', 'BOTH')):
+    if (body and env.request_method in ('POST', 'PUT', 'BOTH')):
         dpost = cgi.FieldStorage(fp=body,environ=environ,keep_blank_values=1)
         # The same detection used by FieldStorage to detect multipart POSTs
         is_multipart = dpost.type[:10] == 'multipart/'
@@ -383,22 +399,9 @@ def wsgibase(environ, responder):
                 # serve file if static
                 # ##################################################
 
-                eget = environ.get
-                if not eget('PATH_INFO',None) and eget('REQUEST_URI',None):
-                    # for fcgi, get path_info and 
-                    # query_string from request_uri
-                    items = environ['REQUEST_URI'].split('?')
-                    environ['PATH_INFO'] = items[0]
-                    if len(items) > 1:
-                        environ['QUERY_STRING'] = items[1]
-                    else:
-                        environ['QUERY_STRING'] = ''
-                if not eget('HTTP_HOST',None):
-                    environ['HTTP_HOST'] = \
-                        eget('SERVER_NAME')+':'+eget('SERVER_PORT')
-                    
-
+                fixup_missing_path_info(environ)
                 (static_file, environ) = url_in(request, environ)
+                response.status = env.web2py_status_code or response.status
 
                 if static_file:
                     if environ.get('QUERY_STRING','').startswith(
@@ -434,6 +437,7 @@ def wsgibase(environ, responder):
                     is_https = env.wsgi_url_scheme \
                         in ['https', 'HTTPS'] or env.https=='on')
                 request.uuid = request.compute_uuid() # requires client
+                request.url = environ['PATH_INFO']
 
                 # ##################################################
                 # access the requested application
@@ -456,9 +460,6 @@ def wsgibase(environ, responder):
                 elif not request.is_local and \
                         exists(pjoin(request.folder,'DISABLED')):
                     raise HTTP(503, "<html><body><h1>Temporarily down for maintenance</h1></body></html>")
-                request.url = URL(r=request,
-                                  args=request.args,
-                                  extension=request.raw_extension)
 
                 # ##################################################
                 # build missing folders
@@ -488,9 +489,9 @@ def wsgibase(environ, responder):
                 # load cookies
                 # ##################################################
 
-                if request.env.http_cookie:
+                if env.http_cookie:
                     try:
-                        request.cookies.load(request.env.http_cookie)
+                        request.cookies.load(env.http_cookie)
                     except Cookie.CookieError, e:
                         pass # invalid cookies
 
@@ -498,20 +499,8 @@ def wsgibase(environ, responder):
                 # try load session or create new session file
                 # ##################################################
 
-                session.connect(request, response)
-
-                # ##################################################
-                # set no-cache headers
-                # ##################################################
-                
-                headers = response.headers
-                headers['Content-Type'] = \
-                    contenttype('.'+request.extension)
-                headers['Cache-Control'] = \
-                    'no-store, no-cache, must-revalidate, post-check=0, pre-check=0'
-                headers['Expires'] = \
-                    time.strftime('%a, %d %b %Y %H:%M:%S GMT', time.gmtime())
-                headers['Pragma'] = 'no-cache'
+                if not env.web2py_disable_session:
+                    session.connect(request, response)
 
                 # ##################################################
                 # run controller
@@ -521,14 +510,14 @@ def wsgibase(environ, responder):
                     import gluon.debug
                     # activate the debugger
                     gluon.debug.dbg.do_debug(mainpyfile=request.folder)
-
+                
                 serve_controller(request, response, session)
 
             except HTTP, http_response:
+
                 if static_file:
                     return http_response.to(responder,env=env)
                         
-
                 if request.body:
                     request.body.close()
 
@@ -554,31 +543,24 @@ def wsgibase(environ, responder):
                 # if session not in db try store session on filesystem
                 # this must be done after trying to commit database!
                 # ##################################################
-
+                    
                 session._try_store_on_disk(request, response)
+                
+                if request.cid:
+                    if response.flash:
+                        http_response.headers['web2py-component-flash'] = urllib2.quote(xmlescape(response.flash).replace('\n',''))
+                    if response.js:
+                        http_response.headers['web2py-component-command'] = response.js.replace('\n','')
 
                 # ##################################################
                 # store cookies in headers
                 # ##################################################
 
-                if request.cid:
-                    rheaders = response.headers
-                    if response.flash and \
-                            not 'web2py-component-flash' in rheaders:
-                        rheaders['web2py-component-flash'] = \
-                            urllib2.quote(xmlescape(response.flash)\
-                                              .replace('\n',''))
-                    if response.js and \
-                            not 'web2py-component-command' in rheaders:
-                        rheaders['web2py-component-command'] = \
-                            response.js.replace('\n','')
                 rcookies = response.cookies
-                if session._forget and \
-                        response.session_id_name in response.cookies:
+                if session._forget and response.session_id_name in rcookies:
                     del rcookies[response.session_id_name]
                 elif session._secure:
                     rcookies[response.session_id_name]['secure'] = True
-
                 http_response.cookies2headers(rcookies)
                 ticket=None
 
