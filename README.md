@@ -79,6 +79,9 @@ Using web2py, the most useful variable will most likely be the URL when defining
     DB_URL = myenv['OPENSHIFT_NOSQL_DB_URL']+myenv['OPENSHIFT_APP_NAME']
 
     db = DAL(DB_URL)
+    
+    (Note: If using postgresql, put the following after the DB_URL line and before the db = DAL line. Thanks srochy)
+    DB_URL = DB_URL.replace("postgresql://", "postgres://")
 
 If you want to view your data directly you can do this via the console tools logged directly into the Openshift gear, or install the cooresponding web management cartridge (ie. rockmongo, phpmyadmin).
 
