@@ -102,7 +102,7 @@ Example of usage:
 &gt;&gt;&gt; # from dal import DAL, Field
 
 ### create DAL connection (and create DB if it doesn't exist)
-&gt;&gt;&gt; db = DAL(('sqlite://storage.sqlite','mysql://a:b@localhost/x'), 
+&gt;&gt;&gt; db = DAL(('sqlite://storage.sqlite','mysql://a:b@localhost/x'),
 ... folder=None)
 
 ### define a table 'person' (create/alter as necessary)
@@ -123,6 +123,7 @@ Example of usage:
 
 ### update one record
 &gt;&gt;&gt; james.update_record(name='Jim')
+&lt;Row {'id': 1, 'name': 'Jim'}&gt;
 
 ### update multiple records by query
 &gt;&gt;&gt; db(person.name.like('J%')).update(name='James')
@@ -549,6 +550,13 @@ the records are identified by the query=Query(...) object.
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
+        <a href="web2py.gluon.dal.LazySet-class.html" class="summary-name">LazySet</a>
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
         <a href="web2py.gluon.dal.VirtualCommand-class.html" class="summary-name">VirtualCommand</a>
     </td>
   </tr>
@@ -710,6 +718,22 @@ the records are identified by the query=Query(...) object.
         <span class="summary-sig-arg">rules</span>=<span class="summary-sig-default"><code class="variable-group">[</code><code class="variable-group">(</code>re.compile(r'child$')<code class="variable-op">, </code>re.compile(r'child$')<code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">children</code><code class="variable-quote">'</code><code class="variable-group">)</code><code class="variable-op">, </code><code class="variable-group">(</code><code class="variable-ellipsis">...</code></span>)</span></td>
           <td align="right" valign="top">
             <span class="codelink"><a href="web2py.gluon.dal-pysrc.html#pluralize">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="hide_password"></a><span class="summary-sig-name">hide_password</span>(<span class="summary-sig-arg">uri</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="web2py.gluon.dal-pysrc.html#hide_password">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -921,42 +945,42 @@ the records are identified by the query=Query(...) object.
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a name="Row_unpickler"></a><span class="summary-sig-name">Row_unpickler</span>(<span class="summary-sig-arg">data</span>)</span></td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="web2py.gluon.dal-pysrc.html#Row_unpickler">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a name="Row_pickler"></a><span class="summary-sig-name">Row_pickler</span>(<span class="summary-sig-arg">data</span>)</span></td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="web2py.gluon.dal-pysrc.html#Row_pickler">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
           <td><span class="summary-sig"><a name="smart_query"></a><span class="summary-sig-name">smart_query</span>(<span class="summary-sig-arg">fields</span>,
         <span class="summary-sig-arg">text</span>)</span></td>
           <td align="right" valign="top">
             <span class="codelink"><a href="web2py.gluon.dal-pysrc.html#smart_query">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="DAL_unpickler"></a><span class="summary-sig-name">DAL_unpickler</span>(<span class="summary-sig-arg">db_uid</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="web2py.gluon.dal-pysrc.html#DAL_unpickler">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="DAL_pickler"></a><span class="summary-sig-name">DAL_pickler</span>(<span class="summary-sig-arg">db</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="web2py.gluon.dal-pysrc.html#DAL_pickler">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -1073,38 +1097,6 @@ the records are identified by the query=Query(...) object.
           <td><span class="summary-sig"><a name="lazy_virtualfield"></a><span class="summary-sig-name">lazy_virtualfield</span>(<span class="summary-sig-arg">f</span>)</span></td>
           <td align="right" valign="top">
             <span class="codelink"><a href="web2py.gluon.dal-pysrc.html#lazy_virtualfield">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a name="Rows_unpickler"></a><span class="summary-sig-name">Rows_unpickler</span>(<span class="summary-sig-arg">data</span>)</span></td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="web2py.gluon.dal-pysrc.html#Rows_unpickler">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a name="Rows_pickler"></a><span class="summary-sig-name">Rows_pickler</span>(<span class="summary-sig-arg">data</span>)</span></td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="web2py.gluon.dal-pysrc.html#Rows_pickler">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -1247,21 +1239,21 @@ the records are identified by the query=Query(...) object.
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a name="logger"></a><span class="summary-name">logger</span> = <code title="logging.getLogger(&quot;web2py.dal&quot;)">logging.getLogger(&quot;web2py.dal&quot;)</code>
+        <a name="LOGGER"></a><span class="summary-name">LOGGER</span> = <code title="logging.getLogger(&quot;web2py.dal&quot;)">logging.getLogger(&quot;web2py.dal&quot;)</code>
     </td>
   </tr>
 <tr class="private">
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a name="sql_locker"></a><span class="summary-name">sql_locker</span> = <code title="&lt;_RLock(None, 0)&gt;">&lt;_RLock(None, 0)&gt;</code>
+        <a name="GLOBAL_LOCKER"></a><span class="summary-name">GLOBAL_LOCKER</span> = <code title="&lt;_RLock(None, 0)&gt;">&lt;_RLock(None, 0)&gt;</code>
     </td>
   </tr>
 <tr class="private">
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a name="thread"></a><span class="summary-name">thread</span> = <code title="threading.local()">threading.local()</code>
+        <a name="THREAD_LOCAL"></a><span class="summary-name">THREAD_LOCAL</span> = <code title="threading.local()">threading.local()</code>
     </td>
   </tr>
 <tr class="private">
@@ -1370,7 +1362,14 @@ h|year|month|day|hour|minute|second))?(\.not)?\}$')">re.compile(r'^\{<code class
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a name="REGEX_ALPHANUMERIC"></a><span class="summary-name">REGEX_ALPHANUMERIC</span> = <code title="re.compile(r'^[a-zA-Z]\w*$')">re.compile(r'^<code class="re-group">[</code>a<code class="re-op">-</code>zA<code class="re-op">-</code>Z<code class="re-group">]</code>\w<code class="re-op">*</code>$')</code>
+        <a name="REGEX_ALPHANUMERIC"></a><span class="summary-name">REGEX_ALPHANUMERIC</span> = <code title="re.compile(r'^[0-9a-zA-Z]\w*$')">re.compile(r'^<code class="re-group">[</code>0<code class="re-op">-</code>9a<code class="re-op">-</code>zA<code class="re-op">-</code>Z<code class="re-group">]</code>\w<code class="re-op">*</code>$')</code>
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="REGEX_PASSWORD"></a><span class="summary-name">REGEX_PASSWORD</span> = <code title="re.compile(r'://([^:@]*):')">re.compile(r'://<code class="re-group">(</code><code class="re-group">[</code><code class="re-op">^</code>:@<code class="re-group">]</code><code class="re-op">*</code><code class="re-group">)</code>:')</code>
     </td>
   </tr>
 <tr class="private">
@@ -1536,6 +1535,7 @@ Insert a field
  Update a single record
 
  &gt;&gt;&gt; me.update_record(name=&quot;Max&quot;)
+ &lt;Row {'name': 'Max', 'birth': datetime.date(1971, 12, 21), 'id': 2}&gt;
  &gt;&gt;&gt; me.name
  'Max'
 
@@ -1638,10 +1638,10 @@ Insert a field
  Example of expressions
 
  &gt;&gt;&gt; mynumber = db.define_table('mynumber', Field('x', 'integer'))
- &gt;&gt;&gt; db(mynumber.id&gt;0).delete()
+ &gt;&gt;&gt; db(mynumber).delete()
  0
  &gt;&gt;&gt; for i in range(10): tmp = mynumber.insert(x=i)
- &gt;&gt;&gt; db(mynumber.id&gt;0).select(mynumber.x.sum())[0](mynumber.x.sum())
+ &gt;&gt;&gt; db(mynumber).select(mynumber.x.sum())[0](mynumber.x.sum())
  45
 
  &gt;&gt;&gt; db(mynumber.x+2==5).select(mynumber.x + 2)[0](mynumber.x + 2)
@@ -1967,7 +1967,7 @@ h<code class="re-op">|</code>year<code class="re-op">|</code>month<code class="r
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0beta1 on Thu Sep 13 23:51:17 2012
+    Generated by Epydoc 3.0beta1 on Sun Oct 21 16:56:49 2012
     </td>
     <td align="right" class="footer">
       <a href="http://epydoc.sourceforge.net">http://epydoc.sourceforge.net</a>

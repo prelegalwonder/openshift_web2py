@@ -6,6 +6,7 @@ License: LGPLv3 (http://www.gnu.org/licenses/lgpl.html)
 
 import os
 import sys
+import socket
 import platform
 from storage import Storage
 
@@ -28,13 +29,10 @@ global_settings.app_folders = set()
 global_settings.debugging = False
 
 global_settings.is_pypy = \
-    hasattr(platform,'python_implementation') and \
+    hasattr(platform, 'python_implementation') and \
     platform.python_implementation() == 'PyPy'
 
 global_settings.is_jython = \
     'java' in sys.platform.lower() or \
     hasattr(sys, 'JYTHON_JAR') or \
     str(sys.copyright).find('Jython') > 0
-
-
-

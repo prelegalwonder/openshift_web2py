@@ -66,7 +66,7 @@
 <pre class="base-tree">
 object --+    
          |    
-      <a href="dict-class.html">dict</a> --+
+      dict --+
              |
             <strong class="uidshort">Storage</strong>
 </pre>
@@ -101,32 +101,6 @@ A Storage object is like a dictionary except `obj.foo` can be used in
 <span class="py-prompt">&gt;&gt;&gt; </span><span class="py-keyword">print</span> o.a
 <span class="py-output">None</span></pre><br /><br />
 
-<!-- ==================== NESTED CLASSES ==================== -->
-<a name="section-NestedClasses"></a>
-<table class="summary" border="1" cellpadding="3"
-       cellspacing="0" width="100%" bgcolor="white">
-<tr bgcolor="#70b0f0" class="table-header">
-  <td colspan="2" class="table-header">
-    <table border="0" cellpadding="0" cellspacing="0" width="100%">
-      <tr valign="top">
-        <td align="left"><span class="table-header">Nested Classes</span></td>
-        <td align="right" valign="top"
-         ><span class="options">[<a href="#section-NestedClasses"
-         class="privatelink" onclick="toggle_private();"
-         >hide private</a>]</span></td>
-      </tr>
-    </table>
-  </td>
-</tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="dict-class.html" class="summary-name">__getstate__</a><br />
-      dict() -&gt; new empty dictionary.
-    </td>
-  </tr>
-</table>
 <!-- ==================== INSTANCE METHODS ==================== -->
 <a name="section-InstanceMethods"></a>
 <table class="summary" border="1" cellpadding="3"
@@ -144,6 +118,22 @@ A Storage object is like a dictionary except `obj.foo` can be used in
     </table>
   </td>
 </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="__copy__"></a><span class="summary-sig-name">__copy__</span>(<span class="summary-sig-arg">self</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="web2py.gluon.storage-pysrc.html#Storage.__copy__">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
@@ -206,6 +196,22 @@ A Storage object is like a dictionary except `obj.foo` can be used in
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
+          <td><span class="summary-sig"><a name="__getstate__"></a><span class="summary-sig-name">__getstate__</span>(<span class="summary-sig-arg">self</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="web2py.gluon.storage-pysrc.html#Storage.__getstate__">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
           <td><span class="summary-sig"><a href="web2py.gluon.storage.Storage-class.html#__repr__" class="summary-sig-name">__repr__</a>(<span class="summary-sig-arg">self</span>)</span><br />
       &lt;Storage %s&gt;</td>
           <td align="right" valign="top">
@@ -227,26 +233,6 @@ A Storage object is like a dictionary except `obj.foo` can be used in
         <span class="summary-sig-arg">i</span>,
         <span class="summary-sig-arg">y</span>)</span><br />
       x[i]=y</td>
-          <td align="right" valign="top">
-            
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a href="web2py.gluon.storage.Storage-class.html#__setstate__" class="summary-sig-name">__setstate__</a>(<span class="summary-sig-arg">D</span>,
-        <span class="summary-sig-arg">E</span>,
-        <span class="summary-sig-arg">**F</span>)</span><br />
-      Update D from E and F: for k in E: D[k] = E[k] (if E has keys 
-      else: for (k, v) in E: D[k] = v) then: for k in F: D[k] = F[k]</td>
           <td align="right" valign="top">
             
             
@@ -316,38 +302,38 @@ A Storage object is like a dictionary except `obj.foo` can be used in
   </tr>
   <tr>
     <td colspan="2" class="summary">
-    <p class="indent-wrapped-lines"><b>Inherited from <code><a href="dict-class.html">dict</a></code></b>:
-      <code><a href="dict-class.html#__cmp__">__cmp__</a></code>,
-      <code><a href="dict-class.html#__contains__">__contains__</a></code>,
-      <code><a href="dict-class.html#__delitem__">__delitem__</a></code>,
-      <code><a href="dict-class.html#__eq__">__eq__</a></code>,
-      <code><a href="dict-class.html#__ge__">__ge__</a></code>,
-      <code><a href="dict-class.html#__getattribute__">__getattribute__</a></code>,
-      <code><a href="dict-class.html#__gt__">__gt__</a></code>,
-      <code><a href="dict-class.html#__hash__">__hash__</a></code>,
-      <code><a href="dict-class.html#__init__">__init__</a></code>,
-      <code><a href="dict-class.html#__iter__">__iter__</a></code>,
-      <code><a href="dict-class.html#__le__">__le__</a></code>,
-      <code><a href="dict-class.html#__len__">__len__</a></code>,
-      <code><a href="dict-class.html#__lt__">__lt__</a></code>,
-      <code><a href="dict-class.html#__ne__">__ne__</a></code>,
-      <code><a href="dict-class.html#__new__">__new__</a></code>,
-      <code><a href="dict-class.html#__setitem__">__setitem__</a></code>,
-      <code><a href="dict-class.html#clear">clear</a></code>,
-      <code><a href="dict-class.html#copy">copy</a></code>,
-      <code><a href="dict-class.html#fromkeys">fromkeys</a></code>,
-      <code><a href="dict-class.html#get">get</a></code>,
-      <code><a href="dict-class.html#has_key">has_key</a></code>,
-      <code><a href="dict-class.html#items">items</a></code>,
-      <code><a href="dict-class.html#iteritems">iteritems</a></code>,
-      <code><a href="dict-class.html#iterkeys">iterkeys</a></code>,
-      <code><a href="dict-class.html#itervalues">itervalues</a></code>,
-      <code><a href="dict-class.html#keys">keys</a></code>,
-      <code><a href="dict-class.html#pop">pop</a></code>,
-      <code><a href="dict-class.html#popitem">popitem</a></code>,
-      <code><a href="dict-class.html#setdefault">setdefault</a></code>,
-      <code><a href="dict-class.html#update">update</a></code>,
-      <code><a href="dict-class.html#values">values</a></code>
+    <p class="indent-wrapped-lines"><b>Inherited from <code>dict</code></b>:
+      <code>__cmp__</code>,
+      <code>__contains__</code>,
+      <code>__delitem__</code>,
+      <code>__eq__</code>,
+      <code>__ge__</code>,
+      <code>__getattribute__</code>,
+      <code>__gt__</code>,
+      <code>__hash__</code>,
+      <code>__init__</code>,
+      <code>__iter__</code>,
+      <code>__le__</code>,
+      <code>__len__</code>,
+      <code>__lt__</code>,
+      <code>__ne__</code>,
+      <code>__new__</code>,
+      <code>__setitem__</code>,
+      <code>clear</code>,
+      <code>copy</code>,
+      <code>fromkeys</code>,
+      <code>get</code>,
+      <code>has_key</code>,
+      <code>items</code>,
+      <code>iteritems</code>,
+      <code>iterkeys</code>,
+      <code>itervalues</code>,
+      <code>keys</code>,
+      <code>pop</code>,
+      <code>popitem</code>,
+      <code>setdefault</code>,
+      <code>update</code>,
+      <code>values</code>
       </p>
     <p class="indent-wrapped-lines"><b>Inherited from <code>object</code></b>:
       <code>__reduce__</code>,
@@ -527,33 +513,6 @@ D[k] if k in D, else d
   </dl>
 </td></tr></table>
 </div>
-<a name="__setstate__"></a>
-<div>
-<table class="details" border="1" cellpadding="3"
-       cellspacing="0" width="100%" bgcolor="white">
-<tr><td>
-  <table width="100%" cellpadding="0" cellspacing="0" border="0">
-  <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">__setstate__</span>(<span class="sig-arg">D</span>,
-        <span class="sig-arg">E</span>,
-        <span class="sig-arg">**F</span>)</span>
-  </h3>
-  </td><td align="right" valign="top"
-    >&nbsp;
-    </td>
-  </table>
-  
-  Update D from E and F: for k in E: D[k] = E[k] (if E has keys else: 
-  for (k, v) in E: D[k] = v) then: for k in F: D[k] = F[k]
-  <dl class="fields">
-    <dt>Returns:</dt>
-        <dd><pre class="literalblock">
-None
-
-</pre></dd>
-  </dl>
-</td></tr></table>
-</div>
 <a name="getfirst"></a>
 <div>
 <table class="details" border="1" cellpadding="3"
@@ -674,7 +633,7 @@ None
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0beta1 on Thu Sep 13 23:51:21 2012
+    Generated by Epydoc 3.0beta1 on Sun Oct 21 16:56:54 2012
     </td>
     <td align="right" class="footer">
       <a href="http://epydoc.sourceforge.net">http://epydoc.sourceforge.net</a>

@@ -201,7 +201,8 @@ any named optional attribute is passed to the &lt;form&gt; tag
         <span class="summary-sig-arg">onvalidation</span>=<span class="summary-sig-default">threading.local()</span>,
         <span class="summary-sig-arg">dbio</span>=<span class="summary-sig-default">True</span>,
         <span class="summary-sig-arg">hideerror</span>=<span class="summary-sig-default">True</span>,
-        <span class="summary-sig-arg">detect_record_change</span>=<span class="summary-sig-default">True</span>)</span><br />
+        <span class="summary-sig-arg">detect_record_change</span>=<span class="summary-sig-default">True</span>,
+        <span class="summary-sig-arg">**kwargs</span>)</span><br />
       similar FORM.accepts but also does insert, update or delete in DAL.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="web2py.gluon.sqlhtml-pysrc.html#SQLFORM.accepts">source&nbsp;code</a></span>
@@ -516,10 +517,11 @@ n.sqlhtml.PasswordWidget'&gt;, 'double': &lt;class 'web2py.gluon.sqlhtml.Dou\
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a href="web2py.gluon.sqlhtml.SQLFORM-class.html#formstyles" class="summary-name">formstyles</a> = <code title="&lt;Storage {'table3cols': &lt;function formstyle_table3cols at 0x11a0c08&gt;, \
-'ul': &lt;function formstyle_ul at 0x11a6668&gt;, 'bootstrap': &lt;function for\
-mstyle_bootstrap at 0x11a66e0&gt;, 'divs': &lt;function formstyle_divs at 0x\
-11a65f0&gt;, 'table2cols': &lt;function formstyle_table2cols at 0x11a6578&gt;}&gt;">&lt;Storage {'table3cols': &lt;function formstyle_table<code class="variable-ellipsis">...</code></code>
+        <a href="web2py.gluon.sqlhtml.SQLFORM-class.html#formstyles" class="summary-name">formstyles</a> = <code title="&lt;Storage {'ul': &lt;function formstyle_ul at 0x20850c8&gt;, 'table2cols': &lt;f\
+unction formstyle_table2cols at 0x2082ed8&gt;, 'table3cols': &lt;function fo\
+rmstyle_table3cols at 0x20825f0&gt;, 'inline': &lt;function formstyle_inline\
+ at 0x2085050&gt;, 'bootstrap': &lt;function formstyle_bootstrap at 0x208514\
+0&gt;, 'divs': &lt;function formstyle_divs at 0x2082f50&gt;}&gt;">&lt;Storage {'ul': &lt;function formstyle_ul at 0x20850<code class="variable-ellipsis">...</code></code>
     </td>
   </tr>
 <tr>
@@ -557,10 +559,10 @@ mstyle_bootstrap at 0x11a66e0&gt;, 'divs': &lt;function formstyle_divs at 0x\
         <a href="web2py.gluon.sqlhtml.SQLFORM-class.html#AUTOTYPES" class="summary-name">AUTOTYPES</a> = <code title="{&lt;type 'bool'&gt;: ('boolean', None),
  &lt;type 'float'&gt;: ('double',
                   &lt;web2py.gluon.validators.IS_FLOAT_IN_RANGE object at\
- 0x11a5450&gt;),
+ 0x207edd0&gt;),
  &lt;type 'int'&gt;: ('integer',
-                &lt;web2py.gluon.validators.IS_INT_IN_RANGE object at 0x1\
-1a5410&gt;),
+                &lt;web2py.gluon.validators.IS_INT_IN_RANGE object at 0x2\
+07ed90&gt;),
  &lt;type 'list'&gt;: ('list:string', None),
 ..."><code class="variable-group">{</code>&lt;type 'bool'&gt;<code class="variable-op">: </code><code class="variable-group">(</code><code class="variable-quote">'</code><code class="variable-string">boolean</code><code class="variable-quote">'</code><code class="variable-op">, </code>None<code class="variable-group">)</code><code class="variable-op">, </code>&lt;type 'float'&gt;<code class="variable-op">:</code><code class="variable-ellipsis">...</code></code>
     </td>
@@ -693,7 +695,8 @@ SQLFORM(db.table,
         <span class="sig-arg">onvalidation</span>=<span class="sig-default">threading.local()</span>,
         <span class="sig-arg">dbio</span>=<span class="sig-default">True</span>,
         <span class="sig-arg">hideerror</span>=<span class="sig-default">True</span>,
-        <span class="sig-arg">detect_record_change</span>=<span class="sig-default">True</span>)</span>
+        <span class="sig-arg">detect_record_change</span>=<span class="sig-default">True</span>,
+        <span class="sig-arg">**kwargs</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="web2py.gluon.sqlhtml-pysrc.html#SQLFORM.accepts">source&nbsp;code</a></span>&nbsp;
@@ -856,10 +859,11 @@ n.sqlhtml.PasswordWidget'&gt;, 'double': &lt;class 'web2py.gluon.sqlhtml.Dou<spa
   <dl class="fields">
     <dt>Value:</dt>
       <dd><table><tr><td><pre class="variable">
-&lt;Storage {'table3cols': &lt;function formstyle_table3cols at 0x11a0c08&gt;, <span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
-'ul': &lt;function formstyle_ul at 0x11a6668&gt;, 'bootstrap': &lt;function for<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
-mstyle_bootstrap at 0x11a66e0&gt;, 'divs': &lt;function formstyle_divs at 0x<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
-11a65f0&gt;, 'table2cols': &lt;function formstyle_table2cols at 0x11a6578&gt;}&gt;
+&lt;Storage {'ul': &lt;function formstyle_ul at 0x20850c8&gt;, 'table2cols': &lt;f<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+unction formstyle_table2cols at 0x2082ed8&gt;, 'table3cols': &lt;function fo<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+rmstyle_table3cols at 0x20825f0&gt;, 'inline': &lt;function formstyle_inline<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+ at 0x2085050&gt;, 'bootstrap': &lt;function formstyle_bootstrap at 0x208514<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+0&gt;, 'divs': &lt;function formstyle_divs at 0x2082f50&gt;}&gt;
 </pre></td></tr></table>
 </dd>
   </dl>
@@ -880,10 +884,10 @@ mstyle_bootstrap at 0x11a66e0&gt;, 'divs': &lt;function formstyle_divs at 0x<spa
 <code class="variable-group">{</code>&lt;type 'bool'&gt;<code class="variable-op">: </code><code class="variable-group">(</code><code class="variable-quote">'</code><code class="variable-string">boolean</code><code class="variable-quote">'</code><code class="variable-op">, </code>None<code class="variable-group">)</code><code class="variable-op">,</code>
  &lt;type 'float'&gt;<code class="variable-op">: </code><code class="variable-group">(</code><code class="variable-quote">'</code><code class="variable-string">double</code><code class="variable-quote">'</code><code class="variable-op">,</code>
                   &lt;web2py.gluon.validators.IS_FLOAT_IN_RANGE object at<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
- 0x11a5450&gt;<code class="variable-group">)</code><code class="variable-op">,</code>
+ 0x207edd0&gt;<code class="variable-group">)</code><code class="variable-op">,</code>
  &lt;type 'int'&gt;<code class="variable-op">: </code><code class="variable-group">(</code><code class="variable-quote">'</code><code class="variable-string">integer</code><code class="variable-quote">'</code><code class="variable-op">,</code>
-                &lt;web2py.gluon.validators.IS_INT_IN_RANGE object at 0x1<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
-1a5410&gt;<code class="variable-group">)</code><code class="variable-op">,</code>
+                &lt;web2py.gluon.validators.IS_INT_IN_RANGE object at 0x2<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+07ed90&gt;<code class="variable-group">)</code><code class="variable-op">,</code>
  &lt;type 'list'&gt;<code class="variable-op">: </code><code class="variable-group">(</code><code class="variable-quote">'</code><code class="variable-string">list:string</code><code class="variable-quote">'</code><code class="variable-op">, </code>None<code class="variable-group">)</code><code class="variable-op">,</code>
 <code class="variable-ellipsis">...</code>
 </pre></td></tr></table>
@@ -923,7 +927,7 @@ mstyle_bootstrap at 0x11a66e0&gt;, 'divs': &lt;function formstyle_divs at 0x<spa
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0beta1 on Thu Sep 13 23:51:21 2012
+    Generated by Epydoc 3.0beta1 on Sun Oct 21 16:56:54 2012
     </td>
     <td align="right" class="footer">
       <a href="http://epydoc.sourceforge.net">http://epydoc.sourceforge.net</a>

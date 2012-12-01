@@ -79,37 +79,20 @@
     </table>
   </td>
 </tr>
-<tr class="private">
+<tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a href="web2py.gluon.custom_import._BaseImporter-class.html" class="summary-name">_BaseImporter</a><br />
-      The base importer.
+        <a href="web2py.gluon.custom_import.CustomImportException-class.html" class="summary-name">CustomImportException</a>
     </td>
   </tr>
-<tr class="private">
+<tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a href="web2py.gluon.custom_import._DateTrackerImporter-class.html" class="summary-name">_DateTrackerImporter</a><br />
+        <a href="web2py.gluon.custom_import.TrackImporter-class.html" class="summary-name">TrackImporter</a><br />
       An importer tracking the date of the module files and reloading 
         them when they have changed.
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="web2py.gluon.custom_import._Web2pyImporter-class.html" class="summary-name">_Web2pyImporter</a><br />
-      The standard web2py importer.
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="web2py.gluon.custom_import._Web2pyDateTrackerImporter-class.html" class="summary-name">_Web2pyDateTrackerImporter</a><br />
-      Like _Web2pyImporter but using a _DateTrackerImporter.
     </td>
   </tr>
 </table>
@@ -136,7 +119,7 @@
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a name="custom_import_install"></a><span class="summary-sig-name">custom_import_install</span>(<span class="summary-sig-arg">web2py_path</span>)</span></td>
+          <td><span class="summary-sig"><a name="custom_import_install"></a><span class="summary-sig-name">custom_import_install</span>()</span></td>
           <td align="right" valign="top">
             <span class="codelink"><a href="web2py.gluon.custom_import-pysrc.html#custom_import_install">source&nbsp;code</a></span>
             
@@ -152,10 +135,23 @@
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="web2py.gluon.custom_import-module.html#is_tracking_changes" class="summary-sig-name">is_tracking_changes</a>()</span><br />
-      Returns:
-      True: neo_importer is tracking changes made to Python source 
-      files.</td>
+          <td><span class="summary-sig"><a name="track_changes"></a><span class="summary-sig-name">track_changes</span>(<span class="summary-sig-arg">track</span>=<span class="summary-sig-default">True</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="web2py.gluon.custom_import-pysrc.html#track_changes">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="is_tracking_changes"></a><span class="summary-sig-name">is_tracking_changes</span>()</span></td>
           <td align="right" valign="top">
             <span class="codelink"><a href="web2py.gluon.custom_import-pysrc.html#is_tracking_changes">source&nbsp;code</a></span>
             
@@ -171,11 +167,14 @@
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="web2py.gluon.custom_import-module.html#track_changes" class="summary-sig-name">track_changes</a>(<span class="summary-sig-arg">track</span>=<span class="summary-sig-default">True</span>)</span><br />
-      Tell neo_importer to start/stop tracking changes made to Python 
-      modules.</td>
+          <td><span class="summary-sig"><a href="web2py.gluon.custom_import-module.html#custom_importer" class="summary-sig-name">custom_importer</a>(<span class="summary-sig-arg">name</span>,
+        <span class="summary-sig-arg">globals</span>=<span class="summary-sig-default">threading.local()</span>,
+        <span class="summary-sig-arg">locals</span>=<span class="summary-sig-default">threading.local()</span>,
+        <span class="summary-sig-arg">fromlist</span>=<span class="summary-sig-default">threading.local()</span>,
+        <span class="summary-sig-arg">level</span>=<span class="summary-sig-default">-1</span>)</span><br />
+      The web2py custom importer.</td>
           <td align="right" valign="top">
-            <span class="codelink"><a href="web2py.gluon.custom_import-pysrc.html#track_changes">source&nbsp;code</a></span>
+            <span class="codelink"><a href="web2py.gluon.custom_import-pysrc.html#custom_importer">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -201,32 +200,18 @@
     </table>
   </td>
 </tr>
-<tr class="private">
+<tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a name="_web2py_importer"></a><span class="summary-name">_web2py_importer</span> = <code title="threading.local()">threading.local()</code>
+        <a href="web2py.gluon.custom_import-module.html#INVALID_MODULES" class="summary-name">INVALID_MODULES</a> = <code title="set(['', 'applications', 'custom_import', 'gluon'])"><code class="variable-group">set([</code><code class="variable-quote">'</code><code class="variable-string"></code><code class="variable-quote">'</code><code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">applications</code><code class="variable-quote">'</code><code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">custom_import</code><code class="variable-quote">'</code><code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">g</code><code class="variable-ellipsis">...</code></code>
     </td>
   </tr>
-<tr class="private">
+<tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a href="web2py.gluon.custom_import-module.html#_web2py_date_tracker_importer" class="summary-name">_web2py_date_tracker_importer</a> = <code title="threading.local()">&lt;thread._local object at 0x12a<code class="variable-ellipsis">...</code></code>
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a name="_web2py_path"></a><span class="summary-name">_web2py_path</span> = <code title="threading.local()">threading.local()</code>
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a name="_is_tracking_changes"></a><span class="summary-name">_is_tracking_changes</span> = <code title="True">True</code>
+        <a href="web2py.gluon.custom_import-module.html#TRACK_IMPORTER" class="summary-name">TRACK_IMPORTER</a> = <code title="TrackImporter()">&lt;web2py.gluon.custom_import.TrackImporter obj<code class="variable-ellipsis">...</code></code>
     </td>
   </tr>
 </table>
@@ -248,50 +233,29 @@
   </td>
 </tr>
 </table>
-<a name="is_tracking_changes"></a>
+<a name="custom_importer"></a>
 <div>
 <table class="details" border="1" cellpadding="3"
        cellspacing="0" width="100%" bgcolor="white">
 <tr><td>
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">is_tracking_changes</span>()</span>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">custom_importer</span>(<span class="sig-arg">name</span>,
+        <span class="sig-arg">globals</span>=<span class="sig-default">threading.local()</span>,
+        <span class="sig-arg">locals</span>=<span class="sig-default">threading.local()</span>,
+        <span class="sig-arg">fromlist</span>=<span class="sig-default">threading.local()</span>,
+        <span class="sig-arg">level</span>=<span class="sig-default">-1</span>)</span>
   </h3>
   </td><td align="right" valign="top"
-    ><span class="codelink"><a href="web2py.gluon.custom_import-pysrc.html#is_tracking_changes">source&nbsp;code</a></span>&nbsp;
+    ><span class="codelink"><a href="web2py.gluon.custom_import-pysrc.html#custom_importer">source&nbsp;code</a></span>&nbsp;
     </td>
   </table>
   
-  
+  The web2py custom importer. Like the standard Python importer but it 
+  tries to transform import statements as something like &quot;import 
+  applications.app_name.modules.x&quot;. If the import failed, fall back on
+  naive_importer
   <dl class="fields">
-    <dt>Returns:</dt>
-        <dd>True: neo_importer is tracking changes made to Python source 
-          files. False: neo_import does not reload Python modules.</dd>
-  </dl>
-</td></tr></table>
-</div>
-<a name="track_changes"></a>
-<div>
-<table class="details" border="1" cellpadding="3"
-       cellspacing="0" width="100%" bgcolor="white">
-<tr><td>
-  <table width="100%" cellpadding="0" cellspacing="0" border="0">
-  <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">track_changes</span>(<span class="sig-arg">track</span>=<span class="sig-default">True</span>)</span>
-  </h3>
-  </td><td align="right" valign="top"
-    ><span class="codelink"><a href="web2py.gluon.custom_import-pysrc.html#track_changes">source&nbsp;code</a></span>&nbsp;
-    </td>
-  </table>
-  
-  Tell neo_importer to start/stop tracking changes made to Python 
-  modules.
-  <dl class="fields">
-    <dt>Parameters:</dt>
-    <dd><ul class="nomargin-top">
-        <li><strong class="pname"><code>track</code></strong> - True: Start tracking changes. False: Stop tracking 
-          changes.</li>
-    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -314,19 +278,37 @@
   </td>
 </tr>
 </table>
-<a name="_web2py_date_tracker_importer"></a>
-<div class="private">
+<a name="INVALID_MODULES"></a>
+<div>
 <table class="details" border="1" cellpadding="3"
        cellspacing="0" width="100%" bgcolor="white">
 <tr><td>
-  <h3 class="epydoc">_web2py_date_tracker_importer</h3>
+  <h3 class="epydoc">INVALID_MODULES</h3>
   
   <dl class="fields">
   </dl>
   <dl class="fields">
     <dt>Value:</dt>
       <dd><table><tr><td><pre class="variable">
-threading.local()
+<code class="variable-group">set([</code><code class="variable-quote">'</code><code class="variable-string"></code><code class="variable-quote">'</code><code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">applications</code><code class="variable-quote">'</code><code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">custom_import</code><code class="variable-quote">'</code><code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">gluon</code><code class="variable-quote">'</code><code class="variable-group">])</code>
+</pre></td></tr></table>
+</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="TRACK_IMPORTER"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <h3 class="epydoc">TRACK_IMPORTER</h3>
+  
+  <dl class="fields">
+  </dl>
+  <dl class="fields">
+    <dt>Value:</dt>
+      <dd><table><tr><td><pre class="variable">
+TrackImporter()
 </pre></td></tr></table>
 </dd>
   </dl>
@@ -364,7 +346,7 @@ threading.local()
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0beta1 on Thu Sep 13 23:51:17 2012
+    Generated by Epydoc 3.0beta1 on Sun Oct 21 16:56:49 2012
     </td>
     <td align="right" class="footer">
       <a href="http://epydoc.sourceforge.net">http://epydoc.sourceforge.net</a>

@@ -104,7 +104,7 @@ threading._Verbose --+
         <span class="summary-sig-arg">tasks</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">migrate</span>=<span class="summary-sig-default">True</span>,
         <span class="summary-sig-arg">worker_name</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">group_names</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">group_names</span>=<span class="summary-sig-default">['main']</span>,
         <span class="summary-sig-arg">heartbeat</span>=<span class="summary-sig-default">HEARTBEAT</span>,
         <span class="summary-sig-arg">max_empty_runs</span>=<span class="summary-sig-default">0</span>,
         <span class="summary-sig-arg">discard_results</span>=<span class="summary-sig-default">False</span>,
@@ -127,6 +127,23 @@ threading._Verbose --+
           <td><span class="summary-sig"><a name="now"></a><span class="summary-sig-name">now</span>(<span class="summary-sig-arg">self</span>)</span></td>
           <td align="right" valign="top">
             <span class="codelink"><a href="web2py.gluon.scheduler-pysrc.html#Scheduler.now">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="set_requirements"></a><span class="summary-sig-name">set_requirements</span>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">scheduler_task</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="web2py.gluon.scheduler-pysrc.html#Scheduler.set_requirements">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -284,6 +301,46 @@ threading._Verbose --+
       
     </td>
   </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="web2py.gluon.scheduler.Scheduler-class.html#queue_task" class="summary-sig-name">queue_task</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">function</span>,
+        <span class="summary-sig-arg">pargs</span>=<span class="summary-sig-default">[]</span>,
+        <span class="summary-sig-arg">pvars</span>=<span class="summary-sig-default">{}</span>,
+        <span class="summary-sig-arg">**kwargs</span>)</span><br />
+      Queue tasks.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="web2py.gluon.scheduler-pysrc.html#Scheduler.queue_task">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="web2py.gluon.scheduler.Scheduler-class.html#task_status" class="summary-sig-name">task_status</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">ref</span>,
+        <span class="summary-sig-arg">output</span>=<span class="summary-sig-default">False</span>)</span><br />
+      Shortcut for task status retrieval...</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="web2py.gluon.scheduler-pysrc.html#Scheduler.task_status">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
   <tr>
     <td colspan="2" class="summary">
     <p class="indent-wrapped-lines"><b>Inherited from <code><a href="web2py.gluon.scheduler.MetaScheduler-class.html">MetaScheduler</a></code></b>:
@@ -378,7 +435,7 @@ threading._Verbose --+
         <span class="sig-arg">tasks</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">migrate</span>=<span class="sig-default">True</span>,
         <span class="sig-arg">worker_name</span>=<span class="sig-default">None</span>,
-        <span class="sig-arg">group_names</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">group_names</span>=<span class="sig-default">['main']</span>,
         <span class="sig-arg">heartbeat</span>=<span class="sig-default">HEARTBEAT</span>,
         <span class="sig-arg">max_empty_runs</span>=<span class="sig-default">0</span>,
         <span class="sig-arg">discard_results</span>=<span class="sig-default">False</span>,
@@ -512,6 +569,81 @@ threading._Verbose --+
   </dl>
 </td></tr></table>
 </div>
+<a name="queue_task"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">queue_task</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">function</span>,
+        <span class="sig-arg">pargs</span>=<span class="sig-default">[]</span>,
+        <span class="sig-arg">pvars</span>=<span class="sig-default">{}</span>,
+        <span class="sig-arg">**kwargs</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="web2py.gluon.scheduler-pysrc.html#Scheduler.queue_task">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </table>
+  
+  <pre class="literalblock">
+
+Queue tasks. This takes care of handling the validation of all
+values.
+:param function: the function (anything callable with a __name__)
+:param pargs: &quot;raw&quot; args to be passed to the function. Automatically
+    jsonified.
+:param pvars: &quot;raw&quot; kwargs to be passed to the function. Automatically
+    jsonified
+:param kwargs: all the scheduler_task columns. args and vars here should be
+    in json format already, they will override pargs and pvars
+
+returns a dict just as a normal validate_and_insert, plus a uuid key holding
+the uuid of the queued task. If validation is not passed, both id and uuid
+will be None, and you'll get an &quot;error&quot; dict holding the errors found.
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="task_status"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">task_status</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">ref</span>,
+        <span class="sig-arg">output</span>=<span class="sig-default">False</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="web2py.gluon.scheduler-pysrc.html#Scheduler.task_status">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </table>
+  
+  <pre class="literalblock">
+
+Shortcut for task status retrieval
+
+:param ref: can be
+    - integer --&gt; lookup will be done by scheduler_task.id
+    - string  --&gt; lookup will be done by scheduler_task.uuid
+    - query   --&gt; lookup as you wish (as in db.scheduler_task.task_name == 'test1')
+:param output: fetch also the scheduler_run record
+
+Returns a single Row object, for the last queued task
+If output == True, returns also the last scheduler_run record
+    scheduler_run record is fetched by a left join, so it can
+    have all fields == None
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
 <br />
 <!-- ==================== NAVIGATION BAR ==================== -->
 <table class="navbar" border="0" width="100%" cellpadding="0"
@@ -544,7 +676,7 @@ threading._Verbose --+
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0beta1 on Thu Sep 13 23:51:21 2012
+    Generated by Epydoc 3.0beta1 on Sun Oct 21 16:56:54 2012
     </td>
     <td align="right" class="footer">
       <a href="http://epydoc.sourceforge.net">http://epydoc.sourceforge.net</a>

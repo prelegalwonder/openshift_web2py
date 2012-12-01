@@ -261,34 +261,16 @@
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="web2py.gluon.dal.MSSQLAdapter-class.html#represent_exceptions" class="summary-sig-name">represent_exceptions</a>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">obj</span>,
-        <span class="summary-sig-arg">fieldtype</span>)</span></td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="web2py.gluon.dal-pysrc.html#MSSQLAdapter.represent_exceptions">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
           <td><span class="summary-sig"><a href="web2py.gluon.dal.MSSQLAdapter-class.html#__init__" class="summary-sig-name">__init__</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">db</span>,
         <span class="summary-sig-arg">uri</span>,
         <span class="summary-sig-arg">pool_size</span>=<span class="summary-sig-default">0</span>,
         <span class="summary-sig-arg">folder</span>=<span class="summary-sig-default">threading.local()</span>,
         <span class="summary-sig-arg">db_codec</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">UTF-8</code><code class="variable-quote">'</code></span>,
-        <span class="summary-sig-arg">credential_decoder</span>=<span class="summary-sig-default">&lt;function IDENTITY at 0x20576e0&gt;</span>,
+        <span class="summary-sig-arg">credential_decoder</span>=<span class="summary-sig-default">&lt;function IDENTITY at 0x1ada668&gt;</span>,
         <span class="summary-sig-arg">driver_args</span>=<span class="summary-sig-default"><code class="variable-group">{</code><code class="variable-group">}</code></span>,
         <span class="summary-sig-arg">adapter_args</span>=<span class="summary-sig-default"><code class="variable-group">{</code><code class="variable-group">}</code></span>,
-        <span class="summary-sig-arg">fake_connect</span>=<span class="summary-sig-default">True</span>,
+        <span class="summary-sig-arg">do_connect</span>=<span class="summary-sig-default">True</span>,
         <span class="summary-sig-arg">srid</span>=<span class="summary-sig-default">4326</span>)</span><br />
       x.__init__(...) initializes x; see x.__class__.__doc__ for 
       signature</td>
@@ -348,6 +330,23 @@
       do slicing.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="web2py.gluon.dal-pysrc.html#MSSQLAdapter.rowslice">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="web2py.gluon.dal.MSSQLAdapter-class.html#EPOCH" class="summary-sig-name">EPOCH</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">first</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="web2py.gluon.dal-pysrc.html#MSSQLAdapter.EPOCH">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -523,6 +522,7 @@
       <code><a href="web2py.gluon.dal.BaseAdapter-class.html#AND">AND</a></code>,
       <code><a href="web2py.gluon.dal.BaseAdapter-class.html#AS">AS</a></code>,
       <code><a href="web2py.gluon.dal.BaseAdapter-class.html#BELONGS">BELONGS</a></code>,
+      <code><a href="web2py.gluon.dal.BaseAdapter-class.html#CASE">CASE</a></code>,
       <code><a href="web2py.gluon.dal.BaseAdapter-class.html#COALESCE">COALESCE</a></code>,
       <code><a href="web2py.gluon.dal.BaseAdapter-class.html#COALESCE_ZERO">COALESCE_ZERO</a></code>,
       <code><a href="web2py.gluon.dal.BaseAdapter-class.html#COMMA">COMMA</a></code>,
@@ -556,7 +556,7 @@
       <code><a href="web2py.gluon.dal.BaseAdapter-class.html#alias">alias</a></code>,
       <code><a href="web2py.gluon.dal.BaseAdapter-class.html#build_parsemap">build_parsemap</a></code>,
       <code><a href="web2py.gluon.dal.BaseAdapter-class.html#bulk_insert">bulk_insert</a></code>,
-      <code><a href="web2py.gluon.dal.BaseAdapter-class.html#close">close</a></code>,
+      <code><a href="web2py.gluon.dal.BaseAdapter-class.html#close_connection">close_connection</a></code>,
       <code><a href="web2py.gluon.dal.BaseAdapter-class.html#commit">commit</a></code>,
       <code><a href="web2py.gluon.dal.BaseAdapter-class.html#commit_prepared">commit_prepared</a></code>,
       <code><a href="web2py.gluon.dal.BaseAdapter-class.html#common_filter">common_filter</a></code>,
@@ -577,6 +577,7 @@
       <code><a href="web2py.gluon.dal.BaseAdapter-class.html#file_open">file_open</a></code>,
       <code><a href="web2py.gluon.dal.BaseAdapter-class.html#find_driver">find_driver</a></code>,
       <code><a href="web2py.gluon.dal.BaseAdapter-class.html#get_table">get_table</a></code>,
+      <code><a href="web2py.gluon.dal.BaseAdapter-class.html#id_query">id_query</a></code>,
       <code><a href="web2py.gluon.dal.BaseAdapter-class.html#insert">insert</a></code>,
       <code><a href="web2py.gluon.dal.BaseAdapter-class.html#integrity_error">integrity_error</a></code>,
       <code><a href="web2py.gluon.dal.BaseAdapter-class.html#log_execute">log_execute</a></code>,
@@ -598,10 +599,12 @@
       <code><a href="web2py.gluon.dal.BaseAdapter-class.html#parse_time">parse_time</a></code>,
       <code><a href="web2py.gluon.dal.BaseAdapter-class.html#parse_value">parse_value</a></code>,
       <code><a href="web2py.gluon.dal.BaseAdapter-class.html#prepare">prepare</a></code>,
+      <code><a href="web2py.gluon.dal.BaseAdapter-class.html#represent_exceptions">represent_exceptions</a></code>,
       <code><a href="web2py.gluon.dal.BaseAdapter-class.html#rollback">rollback</a></code>,
       <code><a href="web2py.gluon.dal.BaseAdapter-class.html#rollback_prepared">rollback_prepared</a></code>,
       <code><a href="web2py.gluon.dal.BaseAdapter-class.html#select">select</a></code>,
       <code><a href="web2py.gluon.dal.BaseAdapter-class.html#sequence_name">sequence_name</a></code>,
+      <code><a href="web2py.gluon.dal.BaseAdapter-class.html#smart_adapt">smart_adapt</a></code>,
       <code><a href="web2py.gluon.dal.BaseAdapter-class.html#tables">tables</a></code>,
       <code><a href="web2py.gluon.dal.BaseAdapter-class.html#trigger_name">trigger_name</a></code>,
       <code><a href="web2py.gluon.dal.BaseAdapter-class.html#truncate">truncate</a></code>,
@@ -611,6 +614,7 @@
       <code><a href="web2py.gluon.dal.BaseAdapter-class.html#_count">_count</a></code>,
       <code><a href="web2py.gluon.dal.BaseAdapter-class.html#_delete">_delete</a></code>,
       <code><a href="web2py.gluon.dal.BaseAdapter-class.html#_drop">_drop</a></code>,
+      <code><a href="web2py.gluon.dal.BaseAdapter-class.html#_fetchall">_fetchall</a></code>,
       <code><a href="web2py.gluon.dal.BaseAdapter-class.html#_insert">_insert</a></code>,
       <code><a href="web2py.gluon.dal.BaseAdapter-class.html#_select">_select</a></code>,
       <code><a href="web2py.gluon.dal.BaseAdapter-class.html#_select_aux">_select_aux</a></code>,
@@ -619,8 +623,8 @@
       </p></div>
     <p class="indent-wrapped-lines"><b>Inherited from <code><a href="web2py.gluon.dal.ConnectionPool-class.html">ConnectionPool</a></code></b>:
       <code><a href="web2py.gluon.dal.ConnectionPool-class.html#after_connection">after_connection</a></code>,
+      <code><a href="web2py.gluon.dal.ConnectionPool-class.html#close">close</a></code>,
       <code><a href="web2py.gluon.dal.ConnectionPool-class.html#find_or_make_work_folder">find_or_make_work_folder</a></code>,
-      <code><a href="web2py.gluon.dal.ConnectionPool-class.html#pool_connection">pool_connection</a></code>,
       <code><a href="web2py.gluon.dal.ConnectionPool-class.html#reconnect">reconnect</a></code>
       </p>
     <p class="indent-wrapped-lines"><b>Inherited from <code>object</code></b>:
@@ -706,6 +710,20 @@ _action)s',
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
+        <a name="TRUE"></a><span class="summary-name">TRUE</span> = <code title="threading.local()">threading.local()</code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="FALSE"></a><span class="summary-name">FALSE</span> = <code title="0">0</code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
         <a name="REGEX_DSN"></a><span class="summary-name">REGEX_DSN</span> = <code title="re.compile(r'^(?P&lt;dsn&gt;.+)$')">re.compile(r'^<code class="re-group">(?P&lt;</code><code class="re-ref">dsn</code><code class="re-group">&gt;</code>.<code class="re-op">+</code><code class="re-group">)</code>$')</code>
     </td>
   </tr>
@@ -729,6 +747,7 @@ _action)s',
     <p class="indent-wrapped-lines"><b>Inherited from <code><a href="web2py.gluon.dal.BaseAdapter-class.html">BaseAdapter</a></code></b>:
       <code><a href="web2py.gluon.dal.BaseAdapter-class.html#can_select_for_update">can_select_for_update</a></code>,
       <code><a href="web2py.gluon.dal.BaseAdapter-class.html#commit_on_alter_table">commit_on_alter_table</a></code>,
+      <code><a href="web2py.gluon.dal.BaseAdapter-class.html#connection">connection</a></code>,
       <code><a href="web2py.gluon.dal.BaseAdapter-class.html#driver">driver</a></code>,
       <code><a href="web2py.gluon.dal.BaseAdapter-class.html#driver_name">driver_name</a></code>,
       <code><a href="web2py.gluon.dal.BaseAdapter-class.html#maxcharlength">maxcharlength</a></code>,
@@ -736,8 +755,8 @@ _action)s',
       <code><a href="web2py.gluon.dal.BaseAdapter-class.html#uploads_in_blob">uploads_in_blob</a></code>
       </p>
     <p class="indent-wrapped-lines"><b>Inherited from <code><a href="web2py.gluon.dal.ConnectionPool-class.html">ConnectionPool</a></code></b>:
-      <code><a href="web2py.gluon.dal.ConnectionPool-class.html#check_active_connection">check_active_connection</a></code>,
-      <code><a href="web2py.gluon.dal.ConnectionPool-class.html#pools">pools</a></code>
+      <code><a href="web2py.gluon.dal.ConnectionPool-class.html#POOLS">POOLS</a></code>,
+      <code><a href="web2py.gluon.dal.ConnectionPool-class.html#check_active_connection">check_active_connection</a></code>
       </p>
     </td>
   </tr>
@@ -997,30 +1016,6 @@ _action)s',
   </dl>
 </td></tr></table>
 </div>
-<a name="represent_exceptions"></a>
-<div>
-<table class="details" border="1" cellpadding="3"
-       cellspacing="0" width="100%" bgcolor="white">
-<tr><td>
-  <table width="100%" cellpadding="0" cellspacing="0" border="0">
-  <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">represent_exceptions</span>(<span class="sig-arg">self</span>,
-        <span class="sig-arg">obj</span>,
-        <span class="sig-arg">fieldtype</span>)</span>
-  </h3>
-  </td><td align="right" valign="top"
-    ><span class="codelink"><a href="web2py.gluon.dal-pysrc.html#MSSQLAdapter.represent_exceptions">source&nbsp;code</a></span>&nbsp;
-    </td>
-  </table>
-  
-  
-  <dl class="fields">
-    <dt>Overrides:
-      <a href="web2py.gluon.dal.BaseAdapter-class.html#represent_exceptions">BaseAdapter.represent_exceptions</a>
-    </dt>
-  </dl>
-</td></tr></table>
-</div>
 <a name="__init__"></a>
 <div>
 <table class="details" border="1" cellpadding="3"
@@ -1034,10 +1029,10 @@ _action)s',
         <span class="sig-arg">pool_size</span>=<span class="sig-default">0</span>,
         <span class="sig-arg">folder</span>=<span class="sig-default">threading.local()</span>,
         <span class="sig-arg">db_codec</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">UTF-8</code><code class="variable-quote">'</code></span>,
-        <span class="sig-arg">credential_decoder</span>=<span class="sig-default">&lt;function IDENTITY at 0x20576e0&gt;</span>,
+        <span class="sig-arg">credential_decoder</span>=<span class="sig-default">&lt;function IDENTITY at 0x1ada668&gt;</span>,
         <span class="sig-arg">driver_args</span>=<span class="sig-default"><code class="variable-group">{</code><code class="variable-group">}</code></span>,
         <span class="sig-arg">adapter_args</span>=<span class="sig-default"><code class="variable-group">{</code><code class="variable-group">}</code></span>,
-        <span class="sig-arg">fake_connect</span>=<span class="sig-default">True</span>,
+        <span class="sig-arg">do_connect</span>=<span class="sig-default">True</span>,
         <span class="sig-arg">srid</span>=<span class="sig-default">4326</span>)</span>
     <br /><em class="fname">(Constructor)</em>
   </h3>
@@ -1123,6 +1118,29 @@ _action)s',
     <dt>Overrides:
       <a href="web2py.gluon.dal.BaseAdapter-class.html#rowslice">BaseAdapter.rowslice</a>
         <dd><em class="note">(inherited documentation)</em></dd>
+    </dt>
+  </dl>
+</td></tr></table>
+</div>
+<a name="EPOCH"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">EPOCH</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">first</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="web2py.gluon.dal-pysrc.html#MSSQLAdapter.EPOCH">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </table>
+  
+  
+  <dl class="fields">
+    <dt>Overrides:
+      <a href="web2py.gluon.dal.BaseAdapter-class.html#EPOCH">BaseAdapter.EPOCH</a>
     </dt>
   </dl>
 </td></tr></table>
@@ -1265,7 +1283,7 @@ re.compile(r'<code class="re-group">(?P&lt;</code><code class="re-ref">argkey</c
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0beta1 on Thu Sep 13 23:51:19 2012
+    Generated by Epydoc 3.0beta1 on Sun Oct 21 16:56:51 2012
     </td>
     <td align="right" class="footer">
       <a href="http://epydoc.sourceforge.net">http://epydoc.sourceforge.net</a>

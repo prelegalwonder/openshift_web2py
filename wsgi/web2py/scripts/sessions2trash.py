@@ -94,11 +94,11 @@ class SessionSetDb(SessionSet):
         """Return list of SessionDb instances for existing sessions."""
         sessions = []
         tablename = 'web2py_session'
-        if request.application:
-            tablename = 'web2py_session_' + request.application
-        if tablename in db:
-            for row in db(db[tablename].id > 0).select():
-                sessions.append(SessionDb(row))
+        from gluon import current
+        (record_id_name, table, record_id, unique_key) = \
+            current.response._dbtable_and_field
+        for row in table._db(table.id > 0).select():
+            sessions.append(SessionDb(row))
         return sessions
 
 
@@ -121,8 +121,11 @@ class SessionDb(object):
         self.row = row
 
     def delete(self):
+        from gluon import current
+        (record_id_name, table, record_id, unique_key) = \
+            current.response._dbtable_and_field
         self.row.delete_record()
-        db.commit()
+        table._db.commit()
 
     def get(self):
         session = Storage()
@@ -130,7 +133,13 @@ class SessionDb(object):
         return session
 
     def last_visit_default(self):
-        return self.row.modified_datetime
+        if isinstance(self.row.modified_datetime, datetime.datetime):
+            return self.row.modified_datetime
+        else:
+            try:
+                return datetime.datetime.strptime(self.row.modified_datetime, '%Y-%m-%d %H:%M:%S.%f')
+            except:
+                print 'failed to retrieve last modified time (value: %s)' % self.row.modified_datetime
 
     def __str__(self):
         return self.row.unique_key
@@ -153,7 +162,7 @@ class SessionFile(object):
 
     def last_visit_default(self):
         return datetime.datetime.fromtimestamp(
-                os.stat(self.filename)[stat.ST_MTIME])
+            os.stat(self.filename)[stat.ST_MTIME])
 
     def __str__(self):
         return self.filename
@@ -166,7 +175,7 @@ def total_seconds(delta):
     Args:
         delta: datetime.timedelta instance.
     """
-    return (delta.microseconds + (delta.seconds + (delta.days * 24 * 3600)) * \
+    return (delta.microseconds + (delta.seconds + (delta.days * 24 * 3600)) *
             10 ** 6) / 10 ** 6
 
 
@@ -177,25 +186,25 @@ def main():
     parser = OptionParser(usage=usage)
 
     parser.add_option('-f', '--force',
-        action='store_true', dest='force', default=False,
-        help=('Ignore session expiration. '
-            'Force expiry based on -x option or auth.settings.expiration.')
-        )
+                      action='store_true', dest='force', default=False,
+                      help=('Ignore session expiration. '
+                            'Force expiry based on -x option or auth.settings.expiration.')
+                      )
     parser.add_option('-o', '--once',
-        action='store_true', dest='once', default=False,
-        help='Delete sessions, then exit.',
-        )
+                      action='store_true', dest='once', default=False,
+                      help='Delete sessions, then exit.',
+                      )
     parser.add_option('-s', '--sleep',
-        dest='sleep', default=SLEEP_MINUTES * 60, type="int",
-        help='Number of seconds to sleep between executions. Default 300.',
-        )
+                      dest='sleep', default=SLEEP_MINUTES * 60, type="int",
+                      help='Number of seconds to sleep between executions. Default 300.',
+                      )
     parser.add_option('-v', '--verbose',
-        default=0, action='count',
-        help="print verbose output, a second -v increases verbosity")
+                      default=0, action='count',
+                      help="print verbose output, a second -v increases verbosity")
     parser.add_option('-x', '--expiration',
-        dest='expiration', default=None, type="int",
-        help='Expiration value for sessions without expiration (in seconds)',
-        )
+                      dest='expiration', default=None, type="int",
+                      help='Expiration value for sessions without expiration (in seconds)',
+                      )
 
     (options, unused_args) = parser.parse_args()
 

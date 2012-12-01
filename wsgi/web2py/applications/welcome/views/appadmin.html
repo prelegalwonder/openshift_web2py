@@ -27,7 +27,7 @@
             {{pass}}
         {{else:}}
              {{qry=''}}
-             {{pass}}
+        {{pass}}
       {{pass}}
   <tr>
     <th style="font-size: 1.75em;">
@@ -37,13 +37,19 @@
       {{=A(str(T('New Record')),_href=URL('insert',args=[db,table]),_class="btn")}}
     </td>
   </tr>
-    {{pass}}
-</table>
   {{pass}}
+  {{pass}}
+</table>
 
 {{elif request.function=='select':}}
   <h2>{{=XML(str(T("Database %s select"))%A(request.args[0],_href=URL('index'))) }}
   </h2>
+  {{if tb:}}
+  <h3>{{=T('Traceback')}}</h3>
+  <pre>
+    {{=tb}}
+  </pre>
+  {{pass}}
   {{if table:}}
   {{=A(str(T('New Record')),_href=URL('insert',args=[request.args[0],table]),_class="btn")}}<br/><br/>
     <h3>{{=T("Rows in Table")}}</h3><br/>
@@ -149,7 +155,7 @@
     <h4>{{=T("RAM")}}</h4>
     <p>{{=T.M("Number of entries: **%s**", ram['entries'])}}</p>
     {{if ram['entries'] > 0:}}
-    <p>{{=T.M("Hit Ratio: **%(ratio)s%%** (**%(hits)s** %{hit(hits)} and **%(misses)s** %%{miss(misses)})",
+    <p>{{=T.M("Hit Ratio: **%(ratio)s%%** (**%(hits)s** %%{hit(hits)} and **%(misses)s** %%{miss(misses)})",
              dict( ratio=ram['ratio'], hits=ram['hits'], misses=ram['misses']))}}
     </p>
     <p>

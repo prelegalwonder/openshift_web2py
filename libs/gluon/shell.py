@@ -19,7 +19,7 @@ import optparse
 import glob
 import traceback
 import fileutils
-import settings
+from settings import global_settings
 from utils import web2py_uuid
 from compileapp import build_environment, read_pyc, run_models_in
 from restricted import RestrictedError
@@ -28,15 +28,15 @@ from storage import Storage
 from admin import w2p_unpack
 from dal import BaseAdapter
 
-
 logger = logging.getLogger("web2py")
+
 
 def exec_environment(
     pyfile='',
     request=None,
     response=None,
     session=None,
-    ):
+):
     """
     .. function:: gluon.shell.exec_environment([pyfile=''[, request=Request()
         [, response=Response[, session=Session()]]]])
@@ -51,9 +51,12 @@ def exec_environment(
 
     """
 
-    if request is None: request = Request()
-    if response is None: response = Response()
-    if session is None: session = Session()
+    if request is None:
+        request = Request()
+    if response is None:
+        response = Response()
+    if session is None:
+        session = Session()
 
     if request.folder is None:
         mo = re.match(r'(|.*/)applications/(?P<appname>[^/]+)', pyfile)
@@ -79,7 +82,7 @@ def env(
     f=None,
     dir='',
     extra_request={},
-    ):
+):
     """
     Return web2py execution environment for application (a), controller (c),
     function (f).
@@ -112,9 +115,9 @@ def env(
     request.env.path_info = '/%s/%s/%s' % (a, c, f)
     request.env.http_host = '127.0.0.1:8000'
     request.env.remote_addr = '127.0.0.1'
-    request.env.web2py_runtime_gae = settings.global_settings.web2py_runtime_gae
+    request.env.web2py_runtime_gae = global_settings.web2py_runtime_gae
 
-    for k,v in extra_request.items():
+    for k, v in extra_request.items():
         request[k] = v
 
     # Monkey patch so credentials checks pass.
@@ -130,7 +133,7 @@ def env(
         try:
             run_models_in(environment)
         except RestrictedError, e:
-            sys.stderr.write(e.traceback+'\n')
+            sys.stderr.write(e.traceback + '\n')
             sys.exit(1)
 
     environment['__name__'] = '__main__'
@@ -157,7 +160,7 @@ def run(
     startfile=None,
     bpython=False,
     python_code=False
-    ):
+):
     """
     Start interactive shell or run Python script (startfile) in web2py
     controller environment. appname is formatted like:
@@ -173,24 +176,26 @@ def run(
     adir = os.path.join('applications', a)
     if not os.path.exists(adir):
         if sys.stdin and not sys.stdin.name == '/dev/null':
-            c = raw_input('application %s does not exist, create (y/n)?' % a)
+            confirm = raw_input(
+                'application %s does not exist, create (y/n)?' % a)
         else:
             logging.warn('application does not exist and will not be created')
             return
-        if c.lower() in ['y', 'yes']:
+        if confirm.lower() in ['y', 'yes']:
 
             os.mkdir(adir)
             w2p_unpack('welcome.w2p', adir)
-            for subfolder in ['models','views','controllers', 'databases',
-                              'modules','cron','errors','sessions',
-                              'languages','static','private','uploads']:
-                subpath =  os.path.join(adir,subfolder)
+            for subfolder in ['models', 'views', 'controllers', 'databases',
+                              'modules', 'cron', 'errors', 'sessions',
+                              'languages', 'static', 'private', 'uploads']:
+                subpath = os.path.join(adir, subfolder)
                 if not os.path.exists(subpath):
                     os.mkdir(subpath)
-            db = os.path.join(adir,'models/db.py')
+            db = os.path.join(adir, 'models/db.py')
             if os.path.exists(db):
                 data = fileutils.read_file(db)
-                data = data.replace('<your secret key>','sha512:'+web2py_uuid())
+                data = data.replace(
+                    '<your secret key>', 'sha512:' + web2py_uuid())
                 fileutils.write_file(db, data)
 
     if c:
@@ -199,7 +204,8 @@ def run(
     if c:
         cfile = os.path.join('applications', a, 'controllers', c + '.py')
         if not os.path.isfile(cfile):
-            cfile = os.path.join('applications', a, 'compiled', "controllers_%s_%s.pyc" % (c,f))
+            cfile = os.path.join('applications', a, 'compiled',
+                                 "controllers_%s_%s.pyc" % (c, f))
             if not os.path.isfile(cfile):
                 die(errmsg)
             else:
@@ -215,17 +221,21 @@ def run(
     if startfile:
         try:
             execfile(startfile, _env)
-            if import_models: BaseAdapter.close_all_instances('commit')
+            if import_models:
+                BaseAdapter.close_all_instances('commit')
         except Exception, e:
             print traceback.format_exc()
-            if import_models: BaseAdapter.close_all_instances('rollback')
+            if import_models:
+                BaseAdapter.close_all_instances('rollback')
     elif python_code:
         try:
             exec(python_code, _env)
-            if import_models: BaseAdapter.close_all_instances('commit')
+            if import_models:
+                BaseAdapter.close_all_instances('commit')
         except Exception, e:
             print traceback.format_exc()
-            if import_models: BaseAdapter.close_all_instances('rollback')
+            if import_models:
+                BaseAdapter.close_all_instances('rollback')
     else:
         if not plain:
             if bpython:
@@ -249,7 +259,7 @@ def run(
                         # IPython; thanks Michael Toomim
                         if '__builtins__' in _env:
                             del _env['__builtins__']
-                        shell = IPython.Shell.IPShell(argv=[],user_ns=_env)
+                        shell = IPython.Shell.IPShell(argv=[], user_ns=_env)
                         shell.mainloop()
                         return
                 except:
@@ -305,7 +315,7 @@ def test(testpath, import_models=True, verbose=False):
         mo = re.match(r'(|.*/)applications/(?P<a>[^/]+)', testpath)
         if not mo:
             die('test file is not in application directory: %s'
-                 % testpath)
+                % testpath)
         a = mo.group('a')
         c = f = None
         files = [testpath]
@@ -341,8 +351,8 @@ def test(testpath, import_models=True, verbose=False):
                 globs = env(a, c=c, f=f, import_models=import_models)
                 execfile(testfile, globs)
                 doctest.run_docstring_examples(obj, globs=globs,
-                        name='%s: %s' % (os.path.basename(testfile),
-                        name), verbose=verbose)
+                                               name='%s: %s' % (os.path.basename(testfile),
+                                                                name), verbose=verbose)
                 if type(obj) in (types.TypeType, types.ClassType):
                     for attr_name in dir(obj):
 
@@ -370,8 +380,8 @@ def execute_from_command_line(argv=None):
     parser = optparse.OptionParser(usage=get_usage())
 
     parser.add_option('-S', '--shell', dest='shell', metavar='APPNAME',
-        help='run web2py in interactive shell or IPython(if installed) ' + \
-            'with specified appname')
+                      help='run web2py in interactive shell or IPython(if installed) ' +
+                      'with specified appname')
     msg = 'run web2py in interactive shell or bpython (if installed) with'
     msg += ' specified appname (if app does not exist it will be created).'
     msg += '\n Use combined with --shell'
@@ -382,7 +392,7 @@ def execute_from_command_line(argv=None):
         default=False,
         dest='bpython',
         help=msg,
-        )
+    )
     parser.add_option(
         '-P',
         '--plain',
@@ -390,25 +400,25 @@ def execute_from_command_line(argv=None):
         default=False,
         dest='plain',
         help='only use plain python shell, should be used with --shell option',
-        )
+    )
     parser.add_option(
         '-M',
         '--import_models',
         action='store_true',
         default=False,
         dest='import_models',
-        help='auto import model files, default is False, ' + \
-            ' should be used with --shell option',
-        )
+        help='auto import model files, default is False, ' +
+        ' should be used with --shell option',
+    )
     parser.add_option(
         '-R',
         '--run',
         dest='run',
         metavar='PYTHON_FILE',
         default='',
-        help='run PYTHON_FILE in web2py environment, ' + \
-            'should be used with --shell option',
-        )
+        help='run PYTHON_FILE in web2py environment, ' +
+        'should be used with --shell option',
+    )
 
     (options, args) = parser.parse_args(argv[1:])
 
@@ -420,15 +430,9 @@ def execute_from_command_line(argv=None):
         startfile = args[0]
     else:
         startfile = ''
-    run(options.shell, options.plain, startfile=startfile, bpython=options.bpython)
+    run(options.shell, options.plain, startfile=startfile,
+        bpython=options.bpython)
 
 
 if __name__ == '__main__':
     execute_from_command_line()
-
-
-
-
-
-
-

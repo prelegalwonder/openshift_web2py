@@ -66,7 +66,7 @@
 <pre class="base-tree">
  object --+        
           |        
-       <a href="dict-class.html">dict</a> --+    
+       dict --+    
               |    
 <a href="web2py.gluon.storage.Storage-class.html">storage.Storage</a> --+
                   |
@@ -93,31 +93,6 @@ defines the request object and the default values of its members
 
 </pre><br /><br />
 
-<!-- ==================== NESTED CLASSES ==================== -->
-<a name="section-NestedClasses"></a>
-<table class="summary" border="1" cellpadding="3"
-       cellspacing="0" width="100%" bgcolor="white">
-<tr bgcolor="#70b0f0" class="table-header">
-  <td colspan="2" class="table-header">
-    <table border="0" cellpadding="0" cellspacing="0" width="100%">
-      <tr valign="top">
-        <td align="left"><span class="table-header">Nested Classes</span></td>
-        <td align="right" valign="top"
-         ><span class="options">[<a href="#section-NestedClasses"
-         class="privatelink" onclick="toggle_private();"
-         >hide private</a>]</span></td>
-      </tr>
-    </table>
-  </td>
-</tr>
-  <tr>
-    <td colspan="2" class="summary">
-    <p class="indent-wrapped-lines"><b>Inherited from <code><a href="web2py.gluon.storage.Storage-class.html">storage.Storage</a></code></b>:
-      <code><a href="dict-class.html">__getstate__</a></code>
-      </p>
-    </td>
-  </tr>
-</table>
 <!-- ==================== INSTANCE METHODS ==================== -->
 <a name="section-InstanceMethods"></a>
 <table class="summary" border="1" cellpadding="3"
@@ -222,47 +197,48 @@ defines the request object and the default values of its members
   <tr>
     <td colspan="2" class="summary">
     <p class="indent-wrapped-lines"><b>Inherited from <code><a href="web2py.gluon.storage.Storage-class.html">storage.Storage</a></code></b>:
+      <code><a href="web2py.gluon.storage.Storage-class.html#__copy__">__copy__</a></code>,
       <code><a href="web2py.gluon.storage.Storage-class.html#__delattr__">__delattr__</a></code>,
       <code><a href="web2py.gluon.storage.Storage-class.html#__getattr__">__getattr__</a></code>,
       <code><a href="web2py.gluon.storage.Storage-class.html#__getitem__">__getitem__</a></code>,
+      <code><a href="web2py.gluon.storage.Storage-class.html#__getstate__">__getstate__</a></code>,
       <code><a href="web2py.gluon.storage.Storage-class.html#__repr__">__repr__</a></code>,
       <code><a href="web2py.gluon.storage.Storage-class.html#__setattr__">__setattr__</a></code>,
-      <code><a href="web2py.gluon.storage.Storage-class.html#__setstate__">__setstate__</a></code>,
       <code><a href="web2py.gluon.storage.Storage-class.html#getfirst">getfirst</a></code>,
       <code><a href="web2py.gluon.storage.Storage-class.html#getlast">getlast</a></code>,
       <code><a href="web2py.gluon.storage.Storage-class.html#getlist">getlist</a></code>
       </p>
-    <p class="indent-wrapped-lines"><b>Inherited from <code><a href="dict-class.html">dict</a></code></b>:
-      <code><a href="dict-class.html#__cmp__">__cmp__</a></code>,
-      <code><a href="dict-class.html#__contains__">__contains__</a></code>,
-      <code><a href="dict-class.html#__delitem__">__delitem__</a></code>,
-      <code><a href="dict-class.html#__eq__">__eq__</a></code>,
-      <code><a href="dict-class.html#__ge__">__ge__</a></code>,
-      <code><a href="dict-class.html#__getattribute__">__getattribute__</a></code>,
-      <code><a href="dict-class.html#__gt__">__gt__</a></code>,
-      <code><a href="dict-class.html#__hash__">__hash__</a></code>,
-      <code><a href="dict-class.html#__iter__">__iter__</a></code>,
-      <code><a href="dict-class.html#__le__">__le__</a></code>,
-      <code><a href="dict-class.html#__len__">__len__</a></code>,
-      <code><a href="dict-class.html#__lt__">__lt__</a></code>,
-      <code><a href="dict-class.html#__ne__">__ne__</a></code>,
-      <code><a href="dict-class.html#__new__">__new__</a></code>,
-      <code><a href="dict-class.html#__setitem__">__setitem__</a></code>,
-      <code><a href="dict-class.html#clear">clear</a></code>,
-      <code><a href="dict-class.html#copy">copy</a></code>,
-      <code><a href="dict-class.html#fromkeys">fromkeys</a></code>,
-      <code><a href="dict-class.html#get">get</a></code>,
-      <code><a href="dict-class.html#has_key">has_key</a></code>,
-      <code><a href="dict-class.html#items">items</a></code>,
-      <code><a href="dict-class.html#iteritems">iteritems</a></code>,
-      <code><a href="dict-class.html#iterkeys">iterkeys</a></code>,
-      <code><a href="dict-class.html#itervalues">itervalues</a></code>,
-      <code><a href="dict-class.html#keys">keys</a></code>,
-      <code><a href="dict-class.html#pop">pop</a></code>,
-      <code><a href="dict-class.html#popitem">popitem</a></code>,
-      <code><a href="dict-class.html#setdefault">setdefault</a></code>,
-      <code><a href="dict-class.html#update">update</a></code>,
-      <code><a href="dict-class.html#values">values</a></code>
+    <p class="indent-wrapped-lines"><b>Inherited from <code>dict</code></b>:
+      <code>__cmp__</code>,
+      <code>__contains__</code>,
+      <code>__delitem__</code>,
+      <code>__eq__</code>,
+      <code>__ge__</code>,
+      <code>__getattribute__</code>,
+      <code>__gt__</code>,
+      <code>__hash__</code>,
+      <code>__iter__</code>,
+      <code>__le__</code>,
+      <code>__len__</code>,
+      <code>__lt__</code>,
+      <code>__ne__</code>,
+      <code>__new__</code>,
+      <code>__setitem__</code>,
+      <code>clear</code>,
+      <code>copy</code>,
+      <code>fromkeys</code>,
+      <code>get</code>,
+      <code>has_key</code>,
+      <code>items</code>,
+      <code>iteritems</code>,
+      <code>iterkeys</code>,
+      <code>itervalues</code>,
+      <code>keys</code>,
+      <code>pop</code>,
+      <code>popitem</code>,
+      <code>setdefault</code>,
+      <code>update</code>,
+      <code>values</code>
       </p>
     <p class="indent-wrapped-lines"><b>Inherited from <code>object</code></b>:
       <code>__reduce__</code>,
@@ -377,7 +353,7 @@ new empty dictionary
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0beta1 on Thu Sep 13 23:51:19 2012
+    Generated by Epydoc 3.0beta1 on Sun Oct 21 16:56:51 2012
     </td>
     <td align="right" class="footer">
       <a href="http://epydoc.sourceforge.net">http://epydoc.sourceforge.net</a>

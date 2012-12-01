@@ -217,7 +217,7 @@
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td><span class="summary-sig"><a name="url_out"></a><span class="summary-sig-name">url_out</span>(<span class="summary-sig-arg">request</span>,
-        <span class="summary-sig-arg">env</span>,
+        <span class="summary-sig-arg">environ</span>,
         <span class="summary-sig-arg">application</span>,
         <span class="summary-sig-arg">controller</span>,
         <span class="summary-sig-arg">function</span>,
@@ -588,7 +588,7 @@ that map_url_in can reverse.</td>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a name="thread"></a><span class="summary-name">thread</span> = <code title="threading.local()">threading.local()</code>
+        <a name="THREAD_LOCAL"></a><span class="summary-name">THREAD_LOCAL</span> = <code title="threading.local()">threading.local()</code>
     </td>
   </tr>
 <tr>
@@ -618,6 +618,28 @@ that map_url_in can reverse.</td>
     </td><td class="summary">
         <a href="web2py.gluon.rewrite-module.html#regex_full_url" class="summary-name">regex_full_url</a> = <code title="re.compile(r'^(?P&lt;scheme&gt;http|https|HTTP|HTTPS)://(?P&lt;host&gt;[^/]*)(?P&lt;u\
 ri&gt;.*)')">re.compile(r'^<code class="re-group">(?P&lt;</code><code class="re-ref">scheme</code><code class="re-group">&gt;</code>http<code class="re-op">|</code>https<code class="re-op">|</code>HTTP<code class="re-op">|</code>HTTP<code class="variable-ellipsis">...</code></code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="regex_version"></a><span class="summary-name">regex_version</span> = <code title="re.compile(r'^(_\d+\.\d+\.\d+)$')">re.compile(r'^<code class="re-group">(</code>_\d<code class="re-op">+</code>\.\d<code class="re-op">+</code>\.\d<code class="re-op">+</code><code class="re-group">)</code>$')</code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="regex_space"></a><span class="summary-name">regex_space</span> = <code title="re.compile(r'(\+|\s|%20)+')">re.compile(r'<code class="re-group">(</code>\+<code class="re-op">|</code>\s<code class="re-op">|</code>%20<code class="re-group">)</code><code class="re-op">+</code>')</code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="web2py.gluon.rewrite-module.html#regex_url" class="summary-name">regex_url</a> = <code title="re.compile(r'^/((?P&lt;a&gt;\w+)(/(?P&lt;c&gt;\w+)(/(?P&lt;z&gt;(?P&lt;f&gt;\w+)(\.(?P&lt;e&gt;[\w\.\
+]+))?(?P&lt;s&gt;[/\w@=-]*(\.[/\w@=-]+)*)))?)?)?$')">re.compile(r'^/<code class="re-group">(</code><code class="re-group">(?P&lt;</code><code class="re-ref">a</code><code class="re-group">&gt;</code>\w<code class="re-op">+</code><code class="re-group">)</code><code class="re-group">(</code>/<code class="re-group">(?P&lt;</code><code class="re-ref">c</code><code class="re-group">&gt;</code>\w<code class="re-op">+</code><code class="re-group">)</code><code class="re-group">(</code>/<code class="re-group">(?P&lt;</code><code class="re-ref">z</code><code class="re-group">&gt;</code><code class="re-group">(?P&lt;</code><code class="variable-ellipsis">...</code></code>
     </td>
   </tr>
 <tr>
@@ -669,35 +691,6 @@ lse IE does not display the page: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
         <a href="web2py.gluon.rewrite-module.html#ROUTER_BASE_KEYS" class="summary-name">ROUTER_BASE_KEYS</a> = <code title="set(['applications', 'default_application', 'domains', 'path_prefix'])"><code class="variable-group">set([</code><code class="variable-quote">'</code><code class="variable-string">applications</code><code class="variable-quote">'</code><code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">default_application</code><code class="variable-quote">'</code><code class="variable-op">,</code><code class="variable-ellipsis">...</code></code>
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a name="regex_space"></a><span class="summary-name">regex_space</span> = <code title="re.compile(r'(\+|\s|%20)+')">re.compile(r'<code class="re-group">(</code>\+<code class="re-op">|</code>\s<code class="re-op">|</code>%20<code class="re-group">)</code><code class="re-op">+</code>')</code>
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="web2py.gluon.rewrite-module.html#regex_static" class="summary-name">regex_static</a> = <code title="re.compile(r'(?x)(^/(?P&lt;b&gt;\w+)/static/(?P&lt;x&gt;(\w[-=\./]?)*)$)')">re.compile(r'<code class="re-flags">(?x)</code><code class="re-group">(</code>^/<code class="re-group">(?P&lt;</code><code class="re-ref">b</code><code class="re-group">&gt;</code>\w<code class="re-op">+</code><code class="re-group">)</code>/static/<code class="re-group">(?P&lt;</code><code class="re-ref">x</code><code class="re-group">&gt;</code><code class="re-group">(</code>\w<code class="variable-ellipsis">...</code></code>
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="web2py.gluon.rewrite-module.html#regex_url" class="summary-name">regex_url</a> = <code title="re.compile(r'(?x)(^(/(?P&lt;a&gt;[\w\s\+]+)(/(?P&lt;c&gt;[\w\s\+]+)(/(?P&lt;f&gt;[\w\s\+\
-]+)(\.(?P&lt;e&gt;[\w\s\+]+))?(/(?P&lt;r&gt;.*))?)?)?)?/?$)')">re.compile(r'<code class="re-flags">(?x)</code><code class="re-group">(</code>^<code class="re-group">(</code>/<code class="re-group">(?P&lt;</code><code class="re-ref">a</code><code class="re-group">&gt;</code><code class="re-group">[</code>\w\s\+<code class="re-group">]</code><code class="re-op">+</code><code class="re-group">)</code><code class="re-group">(</code>/<code class="re-group">(?P&lt;</code><code class="re-ref">c</code><code class="re-group">&gt;</code><code class="re-group">[</code>\w\s<code class="variable-ellipsis">...</code></code>
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a name="regex_args"></a><span class="summary-name">regex_args</span> = <code title="re.compile(r'(?x)(^(?P&lt;s&gt;([\w@/-][=\.]?)*)?/?$)')">re.compile(r'<code class="re-flags">(?x)</code><code class="re-group">(</code>^<code class="re-group">(?P&lt;</code><code class="re-ref">s</code><code class="re-group">&gt;</code><code class="re-group">(</code><code class="re-group">[</code>\w@/-<code class="re-group">]</code><code class="re-group">[</code>=\.<code class="re-group">]</code><code class="re-op">?</code><code class="re-group">)</code><code class="re-op">*</code><code class="re-group">)</code><code class="re-op">?</code>/<code class="re-op">?</code>$<code class="re-group">)</code>')</code>
     </td>
   </tr>
 </table>
@@ -836,6 +829,25 @@ re.compile(r'^<code class="re-group">(?P&lt;</code><code class="re-ref">scheme</
   </dl>
 </td></tr></table>
 </div>
+<a name="regex_url"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <h3 class="epydoc">regex_url</h3>
+  
+  <dl class="fields">
+  </dl>
+  <dl class="fields">
+    <dt>Value:</dt>
+      <dd><table><tr><td><pre class="variable">
+re.compile(r'^/<code class="re-group">(</code><code class="re-group">(?P&lt;</code><code class="re-ref">a</code><code class="re-group">&gt;</code>\w<code class="re-op">+</code><code class="re-group">)</code><code class="re-group">(</code>/<code class="re-group">(?P&lt;</code><code class="re-ref">c</code><code class="re-group">&gt;</code>\w<code class="re-op">+</code><code class="re-group">)</code><code class="re-group">(</code>/<code class="re-group">(?P&lt;</code><code class="re-ref">z</code><code class="re-group">&gt;</code><code class="re-group">(?P&lt;</code><code class="re-ref">f</code><code class="re-group">&gt;</code>\w<code class="re-op">+</code><code class="re-group">)</code><code class="re-group">(</code>\.<code class="re-group">(?P&lt;</code><code class="re-ref">e</code><code class="re-group">&gt;</code><code class="re-group">[</code>\w\.<code class="re-group"></code><span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+<code class="re-group">]</code><code class="re-op">+</code><code class="re-group">)</code><code class="re-group">)</code><code class="re-op">?</code><code class="re-group">(?P&lt;</code><code class="re-ref">s</code><code class="re-group">&gt;</code><code class="re-group">[</code>/\w@=-<code class="re-group">]</code><code class="re-op">*</code><code class="re-group">(</code>\.<code class="re-group">[</code>/\w@=-<code class="re-group">]</code><code class="re-op">+</code><code class="re-group">)</code><code class="re-op">*</code><code class="re-group">)</code><code class="re-group">)</code><code class="re-group">)</code><code class="re-op">?</code><code class="re-group">)</code><code class="re-op">?</code><code class="re-group">)</code><code class="re-op">?</code>$')
+</pre></td></tr></table>
+</dd>
+  </dl>
+</td></tr></table>
+</div>
 <a name="params"></a>
 <div>
 <table class="details" border="1" cellpadding="3"
@@ -906,43 +918,6 @@ lse IE does not display the page: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx<span clas
   </dl>
 </td></tr></table>
 </div>
-<a name="regex_static"></a>
-<div>
-<table class="details" border="1" cellpadding="3"
-       cellspacing="0" width="100%" bgcolor="white">
-<tr><td>
-  <h3 class="epydoc">regex_static</h3>
-  
-  <dl class="fields">
-  </dl>
-  <dl class="fields">
-    <dt>Value:</dt>
-      <dd><table><tr><td><pre class="variable">
-re.compile(r'<code class="re-flags">(?x)</code><code class="re-group">(</code>^/<code class="re-group">(?P&lt;</code><code class="re-ref">b</code><code class="re-group">&gt;</code>\w<code class="re-op">+</code><code class="re-group">)</code>/static/<code class="re-group">(?P&lt;</code><code class="re-ref">x</code><code class="re-group">&gt;</code><code class="re-group">(</code>\w<code class="re-group">[</code>-=\./<code class="re-group">]</code><code class="re-op">?</code><code class="re-group">)</code><code class="re-op">*</code><code class="re-group">)</code>$<code class="re-group">)</code>')
-</pre></td></tr></table>
-</dd>
-  </dl>
-</td></tr></table>
-</div>
-<a name="regex_url"></a>
-<div>
-<table class="details" border="1" cellpadding="3"
-       cellspacing="0" width="100%" bgcolor="white">
-<tr><td>
-  <h3 class="epydoc">regex_url</h3>
-  
-  <dl class="fields">
-  </dl>
-  <dl class="fields">
-    <dt>Value:</dt>
-      <dd><table><tr><td><pre class="variable">
-re.compile(r'<code class="re-flags">(?x)</code><code class="re-group">(</code>^<code class="re-group">(</code>/<code class="re-group">(?P&lt;</code><code class="re-ref">a</code><code class="re-group">&gt;</code><code class="re-group">[</code>\w\s\+<code class="re-group">]</code><code class="re-op">+</code><code class="re-group">)</code><code class="re-group">(</code>/<code class="re-group">(?P&lt;</code><code class="re-ref">c</code><code class="re-group">&gt;</code><code class="re-group">[</code>\w\s\+<code class="re-group">]</code><code class="re-op">+</code><code class="re-group">)</code><code class="re-group">(</code>/<code class="re-group">(?P&lt;</code><code class="re-ref">f</code><code class="re-group">&gt;</code><code class="re-group">[</code>\w\s\+<code class="re-group"></code><span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
-<code class="re-group">]</code><code class="re-op">+</code><code class="re-group">)</code><code class="re-group">(</code>\.<code class="re-group">(?P&lt;</code><code class="re-ref">e</code><code class="re-group">&gt;</code><code class="re-group">[</code>\w\s\+<code class="re-group">]</code><code class="re-op">+</code><code class="re-group">)</code><code class="re-group">)</code><code class="re-op">?</code><code class="re-group">(</code>/<code class="re-group">(?P&lt;</code><code class="re-ref">r</code><code class="re-group">&gt;</code>.<code class="re-op">*</code><code class="re-group">)</code><code class="re-group">)</code><code class="re-op">?</code><code class="re-group">)</code><code class="re-op">?</code><code class="re-group">)</code><code class="re-op">?</code><code class="re-group">)</code><code class="re-op">?</code>/<code class="re-op">?</code>$<code class="re-group">)</code>')
-</pre></td></tr></table>
-</dd>
-  </dl>
-</td></tr></table>
-</div>
 <br />
 <!-- ==================== NAVIGATION BAR ==================== -->
 <table class="navbar" border="0" width="100%" cellpadding="0"
@@ -975,7 +950,7 @@ re.compile(r'<code class="re-flags">(?x)</code><code class="re-group">(</code>^<
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0beta1 on Thu Sep 13 23:51:18 2012
+    Generated by Epydoc 3.0beta1 on Sun Oct 21 16:56:50 2012
     </td>
     <td align="right" class="footer">
       <a href="http://epydoc.sourceforge.net">http://epydoc.sourceforge.net</a>

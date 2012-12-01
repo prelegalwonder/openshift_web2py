@@ -38,7 +38,6 @@ def hello6():
 
 def status():
     """ page that shows internal status"""
-    response.view = 'generic.html'
     return dict(toolbar=response.toolbar())
 
 
@@ -103,9 +102,8 @@ def rss_aggregator():
     return rss2.dumps(rss)
 
 
-
 def ajaxwiki():
-    default="""
+    default = """
 # section
 
 ## subsection
@@ -130,12 +128,12 @@ Quoted text
 3 | 0 | 0
 ---------
 """
-    form = FORM(TEXTAREA(_id='text',_name='text',value=default),
+    form = FORM(TEXTAREA(_id='text', _name='text', value=default),
                 INPUT(_type='button',
                       _value='markmin',
                       _onclick="ajax('ajaxwiki_onclick',['text'],'html')"))
     return dict(form=form, html=DIV(_id='html'))
 
+
 def ajaxwiki_onclick():
     return MARKMIN(request.vars.text).xml()
-
