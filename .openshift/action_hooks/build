@@ -3,3 +3,9 @@
 # available.  Otherwise it will execute while your application is stopped
 # before the deploy step.  This script gets executed directly, so it
 # could be python, php, ruby, etc.
+
+rsync -a -v $OPENSHIFT_REPO_DIR/wsgi/web2py/applications $OPENSHIFT_DATA_DIR/
+rm -rf $OPENSHIFT_REPO_DIR/wsgi/web2py/applications
+
+ln -s $OPENSHIFT_DATA_DIR/applications $OPENSHIFT_REPO_DIR/wsgi/web2py/
+ln -s $OPENSHIFT_REPO_DIR/libs/gluon $OPENSHIFT_REPO_DIR/wsgi/web2py/
