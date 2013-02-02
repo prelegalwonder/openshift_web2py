@@ -416,6 +416,22 @@ We allow abbreviated regexes on input; here we try to complete them.</td>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
+          <td><span class="summary-sig"><a name="invalid_url"></a><span class="summary-sig-name">invalid_url</span>(<span class="summary-sig-arg">routes</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="web2py.gluon.rewrite-pysrc.html#invalid_url">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
           <td><span class="summary-sig"><a name="regex_url_in"></a><span class="summary-sig-name">regex_url_in</span>(<span class="summary-sig-arg">request</span>,
         <span class="summary-sig-arg">environ</span>)</span><br />
       rewrite and parse incoming URL</td>
@@ -639,7 +655,14 @@ ri&gt;.*)')">re.compile(r'^<code class="re-group">(?P&lt;</code><code class="re-
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
         <a href="web2py.gluon.rewrite-module.html#regex_url" class="summary-name">regex_url</a> = <code title="re.compile(r'^/((?P&lt;a&gt;\w+)(/(?P&lt;c&gt;\w+)(/(?P&lt;z&gt;(?P&lt;f&gt;\w+)(\.(?P&lt;e&gt;[\w\.\
-]+))?(?P&lt;s&gt;[/\w@=-]*(\.[/\w@=-]+)*)))?)?)?$')">re.compile(r'^/<code class="re-group">(</code><code class="re-group">(?P&lt;</code><code class="re-ref">a</code><code class="re-group">&gt;</code>\w<code class="re-op">+</code><code class="re-group">)</code><code class="re-group">(</code>/<code class="re-group">(?P&lt;</code><code class="re-ref">c</code><code class="re-group">&gt;</code>\w<code class="re-op">+</code><code class="re-group">)</code><code class="re-group">(</code>/<code class="re-group">(?P&lt;</code><code class="re-ref">z</code><code class="re-group">&gt;</code><code class="re-group">(?P&lt;</code><code class="variable-ellipsis">...</code></code>
+]+))?(?P&lt;s&gt;.*)))?)?)?$')">re.compile(r'^/<code class="re-group">(</code><code class="re-group">(?P&lt;</code><code class="re-ref">a</code><code class="re-group">&gt;</code>\w<code class="re-op">+</code><code class="re-group">)</code><code class="re-group">(</code>/<code class="re-group">(?P&lt;</code><code class="re-ref">c</code><code class="re-group">&gt;</code>\w<code class="re-op">+</code><code class="re-group">)</code><code class="re-group">(</code>/<code class="re-group">(?P&lt;</code><code class="re-ref">z</code><code class="re-group">&gt;</code><code class="re-group">(?P&lt;</code><code class="variable-ellipsis">...</code></code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="regex_args"></a><span class="summary-name">regex_args</span> = <code title="re.compile(r'^[/\w@=-]*(\.[/\w@=-]+)*$')">re.compile(r'^<code class="re-group">[</code>/\w@=-<code class="re-group">]</code><code class="re-op">*</code><code class="re-group">(</code>\.<code class="re-group">[</code>/\w@=-<code class="re-group">]</code><code class="re-op">+</code><code class="re-group">)</code><code class="re-op">*</code>$')</code>
     </td>
   </tr>
 <tr>
@@ -842,7 +865,7 @@ re.compile(r'^<code class="re-group">(?P&lt;</code><code class="re-ref">scheme</
     <dt>Value:</dt>
       <dd><table><tr><td><pre class="variable">
 re.compile(r'^/<code class="re-group">(</code><code class="re-group">(?P&lt;</code><code class="re-ref">a</code><code class="re-group">&gt;</code>\w<code class="re-op">+</code><code class="re-group">)</code><code class="re-group">(</code>/<code class="re-group">(?P&lt;</code><code class="re-ref">c</code><code class="re-group">&gt;</code>\w<code class="re-op">+</code><code class="re-group">)</code><code class="re-group">(</code>/<code class="re-group">(?P&lt;</code><code class="re-ref">z</code><code class="re-group">&gt;</code><code class="re-group">(?P&lt;</code><code class="re-ref">f</code><code class="re-group">&gt;</code>\w<code class="re-op">+</code><code class="re-group">)</code><code class="re-group">(</code>\.<code class="re-group">(?P&lt;</code><code class="re-ref">e</code><code class="re-group">&gt;</code><code class="re-group">[</code>\w\.<code class="re-group"></code><span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
-<code class="re-group">]</code><code class="re-op">+</code><code class="re-group">)</code><code class="re-group">)</code><code class="re-op">?</code><code class="re-group">(?P&lt;</code><code class="re-ref">s</code><code class="re-group">&gt;</code><code class="re-group">[</code>/\w@=-<code class="re-group">]</code><code class="re-op">*</code><code class="re-group">(</code>\.<code class="re-group">[</code>/\w@=-<code class="re-group">]</code><code class="re-op">+</code><code class="re-group">)</code><code class="re-op">*</code><code class="re-group">)</code><code class="re-group">)</code><code class="re-group">)</code><code class="re-op">?</code><code class="re-group">)</code><code class="re-op">?</code><code class="re-group">)</code><code class="re-op">?</code>$')
+<code class="re-group">]</code><code class="re-op">+</code><code class="re-group">)</code><code class="re-group">)</code><code class="re-op">?</code><code class="re-group">(?P&lt;</code><code class="re-ref">s</code><code class="re-group">&gt;</code>.<code class="re-op">*</code><code class="re-group">)</code><code class="re-group">)</code><code class="re-group">)</code><code class="re-op">?</code><code class="re-group">)</code><code class="re-op">?</code><code class="re-group">)</code><code class="re-op">?</code>$')
 </pre></td></tr></table>
 </dd>
   </dl>
@@ -950,7 +973,7 @@ lse IE does not display the page: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx<span clas
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0beta1 on Sun Oct 21 16:56:50 2012
+    Generated by Epydoc 3.0beta1 on Mon Dec 17 15:04:13 2012
     </td>
     <td align="right" class="footer">
       <a href="http://epydoc.sourceforge.net">http://epydoc.sourceforge.net</a>

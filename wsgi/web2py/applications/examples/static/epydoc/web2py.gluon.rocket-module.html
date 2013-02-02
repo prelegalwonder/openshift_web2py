@@ -329,39 +329,6 @@
       
     </td>
   </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a name="demo_app"></a><span class="summary-sig-name">demo_app</span>(<span class="summary-sig-arg">environ</span>,
-        <span class="summary-sig-arg">start_response</span>)</span></td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="web2py.gluon.rocket-pysrc.html#demo_app">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a name="demo"></a><span class="summary-sig-name">demo</span>()</span></td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="web2py.gluon.rocket-pysrc.html#demo">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
 </table>
 <!-- ==================== VARIABLES ==================== -->
 <a name="section-Variables"></a>
@@ -384,7 +351,7 @@
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a name="VERSION"></a><span class="summary-name">VERSION</span> = <code title="'1.2.5'"><code class="variable-quote">'</code><code class="variable-string">1.2.5</code><code class="variable-quote">'</code></code>
+        <a name="VERSION"></a><span class="summary-name">VERSION</span> = <code title="'1.2.6'"><code class="variable-quote">'</code><code class="variable-string">1.2.6</code><code class="variable-quote">'</code></code>
     </td>
   </tr>
 <tr>
@@ -398,14 +365,14 @@
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a name="SERVER_SOFTWARE"></a><span class="summary-name">SERVER_SOFTWARE</span> = <code title="'Rocket 1.2.5'"><code class="variable-quote">'</code><code class="variable-string">Rocket 1.2.5</code><code class="variable-quote">'</code></code>
+        <a name="SERVER_SOFTWARE"></a><span class="summary-name">SERVER_SOFTWARE</span> = <code title="'Rocket 1.2.6'"><code class="variable-quote">'</code><code class="variable-string">Rocket 1.2.6</code><code class="variable-quote">'</code></code>
     </td>
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a name="HTTP_SERVER_SOFTWARE"></a><span class="summary-name">HTTP_SERVER_SOFTWARE</span> = <code title="'Rocket 1.2.5 Python/2.5.2'"><code class="variable-quote">'</code><code class="variable-string">Rocket 1.2.5 Python/2.5.2</code><code class="variable-quote">'</code></code>
+        <a name="HTTP_SERVER_SOFTWARE"></a><span class="summary-name">HTTP_SERVER_SOFTWARE</span> = <code title="'Rocket 1.2.6 Python/2.5.2'"><code class="variable-quote">'</code><code class="variable-string">Rocket 1.2.6 Python/2.5.2</code><code class="variable-quote">'</code></code>
     </td>
   </tr>
 <tr>
@@ -512,7 +479,7 @@
     </td><td class="summary">
         <a href="web2py.gluon.rocket-module.html#re_REQUEST_LINE" class="summary-name">re_REQUEST_LINE</a> = <code title="re.compile(r'(?x)^(?P&lt;method&gt;OPTIONS|GET|HEAD|POST|PUT|DELETE|TRACE|CO\
 NNECT) ((?P&lt;scheme&gt;[^:/]+)(://)(?P&lt;host&gt;[^/]+))?(?P&lt;path&gt;(\*|/[^ \?]*)\
-)(\?(?P&lt;query_string&gt;[^ ]+))? (?P&lt;protocol&gt;HTTPS?/1\.[01])$')">re.compile(r'<code class="re-flags">(?x)</code>^<code class="re-group">(?P&lt;</code><code class="re-ref">method</code><code class="re-group">&gt;</code>OPTIONS<code class="re-op">|</code>GET<code class="re-op">|</code>HEA<code class="variable-ellipsis">...</code></code>
+)(\?(?P&lt;query_string&gt;[^ ]*))? (?P&lt;protocol&gt;HTTPS?/1\.[01])$')">re.compile(r'<code class="re-flags">(?x)</code>^<code class="re-group">(?P&lt;</code><code class="re-ref">method</code><code class="re-group">&gt;</code>OPTIONS<code class="re-op">|</code>GET<code class="re-op">|</code>HEA<code class="variable-ellipsis">...</code></code>
     </td>
   </tr>
 <tr class="private">
@@ -526,12 +493,12 @@ NNECT) ((?P&lt;scheme&gt;[^:/]+)(://)(?P&lt;host&gt;[^/]+))?(?P&lt;path&gt;(\*|/
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a href="web2py.gluon.rocket-module.html#RESPONSE" class="summary-name">RESPONSE</a> = <code title="'''HTTP/1.1 %s
+        <a name="RESPONSE"></a><span class="summary-name">RESPONSE</span> = <code title="'''%s %s
 Content-Length: %i
 Content-Type: %s
 
 %s
-'''"><code class="variable-quote">'</code><code class="variable-string">HTTP/1.1 %s\nContent-Length: %i\nContent-Type: %s\</code><code class="variable-ellipsis">...</code></code>
+'''"><code class="variable-quote">'</code><code class="variable-string">%s %s\nContent-Length: %i\nContent-Type: %s\n\n%s\n</code><code class="variable-quote">'</code></code>
     </td>
   </tr>
 <tr class="private">
@@ -564,9 +531,9 @@ ECT'])">set(['OPTIONS', 'GET', 'HEAD', 'POST', 'PUT', '<code class="variable-ell
     </td><td class="summary">
         <a href="web2py.gluon.rocket-module.html#BASE_ENV" class="summary-name">BASE_ENV</a> = <code title="{'SCRIPT_NAME': '',
  'SERVER_NAME': 'www',
- 'wsgi.errors': &lt;epydoc.docintrospecter._DevNull instance at 0x2ae7184\
-3e440&gt;,
- 'wsgi.file_wrapper': &lt;class wsgiref.util.FileWrapper at 0x1df4fb0&gt;,
+ 'wsgi.errors': &lt;epydoc.docintrospecter._DevNull instance at 0x2b08d36\
+93440&gt;,
+ 'wsgi.file_wrapper': &lt;class wsgiref.util.FileWrapper at 0x1ba8a10&gt;,
  'wsgi.multiprocess': False,
  'wsgi.run_once': False,
  'wsgi.version': (1, 0)}"><code class="variable-group">{</code><code class="variable-quote">'</code><code class="variable-string">SCRIPT_NAME</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-quote">'</code><code class="variable-string"></code><code class="variable-quote">'</code><code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">SERVER_NAME</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-quote">'</code><code class="variable-string">www</code><code class="variable-quote">'</code><code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">wsgi.err</code><code class="variable-ellipsis">...</code></code>
@@ -683,7 +650,7 @@ ECT'])">set(['OPTIONS', 'GET', 'HEAD', 'POST', 'PUT', '<code class="variable-ell
       <dd><table><tr><td><pre class="variable">
 re.compile(r'<code class="re-flags">(?x)</code>^<code class="re-group">(?P&lt;</code><code class="re-ref">method</code><code class="re-group">&gt;</code>OPTIONS<code class="re-op">|</code>GET<code class="re-op">|</code>HEAD<code class="re-op">|</code>POST<code class="re-op">|</code>PUT<code class="re-op">|</code>DELETE<code class="re-op">|</code>TRACE<code class="re-op">|</code>CO<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
 NNECT<code class="re-group">)</code> <code class="re-group">(</code><code class="re-group">(?P&lt;</code><code class="re-ref">scheme</code><code class="re-group">&gt;</code><code class="re-group">[</code><code class="re-op">^</code>:/<code class="re-group">]</code><code class="re-op">+</code><code class="re-group">)</code><code class="re-group">(</code>://<code class="re-group">)</code><code class="re-group">(?P&lt;</code><code class="re-ref">host</code><code class="re-group">&gt;</code><code class="re-group">[^</code>/<code class="re-group">]</code><code class="re-op">+</code><code class="re-group">)</code><code class="re-group">)</code><code class="re-op">?</code><code class="re-group">(?P&lt;</code><code class="re-ref">path</code><code class="re-group">&gt;</code><code class="re-group">(</code>\*<code class="re-op">|</code>/<code class="re-group">[</code><code class="re-op">^</code> \?<code class="re-group">]</code><code class="re-op">*</code><code class="re-group">)</code><code class="re-group"></code><span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
-<code class="re-group">)</code><code class="re-group">(</code>\?<code class="re-group">(?P&lt;</code><code class="re-ref">query_string</code><code class="re-group">&gt;</code><code class="re-group">[^</code> <code class="re-group">]</code><code class="re-op">+</code><code class="re-group">)</code><code class="re-group">)</code><code class="re-op">?</code> <code class="re-group">(?P&lt;</code><code class="re-ref">protocol</code><code class="re-group">&gt;</code>HTTPS<code class="re-op">?</code>/1\.<code class="re-group">[</code>01<code class="re-group">]</code><code class="re-group">)</code>$')
+<code class="re-group">)</code><code class="re-group">(</code>\?<code class="re-group">(?P&lt;</code><code class="re-ref">query_string</code><code class="re-group">&gt;</code><code class="re-group">[^</code> <code class="re-group">]</code><code class="re-op">*</code><code class="re-group">)</code><code class="re-group">)</code><code class="re-op">?</code> <code class="re-group">(?P&lt;</code><code class="re-ref">protocol</code><code class="re-group">&gt;</code>HTTPS<code class="re-op">?</code>/1\.<code class="re-group">[</code>01<code class="re-group">]</code><code class="re-group">)</code>$')
 </pre></td></tr></table>
 </dd>
   </dl>
@@ -702,29 +669,6 @@ NNECT<code class="re-group">)</code> <code class="re-group">(</code><code class=
     <dt>Value:</dt>
       <dd><table><tr><td><pre class="variable">
 <code class="variable-quote">'</code><code class="variable-string">%(client_ip)s - &quot;%(request_line)s&quot; - %(status)s %(size)s</code><code class="variable-quote">'</code>
-</pre></td></tr></table>
-</dd>
-  </dl>
-</td></tr></table>
-</div>
-<a name="RESPONSE"></a>
-<div class="private">
-<table class="details" border="1" cellpadding="3"
-       cellspacing="0" width="100%" bgcolor="white">
-<tr><td>
-  <h3 class="epydoc">RESPONSE</h3>
-  
-  <dl class="fields">
-  </dl>
-  <dl class="fields">
-    <dt>Value:</dt>
-      <dd><table><tr><td><pre class="variable">
-<code class="variable-quote">'''</code><code class="variable-string">HTTP/1.1 %s</code>
-<code class="variable-string">Content-Length: %i</code>
-<code class="variable-string">Content-Type: %s</code>
-<code class="variable-string"></code>
-<code class="variable-string">%s</code>
-<code class="variable-string"></code><code class="variable-quote">'''</code>
 </pre></td></tr></table>
 </dd>
   </dl>
@@ -763,9 +707,9 @@ ECT'])
       <dd><table><tr><td><pre class="variable">
 <code class="variable-group">{</code><code class="variable-quote">'</code><code class="variable-string">SCRIPT_NAME</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-quote">'</code><code class="variable-string"></code><code class="variable-quote">'</code><code class="variable-op">,</code>
  <code class="variable-quote">'</code><code class="variable-string">SERVER_NAME</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-quote">'</code><code class="variable-string">www</code><code class="variable-quote">'</code><code class="variable-op">,</code>
- <code class="variable-quote">'</code><code class="variable-string">wsgi.errors</code><code class="variable-quote">'</code><code class="variable-op">: </code>&lt;epydoc.docintrospecter._DevNull instance at 0x2ae7184<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
-3e440&gt;<code class="variable-op">,</code>
- <code class="variable-quote">'</code><code class="variable-string">wsgi.file_wrapper</code><code class="variable-quote">'</code><code class="variable-op">: </code>&lt;class wsgiref.util.FileWrapper at 0x1df4fb0&gt;<code class="variable-op">,</code>
+ <code class="variable-quote">'</code><code class="variable-string">wsgi.errors</code><code class="variable-quote">'</code><code class="variable-op">: </code>&lt;epydoc.docintrospecter._DevNull instance at 0x2b08d36<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+93440&gt;<code class="variable-op">,</code>
+ <code class="variable-quote">'</code><code class="variable-string">wsgi.file_wrapper</code><code class="variable-quote">'</code><code class="variable-op">: </code>&lt;class wsgiref.util.FileWrapper at 0x1ba8a10&gt;<code class="variable-op">,</code>
  <code class="variable-quote">'</code><code class="variable-string">wsgi.multiprocess</code><code class="variable-quote">'</code><code class="variable-op">: </code>False<code class="variable-op">,</code>
  <code class="variable-quote">'</code><code class="variable-string">wsgi.run_once</code><code class="variable-quote">'</code><code class="variable-op">: </code>False<code class="variable-op">,</code>
  <code class="variable-quote">'</code><code class="variable-string">wsgi.version</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-group">(</code>1<code class="variable-op">, </code>0<code class="variable-group">)</code><code class="variable-group">}</code>
@@ -806,7 +750,7 @@ ECT'])
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0beta1 on Sun Oct 21 16:56:50 2012
+    Generated by Epydoc 3.0beta1 on Mon Dec 17 15:04:14 2012
     </td>
     <td align="right" class="footer">
       <a href="http://epydoc.sourceforge.net">http://epydoc.sourceforge.net</a>

@@ -108,31 +108,13 @@
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a name="md5_hash"></a><span class="summary-sig-name">md5_hash</span>(<span class="summary-sig-arg">text</span>)</span><br />
-      Generate a md5 hash with the given text</td>
+          <td><span class="summary-sig"><a name="fast_urandom16"></a><span class="summary-sig-name">fast_urandom16</span>(<span class="summary-sig-arg">urandom</span>=<span class="summary-sig-default"><code class="variable-group">[</code><code class="variable-group">]</code></span>,
+        <span class="summary-sig-arg">locker</span>=<span class="summary-sig-default">&lt;_RLock(None, 0)&gt;</span>)</span><br />
+      this is 4x faster than calling os.urandom(16) and prevents the 
+      &quot;too many files open&quot; issue with concurrent access to 
+      os.urandom()</td>
           <td align="right" valign="top">
-            <span class="codelink"><a href="web2py.gluon.utils-pysrc.html#md5_hash">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a name="simple_hash"></a><span class="summary-sig-name">simple_hash</span>(<span class="summary-sig-arg">text</span>,
-        <span class="summary-sig-arg">key</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string"></code><code class="variable-quote">'</code></span>,
-        <span class="summary-sig-arg">salt</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string"></code><code class="variable-quote">'</code></span>,
-        <span class="summary-sig-arg">digest_alg</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">md5</code><code class="variable-quote">'</code></span>)</span><br />
-      Generates hash with the given text using the specified digest 
-      hashing algorithm</td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="web2py.gluon.utils-pysrc.html#simple_hash">source&nbsp;code</a></span>
+            <span class="codelink"><a href="web2py.gluon.utils-pysrc.html#fast_urandom16">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -150,6 +132,76 @@
       Returns a hashlib digest algorithm from a string</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="web2py.gluon.utils-pysrc.html#get_digest">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="web2py.gluon.utils-module.html#initialize_urandom" class="summary-sig-name">initialize_urandom</a>()</span><br />
+      This function and the web2py_uuid follow from the following 
+      discussion: 
+      http://groups.google.com/group/web2py-developers/browse_thread/thread/7fd5789a7da3f09</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="web2py.gluon.utils-pysrc.html#initialize_urandom">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="web2py.gluon.utils-module.html#is_loopback_ip_address" class="summary-sig-name">is_loopback_ip_address</a>(<span class="summary-sig-arg">ip</span>)</span><br />
+      Determines whether the IP address appears to be a loopback 
+      address.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="web2py.gluon.utils-pysrc.html#is_loopback_ip_address">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="is_valid_ip_address"></a><span class="summary-sig-name">is_valid_ip_address</span>(<span class="summary-sig-arg">address</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="web2py.gluon.utils-pysrc.html#is_valid_ip_address">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="md5_hash"></a><span class="summary-sig-name">md5_hash</span>(<span class="summary-sig-arg">text</span>)</span><br />
+      Generate a md5 hash with the given text</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="web2py.gluon.utils-pysrc.html#md5_hash">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -219,12 +271,14 @@
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="web2py.gluon.utils-module.html#initialize_urandom" class="summary-sig-name">initialize_urandom</a>()</span><br />
-      This function and the web2py_uuid follow from the following 
-      discussion: 
-      http://groups.google.com/group/web2py-developers/browse_thread/thread/7fd5789a7da3f09</td>
+          <td><span class="summary-sig"><a name="simple_hash"></a><span class="summary-sig-name">simple_hash</span>(<span class="summary-sig-arg">text</span>,
+        <span class="summary-sig-arg">key</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string"></code><code class="variable-quote">'</code></span>,
+        <span class="summary-sig-arg">salt</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string"></code><code class="variable-quote">'</code></span>,
+        <span class="summary-sig-arg">digest_alg</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">md5</code><code class="variable-quote">'</code></span>)</span><br />
+      Generates hash with the given text using the specified digest 
+      hashing algorithm</td>
           <td align="right" valign="top">
-            <span class="codelink"><a href="web2py.gluon.utils-pysrc.html#initialize_urandom">source&nbsp;code</a></span>
+            <span class="codelink"><a href="web2py.gluon.utils-pysrc.html#simple_hash">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -238,47 +292,11 @@
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a name="fast_urandom16"></a><span class="summary-sig-name">fast_urandom16</span>(<span class="summary-sig-arg">urandom</span>=<span class="summary-sig-default"><code class="variable-group">[</code><code class="variable-group">]</code></span>,
-        <span class="summary-sig-arg">locker</span>=<span class="summary-sig-default">&lt;_RLock(None, 0)&gt;</span>)</span><br />
-      this is 4x faster than calling os.urandom(16) and prevents the 
-      &quot;too many files open&quot; issue with concurrent access to 
-      os.urandom()</td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="web2py.gluon.utils-pysrc.html#fast_urandom16">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a href="web2py.gluon.utils-module.html#web2py_uuid" class="summary-sig-name">web2py_uuid</a>(<span class="summary-sig-arg">ctokens</span>=<span class="summary-sig-default"><code class="variable-group">(</code>3021858905590344175<code class="variable-op">, </code>364837679724627216<code class="variable-group">)</code></span>)</span><br />
+          <td><span class="summary-sig"><a href="web2py.gluon.utils-module.html#web2py_uuid" class="summary-sig-name">web2py_uuid</a>(<span class="summary-sig-arg">ctokens</span>=<span class="summary-sig-default"><code class="variable-group">(</code>8339207612270212026<code class="variable-op">, </code>17120842704635555225<code class="variable-group">)</code></span>)</span><br />
       This function follows from the following discussion: 
       http://groups.google.com/group/web2py-developers/browse_thread/thread/7fd5789a7da3f09</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="web2py.gluon.utils-pysrc.html#web2py_uuid">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a name="is_valid_ip_address"></a><span class="summary-sig-name">is_valid_ip_address</span>(<span class="summary-sig-arg">address</span>)</span></td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="web2py.gluon.utils-pysrc.html#is_valid_ip_address">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -308,20 +326,6 @@
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a name="HAVE_PBKDF2"></a><span class="summary-name">HAVE_PBKDF2</span> = <code title="True">True</code>
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a name="logger"></a><span class="summary-name">logger</span> = <code title="logging.getLogger(&quot;web2py&quot;)">logging.getLogger(&quot;web2py&quot;)</code>
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
         <a href="web2py.gluon.utils-module.html#DIGEST_ALG_BY_SIZE" class="summary-name">DIGEST_ALG_BY_SIZE</a> = <code title="{32: 'md5',
  40: 'sha1',
  56: 'sha224',
@@ -334,7 +338,7 @@
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a name="REGEX_IPv4"></a><span class="summary-name">REGEX_IPv4</span> = <code title="re.compile(r'(\d+)\.(\d+)\.(\d+)\.(\d+)')">re.compile(r'<code class="re-group">(</code>\d<code class="re-op">+</code><code class="re-group">)</code>\.<code class="re-group">(</code>\d<code class="re-op">+</code><code class="re-group">)</code>\.<code class="re-group">(</code>\d<code class="re-op">+</code><code class="re-group">)</code>\.<code class="re-group">(</code>\d<code class="re-op">+</code><code class="re-group">)</code>')</code>
+        <a name="HAVE_PBKDF2"></a><span class="summary-name">HAVE_PBKDF2</span> = <code title="True">True</code>
     </td>
   </tr>
 <tr>
@@ -348,7 +352,28 @@
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a name="UNPACKED_CTOKENS"></a><span class="summary-name">UNPACKED_CTOKENS</span> = <code title="(3021858905590344175, 364837679724627216)"><code class="variable-group">(</code>3021858905590344175<code class="variable-op">, </code>364837679724627216<code class="variable-group">)</code></code>
+        <a name="REGEX_IPv4"></a><span class="summary-name">REGEX_IPv4</span> = <code title="re.compile(r'(\d+)\.(\d+)\.(\d+)\.(\d+)')">re.compile(r'<code class="re-group">(</code>\d<code class="re-op">+</code><code class="re-group">)</code>\.<code class="re-group">(</code>\d<code class="re-op">+</code><code class="re-group">)</code>\.<code class="re-group">(</code>\d<code class="re-op">+</code><code class="re-group">)</code>\.<code class="re-group">(</code>\d<code class="re-op">+</code><code class="re-group">)</code>')</code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="UNPACKED_CTOKENS"></a><span class="summary-name">UNPACKED_CTOKENS</span> = <code title="(8339207612270212026, 17120842704635555225)"><code class="variable-group">(</code>8339207612270212026<code class="variable-op">, </code>17120842704635555225<code class="variable-group">)</code></code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="logger"></a><span class="summary-name">logger</span> = <code title="logging.getLogger(&quot;web2py&quot;)">logging.getLogger(&quot;web2py&quot;)</code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="python_version"></a><span class="summary-name">python_version</span> = <code title="threading.local()">threading.local()</code>
     </td>
   </tr>
 </table>
@@ -398,6 +423,28 @@
   </dl>
 </td></tr></table>
 </div>
+<a name="is_loopback_ip_address"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">is_loopback_ip_address</span>(<span class="sig-arg">ip</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="web2py.gluon.utils-pysrc.html#is_loopback_ip_address">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </table>
+  
+  <p>Determines whether the IP address appears to be a loopback 
+  address.</p>
+  This assumes that the IP is valid.  The IPv6 check is limited to 
+  '::1'.
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
 <a name="web2py_uuid"></a>
 <div>
 <table class="details" border="1" cellpadding="3"
@@ -405,7 +452,7 @@
 <tr><td>
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">web2py_uuid</span>(<span class="sig-arg">ctokens</span>=<span class="sig-default"><code class="variable-group">(</code>3021858905590344175<code class="variable-op">, </code>364837679724627216<code class="variable-group">)</code></span>)</span>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">web2py_uuid</span>(<span class="sig-arg">ctokens</span>=<span class="sig-default"><code class="variable-group">(</code>8339207612270212026<code class="variable-op">, </code>17120842704635555225<code class="variable-group">)</code></span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="web2py.gluon.utils-pysrc.html#web2py_uuid">source&nbsp;code</a></span>&nbsp;
@@ -495,7 +542,7 @@
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0beta1 on Sun Oct 21 16:56:50 2012
+    Generated by Epydoc 3.0beta1 on Mon Dec 17 15:04:14 2012
     </td>
     <td align="right" class="footer">
       <a href="http://epydoc.sourceforge.net">http://epydoc.sourceforge.net</a>

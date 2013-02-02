@@ -289,7 +289,7 @@ Contains:
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="web2py.gluon.main-module.html#appfactory" class="summary-sig-name">appfactory</a>(<span class="summary-sig-arg">wsgiapp</span>=<span class="summary-sig-default">&lt;function wsgibase at 0x4d0a668&gt;</span>,
+          <td><span class="summary-sig"><a href="web2py.gluon.main-module.html#appfactory" class="summary-sig-name">appfactory</a>(<span class="summary-sig-arg">wsgiapp</span>=<span class="summary-sig-default">&lt;function wsgibase at 0x4d052a8&gt;</span>,
         <span class="summary-sig-arg">logfilename</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">httpserver.log</code><code class="variable-quote">'</code></span>,
         <span class="summary-sig-arg">profilerfilename</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">profiler.log</code><code class="variable-quote">'</code></span>)</span><br />
       generates a wsgi application that does logging and profiling and calls
@@ -369,14 +369,14 @@ wsgibase
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a name="raw_version_string"></a><span class="summary-name">raw_version_string</span> = <code title="'Version 2.2.1 (2012-10-21 10:54:10) stable'"><code class="variable-quote">'</code><code class="variable-string">Version 2.2.1 (2012-10-21 10:54:10) stable</code><code class="variable-quote">'</code></code>
+        <a name="raw_version_string"></a><span class="summary-name">raw_version_string</span> = <code title="'Version 2.3.2 (2012-12-17 15:03:30) stable'"><code class="variable-quote">'</code><code class="variable-string">Version 2.3.2 (2012-12-17 15:03:30) stable</code><code class="variable-quote">'</code></code>
     </td>
   </tr>
 <tr class="private">
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a href="web2py.gluon.main-module.html#web2py_version" class="summary-name">web2py_version</a> = <code title="(2, 2, 1, datetime.datetime(2012, 10, 21, 10, 54, 10), 'stable')"><code class="variable-group">(</code>2<code class="variable-op">, </code>2<code class="variable-op">, </code>1<code class="variable-op">, </code>datetime.datetime(2012, 10, 21, 10,<code class="variable-ellipsis">...</code></code>
+        <a href="web2py.gluon.main-module.html#web2py_version" class="summary-name">web2py_version</a> = <code title="(2, 3, 2, datetime.datetime(2012, 12, 17, 15, 3, 30), 'stable')"><code class="variable-group">(</code>2<code class="variable-op">, </code>3<code class="variable-op">, </code>2<code class="variable-op">, </code>datetime.datetime(2012, 12, 17, 15,<code class="variable-ellipsis">...</code></code>
     </td>
   </tr>
 <tr class="private">
@@ -421,7 +421,7 @@ wsgibase
   
   <p>guess the client address from the environment variables</p>
   first tries 'http_x_forwarded_for', secondly 'remote_addr' if all 
-  fails assume '127.0.0.1' (running locally)
+  fails, assume '127.0.0.1' or '::1' (running locally)
   <dl class="fields">
   </dl>
 </td></tr></table>
@@ -568,7 +568,7 @@ The naming conventions are:
 <tr><td>
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">appfactory</span>(<span class="sig-arg">wsgiapp</span>=<span class="sig-default">&lt;function wsgibase at 0x4d0a668&gt;</span>,
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">appfactory</span>(<span class="sig-arg">wsgiapp</span>=<span class="sig-default">&lt;function wsgibase at 0x4d052a8&gt;</span>,
         <span class="sig-arg">logfilename</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">httpserver.log</code><code class="variable-quote">'</code></span>,
         <span class="sig-arg">profilerfilename</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">profiler.log</code><code class="variable-quote">'</code></span>)</span>
   </h3>
@@ -641,7 +641,7 @@ open(pjoin(global_settings.gluon_parent, 'VERSION'), 'r')
   <dl class="fields">
     <dt>Value:</dt>
       <dd><table><tr><td><pre class="variable">
-<code class="variable-group">(</code>2<code class="variable-op">, </code>2<code class="variable-op">, </code>1<code class="variable-op">, </code>datetime.datetime(2012, 10, 21, 10, 54, 10)<code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">stable</code><code class="variable-quote">'</code><code class="variable-group">)</code>
+<code class="variable-group">(</code>2<code class="variable-op">, </code>3<code class="variable-op">, </code>2<code class="variable-op">, </code>datetime.datetime(2012, 12, 17, 15, 3, 30)<code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">stable</code><code class="variable-quote">'</code><code class="variable-group">)</code>
 </pre></td></tr></table>
 </dd>
   </dl>
@@ -679,7 +679,7 @@ open(pjoin(global_settings.gluon_parent, 'VERSION'), 'r')
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0beta1 on Sun Oct 21 16:56:49 2012
+    Generated by Epydoc 3.0beta1 on Mon Dec 17 15:04:13 2012
     </td>
     <td align="right" class="footer">
       <a href="http://epydoc.sourceforge.net">http://epydoc.sourceforge.net</a>

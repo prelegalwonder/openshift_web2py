@@ -23,6 +23,7 @@ Typical usage:
 """
 
 from __future__ import with_statement
+from gluon import current
 from gluon.storage import Storage
 from optparse import OptionParser
 import cPickle
@@ -93,12 +94,10 @@ class SessionSetDb(SessionSet):
     def get(self):
         """Return list of SessionDb instances for existing sessions."""
         sessions = []
-        tablename = 'web2py_session'
-        from gluon import current
-        (record_id_name, table, record_id, unique_key) = \
-            current.response._dbtable_and_field
-        for row in table._db(table.id > 0).select():
-            sessions.append(SessionDb(row))
+        table = current.response.session_db_table
+        if table:
+            for row in table._db(table.id > 0).select():
+                sessions.append(SessionDb(row))
         return sessions
 
 
@@ -121,9 +120,7 @@ class SessionDb(object):
         self.row = row
 
     def delete(self):
-        from gluon import current
-        (record_id_name, table, record_id, unique_key) = \
-            current.response._dbtable_and_field
+        table = current.response.session_db_table
         self.row.delete_record()
         table._db.commit()
 
