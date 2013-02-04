@@ -1233,9 +1233,9 @@ class BaseAdapter(ConnectionPool):
         return '(%s LIKE %s)' % (self.expand(first),
                                  self.expand('%'+second, 'string'))
 
-    def CONTAINS(self, first, second):
-        field = self.expand(first)
+    def CONTAINS(self, first, second, case_sensitive=False):
         if isinstance(second,Expression):            
+            field = self.expand(first)
             expr = self.expand(second,'string')
             if first.type.startswith('list:'):
                 expr = 'CONCAT("|", %s, "|")' % expr
@@ -1249,7 +1249,8 @@ class BaseAdapter(ConnectionPool):
                 key = '%|'+str(second).replace('|','||').replace('%','%%')+'|%'
             else:
                 raise RuntimeError("Expression Not Supported")
-            return '(%s LIKE %s)' % (field,self.expand(key,'string'))
+            op = case_sensitive and self.LIKE or self.ILIKE
+            return op(first,key)
 
     def EQ(self, first, second=None):
         if second is None:
@@ -1328,10 +1329,11 @@ class BaseAdapter(ConnectionPool):
             first = expression.first
             second = expression.second
             op = expression.op
+            optional_args = expression.optional_args or {}
             if not second is None:
-                return op(first, second)
+                return op(first, second, **optional_args)
             elif not first is None:
-                return op(first)
+                return op(first,**optional_args)
             elif isinstance(op, str):
                 if op.endswith(';'):
                     op=op[:-1]
@@ -2626,12 +2628,13 @@ class PostgreSQLAdapter(BaseAdapter):
         return '(%s ILIKE %s)' % (self.expand(first),
                                   self.expand('%'+second,'string'))
 
-    def CONTAINS(self,first,second):
+    def CONTAINS(self,first,second,case_sensitive=False):
         if first.type in ('string','text', 'json'):
             key = '%'+str(second).replace('%','%%')+'%'
         elif first.type.startswith('list:'):
             key = '%|'+str(second).replace('|','||').replace('%','%%')+'|%'
-        return '(%s ILIKE %s)' % (self.expand(first),self.expand(key,'string'))
+        op = case_sensitive and self.LIKE or self.ILIKE
+        return op(first,key)
 
     # GIS functions
 
@@ -3405,13 +3408,17 @@ class FireBirdAdapter(BaseAdapter):
     def SUBSTRING(self,field,parameters):
         return 'SUBSTRING(%s from %s for %s)' % (self.expand(field), parameters[0], parameters[1])
 
-    def CONTAINS(self, first, second):
+    def CONTAINING(self,first,second):
+        "case in-sensitive like operator"
+        return '(%s CONTAINING %s)' % (self.expand(first),
+                                       self.expand(second, 'string'))
+
+    def CONTAINS(self, first, second, case_sensitive=False):
         if first.type in ('string','text'):
             key = str(second).replace('%','%%')
         elif first.type.startswith('list:'):
             key = '|'+str(second).replace('|','||').replace('%','%%')+'|'
-        return '(%s CONTAINING %s)' % (self.expand(first),
-                                       self.expand(key,'string'))
+        return self.CONTAINING(first,second)
 
     def _drop(self,table,mode):
         sequence_name = table._sequence_name
@@ -4571,7 +4578,8 @@ class GoogleDatastoreAdapter(NoSQLAdapter):
             second = [Key.from_path(first._tablename, int(i)) for i in second]
             return [GAEF(first.name,'in',second,lambda a,b:a in b)]
 
-    def CONTAINS(self,first,second):
+    def CONTAINS(self,first,second,case_sensitive=False):
+        # silently ignoring: GAE can only do case sensitive matches!
         if not first.type.startswith('list:'):
             raise SyntaxError("Not supported")
         return [GAEF(first.name,'=',self.expand(second,first.type[5:]),lambda a,b:b in a)]
@@ -5524,8 +5532,9 @@ class MongoDBAdapter(NoSQLAdapter):
         return {self.expand(first): ('/%s^/' % \
         self.expand(second, 'string'))}
 
-    def CONTAINS(self, first, second):
-        #There is a technical difference, but mongodb doesn't support
+    def CONTAINS(self, first, second, case_sensitive=False):
+        # silently ignore, only case sensitive
+        # There is a technical difference, but mongodb doesn't support
         # that, but the result will be the same
         return {self.expand(first) : ('/%s/' % \
         self.expand(second, 'string'))}
@@ -5555,7 +5564,8 @@ class MongoDBAdapter(NoSQLAdapter):
         re.escape(self.expand(second, 'string')) + '$'}}
 
     #TODO verify full compatibilty with official oracle contains operator
-    def CONTAINS(self, first, second):
+    def CONTAINS(self, first, second, case_sensitive=False):
+        # silently ignore, only case sensitive
         #There is a technical difference, but mongodb doesn't support
         # that, but the result will be the same
         #TODO contains operators need to be transformed to Regex
@@ -6345,7 +6355,8 @@ class IMAPAdapter(NoSQLAdapter):
         # result = "(%s %s)" % (self.expand(first), self.expand(second))
         return result
 
-    def CONTAINS(self, first, second):
+    def CONTAINS(self, first, second, case_sensitive=False):
+        # silently ignore, only case sensitive
         result = None
         name = self.search_fields[first.name]
 
@@ -7610,6 +7621,12 @@ def index():
         d = self.as_dict(flat=True, sanitize=sanitize)
         return serializers.json(d)
 
+    def as_yaml(self, sanitize=True):
+        if not have_serializers:
+            raise ImportError("No YAML serializers available")
+        d = self.as_dict(flat=True, sanitize=sanitize)
+        return serializers.yaml(d)
+
     def __contains__(self, tablename):
         try:
             return tablename in self.tables
@@ -8521,6 +8538,12 @@ class Table(object):
         d = self.as_dict(flat=True, sanitize=sanitize)
         return serializers.json(d)
 
+    def as_yaml(self, sanitize=True):
+        if not have_serializers:
+            raise ImportError("No YAML serializers available")
+        d = self.as_dict(flat=True, sanitize=sanitize)
+        return serializers.yaml(d)
+
     def with_alias(self, alias):
         return self._db._adapter.alias(self,alias)
 
@@ -8548,6 +8571,7 @@ class Expression(object):
         first=None,
         second=None,
         type=None,
+        **optional_args
         ):
 
         self.db = db
@@ -8560,6 +8584,7 @@ class Expression(object):
             self.type = first.type
         else:
             self.type = type
+        self.optional_args = optional_args
 
     def sum(self):
         db = self.db
@@ -8749,17 +8774,23 @@ class Expression(object):
             raise SyntaxError("endswith used with incompatible field type")
         return Query(db, db._adapter.ENDSWITH, self, value)
 
-    def contains(self, value, all=False):
+    def contains(self, value, all=False, case_sensitive=False):
+        """
+        The case_sensitive parameters is only useful for PostgreSQL
+        For other RDMBs it is ignored and contains is always case in-sensitive
+        For MongoDB and GAE contains is always case sensitive
+        """
         db = self.db
         if isinstance(value,(list, tuple)):
-            subqueries = [self.contains(str(v).strip()) for v in value if str(v).strip()]
+            subqueries = [self.contains(str(v).strip(),case_sensitive=case_sensitive)
+                          for v in value if str(v).strip()]
             if not subqueries:
                 return self.contains('')
             else:
                 return reduce(all and AND or OR,subqueries)
         if not self.type in ('string', 'text', 'json') and not self.type.startswith('list:'):
             raise SyntaxError("contains used with incompatible field type")
-        return Query(db, db._adapter.CONTAINS, self, value)
+        return Query(db, db._adapter.CONTAINS, self, value, case_sensitive=case_sensitive)
 
     def with_alias(self, alias):
         db = self.db
@@ -9229,6 +9260,13 @@ class Field(Expression):
         d = self.as_dict(flat=True, sanitize=sanitize)
         return json(d)
 
+    def as_yaml(self, sanitize=True):
+        if have_serializers:
+            d = self.as_dict(flat=True, sanitize=sanitize)
+            return serializers.yaml(d)
+        else:
+            raise ImportError("No YAML serializers available")
+
     def __nonzero__(self):
         return True
 
@@ -9260,12 +9298,14 @@ class Query(object):
         first=None,
         second=None,
         ignore_common_filters = False,
+        **optional_args
         ):
         self.db = self._db = db
         self.op = op
         self.first = first
         self.second = second
         self.ignore_common_filters = ignore_common_filters
+        self.optional_args = optional_args
 
     def __repr__(self):
         return '<Query %s>' % BaseAdapter.expand(self.db._adapter,self)
