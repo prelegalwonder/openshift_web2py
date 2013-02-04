@@ -30,6 +30,7 @@ from utils import md5_hash
 from validators import IS_EMPTY_OR, IS_NOT_EMPTY, IS_LIST_OF, IS_DATE, \
     IS_DATETIME, IS_INT_IN_RANGE, IS_FLOAT_IN_RANGE, IS_STRONG
 
+import serializers
 import datetime
 import urllib
 import re
@@ -38,6 +39,9 @@ from gluon import current, redirect, A, URL, DIV, H3, UL, LI, SPAN, INPUT
 import inspect
 import settings
 is_gae = settings.global_settings.web2py_runtime_gae
+
+
+
 
 table_field = re.compile('[\w_]+\.[\w_]+')
 widget_class = re.compile('^\w*')
@@ -164,10 +168,8 @@ class TimeWidget(StringWidget):
 class DateWidget(StringWidget):
     _class = 'date'
 
-
 class DatetimeWidget(StringWidget):
     _class = 'datetime'
-
 
 class TextWidget(FormWidget):
     _class = 'text'
@@ -184,6 +186,22 @@ class TextWidget(FormWidget):
         attr = cls._attributes(field, default, **attributes)
         return TEXTAREA(**attr)
 
+class JSONWidget(FormWidget):
+    _class = 'json'
+
+    @classmethod
+    def widget(cls, field, value, **attributes):
+        """
+        generates a TEXTAREA for JSON notation.
+
+        see also: :meth:`FormWidget.widget`
+        """
+        if not isinstance(value, basestring):
+            if value is not None:
+                value = serializers.json(value)
+        default = dict(value=value)
+        attr = cls._attributes(field, default, **attributes)
+        return TEXTAREA(**attr)
 
 class BooleanWidget(FormWidget):
     _class = 'boolean'
@@ -235,7 +253,6 @@ class OptionsWidget(FormWidget):
                 raise SyntaxError(
                     'widget cannot determine options of %s' % field)
         opts = [OPTION(v, _value=k) for (k, v) in options]
-
         return SELECT(*opts, **attr)
 
 
@@ -269,12 +286,21 @@ jQuery.fn.grow_input = function() {
 function pe(ul, e) {
   var new_line = ml(ul);
   rel(ul);
-  new_line.insertAfter(jQuery(e.target).parent());
+  if ($(e.target).parent().is(':visible')) {
+    //make sure we didn't delete the element before we insert after
+    new_line.insertAfter($(e.target).parent());
+  } else {
+    //the line we clicked on was deleted, just add to end of list
+    new_line.appendTo(ul);
+  }
   new_line.find(":text").focus();
   return false;
 }
 function rl(ul, e) {
-  jQuery(e.target).parent().remove();
+  if (jQuery(ul).children().length > 1) {
+    //only remove if we have more than 1 item so the list is never empty
+    $(e.target).parent().remove();
+  }
 }
 function ml(ul) {
   var line = jQuery(ul).find("li:first").clone(true);
@@ -514,20 +540,25 @@ class UploadWidget(FormWidget):
 
             requires = attr["requires"]
             if requires == [] or isinstance(requires, IS_EMPTY_OR):
-                inp = DIV(inp, '[',
-                          A(current.T(
-                              UploadWidget.GENERIC_DESCRIPTION), _href=url),
-                          '|',
-                          INPUT(_type='checkbox',
-                                _name=field.name + cls.ID_DELETE_SUFFIX,
-                                _id=field.name + cls.ID_DELETE_SUFFIX),
-                          LABEL(current.T(cls.DELETE_FILE),
-                                _for=field.name + cls.ID_DELETE_SUFFIX),
-                          ']', br, image)
+                inp = DIV(inp, 
+                          SPAN('[',
+                               A(current.T(
+                                UploadWidget.GENERIC_DESCRIPTION), _href=url),
+                               '|',
+                               INPUT(_type='checkbox',
+                                     _name=field.name + cls.ID_DELETE_SUFFIX,
+                                     _id=field.name + cls.ID_DELETE_SUFFIX),
+                               LABEL(current.T(cls.DELETE_FILE),
+                                     _for=field.name + cls.ID_DELETE_SUFFIX,
+                                     _style='display:inline'),
+                               ']', _style='white-space:nowrap'), 
+                          br, image)
             else:
-                inp = DIV(inp, '[',
-                          A(cls.GENERIC_DESCRIPTION, _href=url),
-                          ']', br, image)
+                inp = DIV(inp, 
+                          SPAN('[',
+                               A(cls.GENERIC_DESCRIPTION, _href=url),
+                               ']', _style='white-space:nowrap'), 
+                          br, image)
         return inp
 
     @classmethod
@@ -707,7 +738,7 @@ def formstyle_table2cols(form, fields):
 
 def formstyle_divs(form, fields):
     ''' divs only '''
-    table = TAG['']()
+    table = FIELDSET()
     for id, label, controls, help in fields:
         _help = DIV(help, _class='w2p_fc')
         _controls = DIV(controls, _class='w2p_fw')
@@ -739,7 +770,7 @@ def formstyle_ul(form, fields):
 
 def formstyle_bootstrap(form, fields):
     ''' bootstrap format form layout '''
-    form['_class'] = 'form-horizontal'
+    form.add_class('form-horizontal')
     parent = FIELDSET()
     for id, label, controls, help in fields:
         # wrappers
@@ -761,7 +792,7 @@ def formstyle_bootstrap(form, fields):
         # For password fields, which are wrapped in a CAT object.
         if isinstance(controls, CAT) and isinstance(controls[0], INPUT):
             controls[0].add_class('input-xlarge')
-                
+
         if isinstance(controls, SELECT):
             controls.add_class('input-xlarge')
 
@@ -773,12 +804,12 @@ def formstyle_bootstrap(form, fields):
 
         if _submit:
             # submit button has unwrapped label and controls, different class
-            parent.append(DIV(label, controls, _class='form-actions'))
+            parent.append(DIV(label, controls, _class='form-actions', _id=id))
             # unflag submit (possible side effect)
             _submit = False
         else:
             # unwrapped label
-            parent.append(DIV(label, _controls, _class='control-group'))
+            parent.append(DIV(label, _controls, _class='control-group', _id=id))
     return parent
 
 
@@ -834,6 +865,7 @@ class SQLFORM(FORM):
     widgets = Storage(dict(
         string=StringWidget,
         text=TextWidget,
+        json=JSONWidget,
         password=PasswordWidget,
         integer=IntegerWidget,
         double=DoubleWidget,
@@ -1123,10 +1155,17 @@ class SQLFORM(FORM):
 #                 </block>
 
         # when deletable, add delete? checkbox
-        self.custom.deletable = ''
+        self.custom.delete = self.custom.deletable = ''
         if record and deletable:
+            #add secondary css class for cascade delete warning
+            css = 'delete'
+            for f in self.table.fields:
+                on_del = self.table[f].ondelete
+                if isinstance(on_del,str) and 'cascade' in on_del.lower():
+                    css += ' cascade_delete'
+                    break
             widget = INPUT(_type='checkbox',
-                           _class='delete',
+                           _class=css,
                            _id=self.FIELDKEY_DELETE_RECORD,
                            _name=self.FIELDNAME_REQUEST_DELETE,
                            )
@@ -1138,7 +1177,8 @@ class SQLFORM(FORM):
                  _id=self.FIELDKEY_DELETE_RECORD + SQLFORM.ID_LABEL_SUFFIX),
                  widget,
                  col3.get(self.FIELDKEY_DELETE_RECORD, '')))
-            self.custom.deletable = widget
+            self.custom.delete = self.custom.deletable = widget
+            
 
         # when writable, add submit button
         self.custom.submit = ''
@@ -1583,7 +1623,7 @@ class SQLFORM(FORM):
             'integer': ['=', '!=', '<', '>', '<=', '>=', 'in', 'not in'],
             'double': ['=', '!=', '<', '>', '<=', '>='],
             'id': ['=', '!=', '<', '>', '<=', '>=', 'in', 'not in'],
-            'reference': ['=', '!=', '<', '>', '<=', '>=', 'in', 'not in'],
+            'reference': ['=', '!='],
             'boolean': ['=', '!=']}
         if fields[0]._db._adapter.dbengine == 'google:datastore':
             search_options['string'] = ['=', '!=', '<', '>', '<=', '>=']
@@ -1601,15 +1641,33 @@ class SQLFORM(FORM):
                     field.label, str) and T(field.label) or field.label
                 selectfields.append(OPTION(label, _value=str(field)))
                 operators = SELECT(*[OPTION(T(option), _value=option) for option in options])
+                _id = "%s_%s" % (value_id,name)
                 if field.type == 'boolean':
+                    value_input = SQLFORM.widgets.boolean.widget(field,field.default,_id=_id)
+                elif field.type == 'double':
+                    value_input = SQLFORM.widgets.double.widget(field,field.default,_id=_id)
+                elif field.type == 'time':
+                    value_input = SQLFORM.widgets.time.widget(field,field.default,_id=_id)
+                elif field.type == 'date':
+                    value_input = SQLFORM.widgets.date.widget(field,field.default,_id=_id)
+                elif field.type == 'datetime':
+                    value_input = SQLFORM.widgets.datetime.widget(field,field.default,_id=_id)
+                elif (field.type.startswith('reference ') or 
+                      field.type.startswith('list:reference ')) and \
+                      hasattr(field.requires,'options'):
                     value_input = SELECT(
-                        OPTION(T("True"), _value="T"),
-                        OPTION(T("False"), _value="F"),
-                        _id="%s_%s" % (value_id,name))
+                        *[OPTION(v, _value=k)
+                          for k,v in field.requires.options()],
+                         **dict(_id=_id))
+                elif field.type == 'integer' or \
+                        field.type.startswith('reference ') or \
+                        field.type.startswith('list:integer') or \
+                        field.type.startswith('list:reference '):
+                    value_input = SQLFORM.widgets.integer.widget(field,field.default,_id=_id)
                 else:
-                    value_input = INPUT(_type='text',
-                                        _id="%s_%s" % (value_id,name),
-                                        _class=field.type)
+                    value_input = INPUT(
+                        _type='text', _id=_id, _class=field.type)
+                        
                 new_button = INPUT(
                     _type="button", _value=T('New'), _class="btn",
                     _onclick="%s_build_query('new','%s')" % (prefix,field))
@@ -1682,6 +1740,7 @@ class SQLFORM(FORM):
              maxtextlengths={},
              maxtextlength=20,
              onvalidation=None,
+             onfailure=None,
              oncreate=None,
              onupdate=None,
              ondelete=None,
@@ -1781,41 +1840,37 @@ class SQLFORM(FORM):
             if not (
                 '/'.join(str(a) for a in args) == '/'.join(request.args) or
                 URL.verify(request,user_signature=user_signature,
-                           hash_vars=False) or                
+                           hash_vars=False) or
                 (request.args(len(args))=='view' and not logged)):
                 session.flash = T('not authorized')
                 redirect(referrer)
 
-        def gridbutton(buttonclass='buttonadd', buttontext='Add',
+        def gridbutton(buttonclass='buttonadd', buttontext=T('Add'),
                        buttonurl=url(args=[]), callback=None,
                        delete=None, trap=True):
             if showbuttontext:
-                if callback:
-                    return A(SPAN(_class=ui.get(buttonclass)),
-                             SPAN(T(buttontext), _title=buttontext,
-                                  _class=ui.get('buttontext')),
-                             callback=callback, delete=delete,
-                             _class=trap_class(ui.get('button'), trap))
-                else:
-                    return A(SPAN(_class=ui.get(buttonclass)),
-                             SPAN(T(buttontext), _title=buttontext,
-                                  _class=ui.get('buttontext')),
-                             _href=buttonurl,
-                             _class=trap_class(ui.get('button'), trap))
+                return A(SPAN(_class=ui.get(buttonclass)),
+                         SPAN(T(buttontext), _title=buttontext,
+                              _class=ui.get('buttontext')),
+                         _href=buttonurl,
+                         callback=callback,
+                         delete=delete,
+                         _class=trap_class(ui.get('button'), trap))
             else:
-                if callback:
-                    return A(SPAN(_class=ui.get(buttonclass)),
-                             callback=callback, delete=delete,
-                             _title=buttontext,
-                             _class=trap_class(ui.get('buttontext'), trap))
-                else:
-                    return A(SPAN(_class=ui.get(buttonclass)),
-                             _href=buttonurl, _title=buttontext,
-                             _class=trap_class(ui.get('buttontext'), trap))
+                return A(SPAN(_class=ui.get(buttonclass)),
+                         _href=buttonurl,
+                         callback=callback,
+                         delete=delete,
+                         _title=buttontext,
+                         _class=trap_class(ui.get('buttontext'), trap))
+
         dbset = db(query)
         tablenames = db._adapter.tables(dbset.query)
         if left is not None:
-            tablenames += db._adapter.tables(left)
+            if not isinstance(left, (list, tuple)):
+                left = [left]
+            for join in left:
+                tablenames += db._adapter.tables(join)
         tables = [db[tablename] for tablename in tablenames]
         if not fields:
             fields = reduce(lambda a, b: a + b,
@@ -1825,8 +1880,8 @@ class SQLFORM(FORM):
         columns = [str(field) for field in fields
                    if field._tablename in tablenames]
 
-        if not str(field_id) in [str(f) for f in fields]:
-            fields.append(field_id)
+        if not any(str(f)==str(field_id) for f in fields):
+            fields = [f for f in fields]+[field_id]
         table = field_id.table
         tablename = table._tablename
         if upload == '<default>':
@@ -1878,6 +1933,7 @@ class SQLFORM(FORM):
             create_form.process(formname=formname,
                                 next=referrer,
                                 onvalidation=onvalidation,
+                                onfailure=onfailure,
                                 onsuccess=oncreate)
             res = DIV(buttons(), create_form, formfooter, _class=_class)
             res.create_form = create_form
@@ -1916,6 +1972,7 @@ class SQLFORM(FORM):
             update_form.process(
                 formname=formname,
                 onvalidation=onvalidation,
+                onfailure=onfailure,
                 onsuccess=onupdate,
                 next=referrer)
             res = DIV(buttons(view=details, record=record),
@@ -1929,14 +1986,15 @@ class SQLFORM(FORM):
             table = db[request.args[-2]]
             if ondelete:
                 ondelete(table, request.args[-1])
-            ret = db(table[table._id.name] == request.args[-1]).delete()
-            return ret
+            db(table[table._id.name] == request.args[-1]).delete()
+            redirect(referrer)
 
         exportManager = dict(
             csv_with_hidden_cols=(ExporterCSV, 'CSV (hidden cols)'),
             csv=(ExporterCSV, 'CSV'),
             xml=(ExporterXML, 'XML'),
             html=(ExporterHTML, 'HTML'),
+            json=(ExporterJSON, 'JSON'),
             tsv_with_hidden_cols=
                 (ExporterTSV, 'TSV (Excel compatible, hidden cols)'),
             tsv=(ExporterTSV, 'TSV (Excel compatible)'))
@@ -1962,7 +2020,12 @@ class SQLFORM(FORM):
 
             expcolumns = columns
             if export_type.endswith('with_hidden_cols'):
-                expcolumns = [f for f in fields if f._tablename in tablenames]
+                expcolumns = []
+                for table in tables:
+                    for field in table:
+                        if field.readable and field._tablename in tablenames:
+                            expcolumns.append(field)
+
             if export_type in exportManager and exportManager[export_type]:
                 if request.vars.keywords:
                     try:
@@ -1997,7 +2060,7 @@ class SQLFORM(FORM):
         if create:
             add = gridbutton(
                 buttonclass='buttonadd',
-                buttontext='Add',
+                buttontext=T('Add'),
                 buttonurl=url(args=['new', tablename]))
             if not searchable:
                 console.append(add)
@@ -2248,7 +2311,7 @@ class SQLFORM(FORM):
                     elif not isinstance(value, DIV):
                         value = field.formatter(value)
                     trcols.append(TD(value))
-                row_buttons = TD(_class='row_buttons')
+                row_buttons = TD(_class='row_buttons',_nowrap=True)
                 if links and links_in_grid:
                     toadd = []
                     for link in links:
@@ -2274,6 +2337,7 @@ class SQLFORM(FORM):
                     if deletable and (not callable(deletable) or deletable(row)):
                         row_buttons.append(gridbutton(
                             'buttondelete', 'Delete',
+                            url(args=['delete', tablename, id]),
                             callback=url(args=['delete', tablename, id]),
                             delete='tr'))
                     if buttons_placement in ['right', 'both']:
@@ -2410,7 +2474,7 @@ class SQLFORM(FORM):
                     cond = constraints.get(referee, None)
                     if cond:
                         record = db(
-                            db[referee].id == id)(cond).select().first()
+                            db[referee]._id == id)(cond).select().first()
                     else:
                         record = db[referee](id)
                     if previous_id:
@@ -2450,7 +2514,7 @@ class SQLFORM(FORM):
         except (KeyError, ValueError, TypeError):
             redirect(URL(args=table._tablename))
         if nargs == len(args) + 1:
-            query = table.id > 0
+            query = table._id > 0
 
         # filter out data info for displayed table
         if table._tablename in constraints:
@@ -2851,15 +2915,16 @@ class ExporterTSV(ExportClass):
         final = cStringIO.StringIO()
         import csv
         writer = csv.writer(out, delimiter='\t')
-        import codecs
-        final.write(codecs.BOM_UTF16)
-        writer.writerow(
-            [unicode(col).encode("utf8") for col in self.rows.colnames])
-        data = out.getvalue().decode("utf8")
-        data = data.encode("utf-16")
-        data = data[2:]
-        final.write(data)
-        out.truncate(0)
+        if self.rows:
+            import codecs
+            final.write(codecs.BOM_UTF16)
+            writer.writerow(
+                [unicode(col).encode("utf8") for col in self.rows.colnames])
+            data = out.getvalue().decode("utf8")
+            data = data.encode("utf-16")
+            data = data[2:]
+            final.write(data)
+            out.truncate(0)
         records = self.represented()
         for row in records:
             writer.writerow(
@@ -2881,8 +2946,10 @@ class ExporterCSV(ExportClass):
         ExportClass.__init__(self, rows)
 
     def export(self):
-        return str(self.rows)
-
+        if self.rows:
+            return self.rows.as_csv()
+        else:
+            return ''
 
 class ExporterHTML(ExportClass):
     label = 'HTML'
@@ -2893,17 +2960,10 @@ class ExporterHTML(ExportClass):
         ExportClass.__init__(self, rows)
 
     def export(self):
-        out = cStringIO.StringIO()
-        out.write('<html>\n<body>\n<table>\n')
-        colnames = [a.split('.') for a in self.rows.colnames]
-        for row in self.rows.records:
-            out.write('<tr>\n')
-            for col in colnames:
-                out.write('<td>' + str(row[col[0]][col[1]]) + '</td>\n')
-            out.write('</tr>\n')
-        out.write('</table>\n</body>\n</html>')
-        return str(out.getvalue())
-
+        if self.rows:
+            return self.rows.xml()
+        else:
+            return '<html>\n<body>\n<table>\n</table>\n</body>\n</html>'
 
 class ExporterXML(ExportClass):
     label = 'XML'
@@ -2914,14 +2974,22 @@ class ExporterXML(ExportClass):
         ExportClass.__init__(self, rows)
 
     def export(self):
-        out = cStringIO.StringIO()
-        out.write('<rows>\n')
-        colnames = [a.split('.') for a in self.rows.colnames]
-        for row in self.rows.records:
-            out.write('<row>\n')
-            for col in colnames:
-                out.write(
-                    '<%s>' % col + str(row[col[0]][col[1]]) + '</%s>\n' % col)
-            out.write('</row>\n')
-        out.write('</rows>')
-        return str(out.getvalue())
+        if self.rows:
+            return self.rows.as_xml()
+        else:
+            return '<rows></rows>'
+
+class ExporterJSON(ExportClass):
+    label = 'JSON'
+    file_ext = "json"
+    content_type = "application/json"
+
+    def __init__(self, rows):
+        ExportClass.__init__(self, rows)
+
+    def export(self):
+        if self.rows:
+            return self.rows.as_json()
+        else:
+            return 'null'
+

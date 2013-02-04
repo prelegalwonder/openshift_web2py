@@ -15,11 +15,13 @@ from glob import glob
 import shutil
 import platform
 try:
-    from git import *
+    import git
+    if git.__version__ < '0.3.1':
+        raise ImportError("Your version of git is %s. Upgrade to 0.3.1 or better." % git.__version__)
     have_git = True
-except ImportError:
+except ImportError, e:
     have_git = False
-    GIT_MISSING = 'requires gitpython module, but not installed or incompatible version'
+    GIT_MISSING = 'Requires gitpython module, but not installed or incompatible version: %s' % e
 
 from gluon.languages import (read_possible_languages, read_dict, write_dict,
                              read_plural_dict, write_plural_dict)
@@ -168,7 +170,8 @@ def change_password():
     form = SQLFORM.factory(Field('current_admin_password', 'password'),
                            Field('new_admin_password',
                                  'password', requires=IS_STRONG()),
-                           Field('new_admin_password_again', 'password'))
+                           Field('new_admin_password_again', 'password'),
+                           _class="span4 well")
     if form.accepts(request.vars):
         if not verify_password(request.vars.current_admin_password):
             form.errors.current_admin_password = T('invalid password')
@@ -202,12 +205,14 @@ def site():
 
     is_appname = IS_VALID_APPNAME()
     form_create = SQLFORM.factory(Field('name', requires=is_appname),
-                                  table_name='appcreate')
+                                  table_name='appcreate',
+                                  _class='well well-small')
     form_update = SQLFORM.factory(Field('name', requires=is_appname),
                                   Field('file', 'upload', uploadfield=False),
                                   Field('url'),
                                   Field('overwrite', 'boolean'),
-                                  table_name='appupdate')
+                                  table_name='appupdate',
+                                  _class='well well-small')
     form_create.process()
     form_update.process()
 
@@ -237,10 +242,10 @@ def site():
                 redirect(URL(r=request))
             target = os.path.join(apath(r=request), form_update.vars.name)
             try:
-                new_repo = Repo.clone_from(form_update.vars.url, target)
+                new_repo = git.Repo.clone_from(form_update.vars.url, target)
                 session.flash = T('new application "%s" imported',
                                   form_update.vars.name)
-            except GitCommandError, err:
+            except git.GitCommandError, err:
                 session.flash = T('Invalid git repository specified.')
             redirect(URL(r=request))
 
@@ -374,6 +379,10 @@ def uninstall():
 
     dialog = FORM.confirm(T('Uninstall'),
                           {T('Cancel'): URL('site')})
+    dialog['_id'] = 'confirm_form'
+    dialog['_class'] = 'well'
+    for component in dialog.components:
+        component['_class'] = 'btn'
 
     if dialog.accepted:
         if MULTI_USER_MODE:
@@ -636,6 +645,7 @@ def edit():
             code = request.vars.data.rstrip().replace('\r\n', '\n') + '\n'
             compile(code, path, "exec", _ast.PyCF_ONLY_AST)
         except Exception, e:
+            # offset calculation is only used for textarea (start/stop)
             start = sum([len(line) + 1 for l, line
                          in enumerate(request.vars.data.split("\n"))
                          if l < e.lineno - 1])
@@ -645,7 +655,7 @@ def edit():
             else:
                 offset = 0
             highlight = {'start': start, 'end': start +
-                         offset + 1, 'lineno': e.lineno}
+                         offset + 1, 'lineno': e.lineno, 'offset': offset}
             try:
                 ex_name = e.__class__.__name__
             except:
@@ -791,7 +801,8 @@ def resolve():
         diff = TABLE(*[TR(TD(gen_data(i, item)),
                           TD(item[0]),
                           TD(leading(item[2:]),
-                          TT(item[2:].rstrip())), _class=getclass(item))
+                          TT(item[2:].rstrip())),
+                          _class=getclass(item))
                        for (i, item) in enumerate(d) if item[0] != '?'])
 
     return dict(diff=diff, filename=filename)
@@ -834,10 +845,14 @@ def edit_language():
         # Making the short circuit compatible with <= python2.4
         k = (s != k) and k or B(k)
 
-        rows.append(P(prefix, k, BR(), elem, TAG.BUTTON(T('delete'),
-                                                        _onclick='return delkey("%s")' % name), _id=name))
+        new_row = DIV(LABEL(prefix, k, _style="font-weight:normal;"),
+                      CAT(elem, '\n', TAG.BUTTON(
+                    T('delete'),
+                    _onclick='return delkey("%s")' % name,
+                    _class='btn')), _id=name, _class='span6 well well-small')
 
-    rows.append(INPUT(_type='submit', _value=T('update')))
+        rows.append(DIV(new_row,_class="row-fluid"))
+    rows.append(DIV(INPUT(_type='submit', _value=T('update'), _class="btn btn-primary"), _class='controls'))
     form = FORM(*rows)
     if form.accepts(request.vars, keepvalues=True):
         strs = dict()
@@ -868,29 +883,27 @@ def edit_plurals():
 
     keys = sorted(plurals.keys(), lambda x, y: cmp(
         unicode(x, 'utf-8').lower(), unicode(y, 'utf-8').lower()))
-    rows = []
-
-    row = [T("Singular Form")]
-    row.extend([T("Plural Form #%s", n + 1) for n in xnplurals])
-    table = TABLE(THEAD(TR(row)))
-
+    tab_rows = []
     for key in keys:
         name = md5_hash(key)
         forms = plurals[key]
 
         if len(forms) < nplurals:
             forms.extend(None for i in xrange(nplurals - len(forms)))
+        tab_col1 = DIV(CAT(LABEL(T("Singular Form")), B(key,
+                                                        _class='fake-input')))
+        tab_inputs = [SPAN(LABEL(T("Plural Form #%s", n + 1)), INPUT(_type='text', _name=name + '_' + str(n), value=forms[n], _size=20), _class='span6') for n in xnplurals]
+        tab_col2 = DIV(CAT(*tab_inputs))
+        tab_col3 = DIV(CAT(LABEL(XML('&nbsp;')), TAG.BUTTON(T('delete'), _onclick='return delkey("%s")' % name, _class='btn'), _class='span6'))
+        tab_row = DIV(DIV(tab_col1, '\n', tab_col2, '\n', tab_col3, _class='well well-small'), _id=name, _class='row-fluid tab_row')
+        tab_rows.append(tab_row)
 
-        row = [B(key)]
-        row.extend([INPUT(_type='text', _name=name + '_' + str(n),
-                   value=forms[n], _size=20) for n in xnplurals])
-        row.append(TD(
-            TAG.BUTTON(T('delete'), _onclick='return delkey("%s")' % name)))
-        rows.append(TR(row, _id=name))
-    if rows:
-        table.append(TBODY(rows))
-    rows = [table, INPUT(_type='submit', _value=T('update'))]
-    form = FORM(*rows)
+    tab_rows.append(DIV(TAG['button'](T('update'), _type='submit',
+                                      _class='btn btn-primary'),
+                        _class='controls'))
+    tab_container = DIV(*tab_rows, **dict(_class="row-fluid"))
+
+    form = FORM(tab_container)
     if form.accepts(request.vars, keepvalues=True):
         new_plurals = dict()
         for key in keys:
@@ -1483,7 +1496,9 @@ def errors():
 
     else:
         for item in request.vars:
-            if item[:7] == 'delete_':
+            # delete_all} rows doesn't contain any ticket
+            # Remove anything else as requested
+            if item[:7] == 'delete_' and (not item == "delete_all}"):
                 os.unlink(apath('%s/errors/%s' % (app, item[7:]), r=request))
         func = lambda p: os.stat(apath('%s/errors/%s' %
                                        (app, p), r=request)).st_mtime
@@ -1714,28 +1729,25 @@ def git_pull():
                           {T('Cancel'): URL('site')})
     if dialog.accepted:
         try:
-            repo = Repo(os.path.join(apath(r=request), app))
+            repo = git.Repo(os.path.join(apath(r=request), app))
             origin = repo.remotes.origin
             origin.fetch()
             origin.pull()
             session.flash = T("Application updated via git pull")
             redirect(URL('site'))
-        except CheckoutError, message:
+
+        except git.CheckoutError:
             session.flash = T("Pull failed, certain files could not be checked out. Check logs for details.")
             redirect(URL('site'))
-        except UnmergedEntriesError:
+        except git.UnmergedEntriesError:
             session.flash = T("Pull is not possible because you have unmerged files. Fix them up in the work tree, and then try again.")
+            redirect(URL('site'))
+        except git.GitCommandError:
+            session.flash = T(
+                "Pull failed, git exited abnormally. See logs for details.")
             redirect(URL('site'))
         except AssertionError:
             session.flash = T("Pull is not possible because you have unmerged files. Fix them up in the work tree, and then try again.")
-            redirect(URL('site'))
-        except GitCommandError, status:
-            session.flash = T(
-                "Pull failed, git exited abnormally. See logs for details.")
-            redirect(URL('site'))
-        except Exception, e:
-            session.flash = T(
-                "Pull failed, git exited abnormally. See logs for details.")
             redirect(URL('site'))
     elif 'cancel' in request.vars:
         redirect(URL('site'))
@@ -1754,7 +1766,7 @@ def git_push():
     form.process()
     if form.accepted:
         try:
-            repo = Repo(os.path.join(apath(r=request), app))
+            repo = git.Repo(os.path.join(apath(r=request), app))
             index = repo.index
             index.add([apath(r=request) + app + '/*'])
             new_commit = index.commit(form.vars.changelog)
@@ -1763,11 +1775,8 @@ def git_push():
             session.flash = T(
                 "Git repo updated with latest application changes.")
             redirect(URL('site'))
-        except UnmergedEntriesError:
+        except git.UnmergedEntriesError:
             session.flash = T("Push failed, there are unmerged entries in the cache. Resolve merge issues manually and try again.")
             redirect(URL('site'))
-        except Exception, e:
-            session.flash = T(
-                "Push failed, git exited abnormally. See logs for details.")
-            redirect(URL('site'))
     return dict(app=app, form=form)
+

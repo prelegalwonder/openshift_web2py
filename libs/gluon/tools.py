@@ -2,8 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-This file is part of the web2py Web Framework
-Copyrighted by Massimo Di Pierro <mdipierro@cs.depaul.edu>
+This file is part of the web2py Web Framework Copyrighted by Massimo Di Pierro <mdipierro@cs.depaul.edu>
 License: LGPLv3 (http://www.gnu.org/licenses/lgpl.html)
 """
 
@@ -273,7 +272,7 @@ class Mail(object):
         cc=None,
         bcc=None,
         reply_to=None,
-        sender='%(sender)s',
+        sender=None,
         encoding='utf-8',
         raw=False,
         headers={}
@@ -361,9 +360,11 @@ class Mail(object):
                 text = encode_header(text)
             return text
 
+        sender = sender or self.settings.sender
+
         if not isinstance(self.settings.server, str):
             raise Exception('Server address not specified')
-        if not isinstance(self.settings.sender, str):
+        if not isinstance(sender, str):
             raise Exception('Sender address not specified')
 
         if not raw:
@@ -459,11 +460,11 @@ class Mail(object):
                 c.set_armor(1)
                 c.signers_clear()
                 # search for signing key for From:
-                for sigkey in c.op_keylist_all(self.settings.sender, 1):
+                for sigkey in c.op_keylist_all(sender, 1):
                     if sigkey.can_sign:
                         c.signers_add(sigkey)
                 if not c.signers_enum(0):
-                    self.error = 'No key for signing [%s]' % self.settings.sender
+                    self.error = 'No key for signing [%s]' % sender
                     return False
                 c.set_passphrase_cb(lambda x, y, z: sign_passphrase)
                 try:
@@ -620,7 +621,6 @@ class Mail(object):
             # no cryptography process as usual
             payload = payload_in
 
-        sender = sender % dict(sender=self.settings.sender)
         payload['From'] = encoded_or_raw(sender.decode(encoding))
         origTo = to[:]
         if to:
@@ -656,16 +656,16 @@ class Mail(object):
                 attachments = attachments and [(a.my_filename, a.my_payload) for a in attachments if not raw]
                 if attachments:
                     result = mail.send_mail(
-                        sender=self.settings.sender, to=origTo,
+                        sender=sender, to=origTo,
                         subject=subject, body=text, html=html,
                         attachments=attachments, **xcc)
                 elif html and (not raw):
                     result = mail.send_mail(
-                        sender=self.settings.sender, to=origTo,
+                        sender=sender, to=origTo,
                         subject=subject, body=text, html=html, **xcc)
                 else:
                     result = mail.send_mail(
-                        sender=self.settings.sender, to=origTo,
+                        sender=sender, to=origTo,
                         subject=subject, body=text, **xcc)
             else:
                 smtp_args = self.settings.server.split(':')
@@ -680,7 +680,7 @@ class Mail(object):
                 if self.settings.login:
                     server.login(*self.settings.login.split(':', 1))
                 result = server.sendmail(
-                    self.settings.sender, to, payload.as_string())
+                    sender, to, payload.as_string())
                 server.quit()
         except Exception, e:
             logger.warn('Mail.send failure:%s' % e)
@@ -882,6 +882,7 @@ class Auth(object):
         profile_fields=None,
         email_case_sensitive=True,
         username_case_sensitive=True,
+        update_fields = ['email'],
     )
         # ## these are messages that can be customized
     default_messages = dict(
@@ -1255,6 +1256,9 @@ class Auth(object):
     def navbar(self, prefix='Welcome', action=None,
                separators=(' [ ', ' | ', ' ] '), user_identifier=DEFAULT,
                referrer_actions=DEFAULT, mode='default'):
+        def Anr(*a,**b):
+            b['_rel']='nofollow'
+            return A(*a,**b)
         referrer_actions = [] if not referrer_actions else referrer_actions
         request = current.request
         asdropdown = (mode == 'dropdown')
@@ -1285,19 +1289,19 @@ class Auth(object):
                 user_identifier = user_identifier % self.user
             if not user_identifier:
                 user_identifier = ''
-            logout = A(T('Logout'), _href='%s/logout?_next=%s' %
+            logout = Anr(T('Logout'), _href='%s/logout?_next=%s' %
                       (action, urllib.quote(self.settings.logout_next)))
-            profile = A(T('Profile'), _href=href('profile'))
-            password = A(T('Password'), _href=href('change_password'))
+            profile = Anr(T('Profile'), _href=href('profile'))
+            password = Anr(T('Password'), _href=href('change_password'))
             bar = SPAN(
                 prefix, user_identifier, s1, logout, s3, _class='auth_navbar')
 
             if asdropdown:
-                logout = LI(A(I(_class='icon-off'), ' ' + T('Logout'), _href='%s/logout?_next=%s' %
+                logout = LI(Anr(I(_class='icon-off'), ' ' + T('Logout'), _href='%s/logout?_next=%s' %
                               (action, urllib.quote(self.settings.logout_next))))  # the space before T('Logout') is intentional. It creates a gap between icon and text
-                profile = LI(A(I(_class='icon-user'), ' ' +
+                profile = LI(Anr(I(_class='icon-user'), ' ' +
                              T('Profile'), _href=href('profile')))
-                password = LI(A(I(_class='icon-lock'), ' ' +
+                password = LI(Anr(I(_class='icon-lock'), ' ' +
                               T('Password'), _href=href('change_password')))
                 bar = UL(logout, _class='dropdown-menu')
                          # logout will be the last item in list
@@ -1311,21 +1315,21 @@ class Auth(object):
                     bar.insert(-1, s2)
                 bar.insert(-1, password)
         else:
-            login = A(T('Login'), _href=href('login'))
-            register = A(T('Register'), _href=href('register'))
-            retrieve_username = A(
+            login = Anr(T('Login'), _href=href('login'))
+            register = Anr(T('Register'), _href=href('register'))
+            retrieve_username = Anr(
                 T('Forgot username?'), _href=href('retrieve_username'))
-            lost_password = A(
+            lost_password = Anr(
                 T('Lost password?'), _href=href('request_reset_password'))
             bar = SPAN(s1, login, s3, _class='auth_navbar')
 
             if asdropdown:
-                login = LI(A(I(_class='icon-off'), ' ' + T('Login'), _href=href('login')))  # the space before T('Login') is intentional. It creates a gap between icon and text
-                register = LI(A(I(_class='icon-user'),
+                login = LI(Anr(I(_class='icon-off'), ' ' + T('Login'), _href=href('login')))  # the space before T('Login') is intentional. It creates a gap between icon and text
+                register = LI(Anr(I(_class='icon-user'),
                               ' ' + T('Register'), _href=href('register')))
-                retrieve_username = LI(A(I(_class='icon-edit'), ' ' + T(
+                retrieve_username = LI(Anr(I(_class='icon-edit'), ' ' + T(
                     'Forgot username?'), _href=href('retrieve_username')))
-                lost_password = LI(A(I(_class='icon-lock'), ' ' + T(
+                lost_password = LI(Anr(I(_class='icon-lock'), ' ' + T(
                     'Lost password?'), _href=href('request_reset_password')))
                 bar = UL(login, _class='dropdown-menu')
                          # login will be the last item in list
@@ -1348,10 +1352,10 @@ class Auth(object):
         if asdropdown:
             bar.insert(-1, LI('', _class='divider'))
             if self.user_id:
-                bar = LI(A(prefix, user_identifier, _href='#'),
+                bar = LI(Anr(prefix, user_identifier, _href='#'),
                          bar, _class='dropdown')
             else:
-                bar = LI(A(T('Login'), _href='#'),
+                bar = LI(Anr(T('Login'), _href='#'),
                          bar, _class='dropdown')
         return bar
 
@@ -1397,7 +1401,7 @@ class Auth(object):
         """
         tables = [table for table in tables]
         for table in tables:
-            if 'modified_on' in table.fields():
+            if 'modified_on' in table.fields() and not current_record in table.fields():
                 table._enable_record_versioning(
                     archive_db=archive_db,
                     archive_name=archive_names,
@@ -1416,7 +1420,8 @@ class Auth(object):
         def represent(id, record=None, s=settings):
             try:
                 user = s.table_user(id)
-                return '%(first_name)s %(last_name)s' % user
+                return '%s %s' % (user.get("first_name", user.get("email")), 
+                                  user.get("last_name", ''))
             except:
                 return id
         self.signature = db.Table(
@@ -1959,9 +1964,9 @@ class Auth(object):
             onaccept = self.settings.login_onaccept
         if log is DEFAULT:
             log = self.messages.login_log
-        
+
         onfail = self.settings.login_onfail
-        
+
         user = None  # default
 
         # do we use our own login form, or from a central source?
@@ -2047,7 +2052,8 @@ class Auth(object):
                             if not self in self.settings.login_methods:
                                 # do not store password in db
                                 form.vars[passfield] = None
-                            user = self.get_or_create_user(form.vars)
+                            user = self.get_or_create_user(
+                                form.vars, self.settings.update_fields)
                             break
                     if not user:
                         # alternates have failed, maybe because service inaccessible
@@ -2067,7 +2073,8 @@ class Auth(object):
                                 if not self in self.settings.login_methods:
                                     # do not store password in db
                                     form.vars[passfield] = None
-                                user = self.get_or_create_user(form.vars)
+                                user = self.get_or_create_user(
+                                    form.vars, self.settings.update_fields)
                                 break
                 if not user:
                     self.log_event(self.messages.login_failed_log,
@@ -2087,7 +2094,8 @@ class Auth(object):
             if cas_user:
                 cas_user[passfield] = None
                 user = self.get_or_create_user(
-                    table_user._filter_fields(cas_user))
+                    table_user._filter_fields(cas_user),
+                    self.settings.update_fields)
             elif hasattr(cas, 'login_form'):
                 return cas.login_form()
             else:
@@ -2117,7 +2125,7 @@ class Auth(object):
                     session._auth_next = None
                 next = replace_id(next, form)
                 redirect(next, client_side=True)
-                
+
             table_user[username].requires = old_requires
             return form
         elif user:
@@ -2825,9 +2833,12 @@ class Auth(object):
             auth.user.update(
                 table_user._filter_fields(user, True))
             self.user = auth.user
-            if self.settings.login_onaccept:
+            onaccept = self.settings.login_onaccept
+            if onaccept:
                 form = Storage(dict(vars=self.user))
-                for callback in self.settings.login_onaccept:
+                if not isinstance(onaccept,(list, tuple)):
+                    onaccept = [onaccept]
+                for callback in onaccept:
                     callback(form)
             log = self.messages.impersonate_log
             self.log_event(log, dict(id=current_id, other_id=auth.user.id))
@@ -3013,7 +3024,7 @@ class Auth(object):
         if user_id:
             user = self.table_user()[user_id]
         else:
-            user = self.user        
+            user = self.user
         return self.settings.create_user_groups % user
 
     def has_membership(self, group_id=None, user_id=None, role=None):
@@ -3306,14 +3317,17 @@ class Auth(object):
              restrict_search=False,
              resolve=True,
              extra=None,
-             menugroups=None):
+             menu_groups=None,
+             templates=None):
+
         if not hasattr(self, '_wiki'):
             self._wiki = Wiki(self, render=render,
                               manage_permissions=manage_permissions,
                               force_prefix=force_prefix,
                               restrict_search=restrict_search,
                               env=env, extra=extra or {},
-                              menugroups=menugroups)
+                              menu_groups=menu_groups,
+                              templates=templates)
         else:
             self._wiki.env.update(env or {})
         # if resolve is set to True, process request as wiki call
@@ -3322,7 +3336,10 @@ class Auth(object):
         if resolve:
             action = str(current.request.args(0)).startswith("_")
             if slug and not action:
-                wiki = self._wiki.read(slug)['content']
+                wiki = self._wiki.read(slug)
+                if isinstance(wiki, dict) and wiki.has_key('content'):
+                    # We don't want to return a dict object, just the wiki
+                    wiki = wiki['content']
             else:
                 wiki = self._wiki()
             if isinstance(wiki, basestring):
@@ -3934,6 +3951,7 @@ class Service(object):
         self.rss_procedures = {}
         self.json_procedures = {}
         self.jsonrpc_procedures = {}
+        self.jsonrpc2_procedures = {}
         self.xmlrpc_procedures = {}
         self.amfrpc_procedures = {}
         self.amfrpc3_procedures = {}
@@ -4053,6 +4071,25 @@ class Service(object):
 
         """
         self.jsonrpc_procedures[f.__name__] = f
+        return f
+
+    def jsonrpc2(self, f):
+        """
+        example:
+
+            service = Service()
+            @service.jsonrpc2
+            def myfunction(a, b):
+                return a + b
+            def call():
+                return service()
+
+        Then call it with:
+
+            wget --post-data '{"jsonrpc": "2.0", "id": 1, "method": "myfunction", "params": {"a": 1, "b": 2}}' http://..../app/default/call/jsonrpc2
+
+        """
+        self.jsonrpc2_procedures[f.__name__] = f
         return f
 
     def xmlrpc(self, f):
@@ -4236,7 +4273,20 @@ class Service(object):
 
     class JsonRpcException(Exception):
         def __init__(self, code, info):
+            jrpc_error = Service.jsonrpc_errors.get(code)
+            if jrpc_error:
+                self.message, self.description = jrpc_error
             self.code, self.info = code, info
+
+    # jsonrpc 2.0 error types.  records the following structure {code: (message,meaning)}
+    jsonrpc_errors = {
+        -32700:	("Parse error. Invalid JSON was received by the server.",  "An error occurred on the server while parsing the JSON text."),
+        -32600: ("Invalid Request", "The JSON sent is not a valid Request object."),
+        -32601: ("Method not found", "The method does not exist / is not available."),
+        -32602: ("Invalid params", "Invalid method parameter(s)."),
+        -32603: ("Internal error", "Internal JSON-RPC error."),
+        -32099: ("Server error", "Reserved for implementation-defined server-errors.")}
+
 
     def serve_jsonrpc(self):
         def return_response(id, result):
@@ -4258,11 +4308,17 @@ class Service(object):
         response.headers['Content-Type'] = 'application/json; charset=utf-8'
         methods = self.jsonrpc_procedures
         data = json_parser.loads(request.body.read())
+        jsonrpc_2 = data.get('jsonrpc')
+        if jsonrpc_2: #hand over to version 2 of the protocol
+            return self.serve_jsonrpc2(data)
         id, method, params = data['id'], data['method'], data.get('params', '')
         if not method in methods:
             return return_error(id, 100, 'method "%s" does not exist' % method)
         try:
-            s = methods[method](**params)
+            if isinstance(params,dict):
+                s = methods[method](**params)
+            else:
+                s = methods[method](*params)
             if hasattr(s, 'as_list'):
                 s = s.as_list()
             return return_response(id, s)
@@ -4277,6 +4333,114 @@ class Service(object):
         except:
             etype, eval, etb = sys.exc_info()
             return return_error(id, 100, 'Exception %s: %s' % (etype, eval))
+
+    def serve_jsonrpc2(self, data=None, batch_element=False):
+                
+        def return_response(id, result):
+            if not must_respond:
+                return None
+            return serializers.json({'jsonrpc': '2.0',
+                'id': id, 'result': result})
+
+        def return_error(id, code, message=None, data=None):
+            error = {'code': code}
+            if message is None:
+                error['message'] =  Service.jsonrpc_errors[code][0]
+            else:
+                error['message'] = message
+            if data is None:
+                error['data'] = Service.jsonrpc_errors[code][1]
+            else:
+                error['data'] = data
+            return serializers.json({'jsonrpc': '2.0',
+                                     'id': id,
+                                     'error': error})
+
+        def validate(data):
+            """
+            Validate request as defined in: http://www.jsonrpc.org/specification#request_object.
+
+            :param data: The json object.
+            :type name: str.
+
+            :returns:
+                - True -- if successful
+                - False -- if no error should be reported (i.e. data is missing 'id' member)
+            
+            :raises: JsonRPCException
+            
+            """
+
+            iparms = set(data.keys())
+            mandatory_args = set(['jsonrpc', 'method'])
+            missing_args = mandatory_args - iparms
+
+            if missing_args:
+                raise Service.JsonRpcException(-32600, 'Missing arguments %s.' % list(missing_args))
+            if data['jsonrpc'] != '2.0':
+                raise Service.JsonRpcException(-32603, 'Unsupported jsonrpc version "%s"' % data['jsonrpc'])
+            if 'id' not in iparms:
+                 return False
+
+            return True
+
+        
+            
+        if not data:
+            request = current.request
+            response = current.response
+            response.headers['Content-Type'] = 'application/json; charset=utf-8'
+            try:
+                data = json_parser.loads(request.body.read())
+            except ValueError: # decoding error in json lib
+                return return_error(None, -32700)
+            except json_parser.JSONDecodeError: # decoding error in simplejson lib 
+                return return_error(None, -32700)
+
+        # Batch handling
+        if isinstance(data, list) and not batch_element:
+            retlist = []
+            for c in data:
+                retstr = self.serve_jsonrpc2(c, batch_element=True)
+                if retstr: # do not add empty responses
+                    retlist.append(retstr)
+            if len(retlist) == 0: # return nothing
+                return ''
+            else:
+                return "[" + ','.join(retlist) + "]"
+        methods = self.jsonrpc2_procedures
+        methods.update(self.jsonrpc_procedures)
+        
+        try:
+            must_respond = validate(data)
+        except Service.JsonRpcException, e:
+            return return_error(None, e.code, e.info)
+        
+        id, method, params = data.get('id'), data['method'], data.get('params', '')
+        if not method in methods:
+            return return_error(id, -32601, data='Method "%s" does not exist' % method)
+        try:
+            if isinstance(params,dict):
+                s = methods[method](**params)
+            else:
+                s = methods[method](*params)
+            if hasattr(s, 'as_list'):
+                s = s.as_list()
+            if must_respond:
+                return return_response(id, s)
+            else:
+                return ''
+        except Service.JsonRpcException, e:
+            return return_error(id, e.code, e.info)
+        except BaseException:
+            etype, eval, etb = sys.exc_info()
+            code = -32001
+            data = '%s: %s\n' % (etype.__name__, eval) + request.is_local and traceback.format_tb(etb)
+            return return_error(id, code, data=data)
+        except:
+            etype, eval, etb = sys.exc_info()
+            return return_error(id, 32099, data='Exception %s: %s' % (etype, eval))
+        
 
     def serve_xmlrpc(self):
         request = current.request
@@ -4421,6 +4585,8 @@ class Service(object):
             return self.serve_json(request.args[1:])
         elif arg0 == 'jsonrpc':
             return self.serve_jsonrpc()
+        elif arg0 == 'jsonrpc2':
+            return self.serve_jsonrpc2()
         elif arg0 == 'xmlrpc':
             return self.serve_xmlrpc()
         elif arg0 == 'amfrpc':
@@ -4685,15 +4851,19 @@ class Expose(object):
 class Wiki(object):
     everybody = 'everybody'
     rows_page = 25
-
-    def markmin_render(self, page):
-        html = MARKMIN(page.body, extra=self.extra, 
+    def markmin_base(self,body):
+        return MARKMIN(body, extra=self.extra,
                        url=True, environment=self.env,
                        autolinks=lambda link: expand_one(link, {})).xml()
-        html += DIV(_class='w2p_wiki_tags',
-                    *[A(t.strip(), _href=URL(args='_search', vars=dict(q=t)))
-                      for t in page.tags or [] if t.strip()]).xml()
-        return html
+
+    def render_tags(self, tags):
+        return DIV(
+            _class='w2p_wiki_tags',
+            *[A(t.strip(), _href=URL(args='_search', vars=dict(q=t)))
+              for t in tags or [] if t.strip()])
+
+    def markmin_render(self, page):
+        return self.markmin_base(page.body) + self.render_tags(page.tags).xml()
 
     def html_render(self, page):
         html = page.body
@@ -4703,6 +4873,7 @@ class Wiki(object):
         html = replace_autolinks(html, lambda link: expand_one(link, {}))
         # @{component:name} -> <script>embed component name</script>
         html = replace_components(html, self.env)
+        html = html + self.render_tags(page.tags).xml()
         return html
 
     @staticmethod
@@ -4717,7 +4888,9 @@ class Wiki(object):
 
     def __init__(self, auth, env=None, render='markmin',
                  manage_permissions=False, force_prefix='',
-                 restrict_search=False, extra=None, menugroups=None):
+                 restrict_search=False, extra=None,
+                 menu_groups=None, templates=None):
+        db = auth.db
         self.env = env or {}
         self.env['component'] = Wiki.component
         if render == 'markmin':
@@ -4726,7 +4899,7 @@ class Wiki(object):
             render = self.html_render
         self.render = render
         self.auth = auth
-        self.menugroups = menugroups
+        self.menu_groups = menu_groups
         if self.auth.user:
             self.force_prefix = force_prefix % self.auth.user
         else:
@@ -4735,14 +4908,15 @@ class Wiki(object):
         perms = self.manage_permissions = manage_permissions
         self.restrict_search = restrict_search
         self.extra = extra or {}
-        db = auth.db
+        self.templates = templates
+
         table_definitions = [
             ('wiki_page', {
                     'args':[
                         Field('slug',
                               requires=[IS_SLUG(),
                                         IS_NOT_IN_DB(db, 'wiki_page.slug')],
-                              readable=False, writable=False),
+                              writable=False),
                         Field('title', unique=True),
                         Field('body', 'text', notnull=True),
                         Field('tags', 'list:string'),
@@ -4786,6 +4960,10 @@ class Wiki(object):
                                 args.append(field)
                 args += value['args']
                 db.define_table(key, *args, **value['vars'])
+
+        if self.templates is None and not self.manage_permissions:
+            self.templates = db.wiki_page.tags.contains('template')&\
+                db.wiki_page.can_read.contains('everybody')
 
         def update_tags_insert(page, id, db=db):
             for tag in page.tags or []:
@@ -4844,11 +5022,11 @@ class Wiki(object):
         return True
 
     def can_see_menu(self):
-        if self.menugroups is None:
+        if self.menu_groups is None:
             return True
         if self.auth.user:
             groups = self.auth.user_groups.values()
-            if any(t in self.menugroups for t in groups):
+            if any(t in self.menu_groups for t in groups):
                 return True
         return False
 
@@ -4914,7 +5092,12 @@ class Wiki(object):
                 url = URL(args=('_edit', slug))
                 return dict(content=A('Create page "%s"' % slug, _href=url, _class="btn"))
             else:
-                return dict(content=XML(self.fix_hostname(page.html)))
+                return dict(title=page.title,
+                            slug=page.slug,
+                            content=XML(self.fix_hostname(page.html)),
+                            tags=page.tags,
+                            created_on=page.created_on,
+                            modified_on=page.modified_on)
         elif current.request.extension == 'load':
             return self.fix_hostname(page.html) if page else ''
         else:
@@ -4951,7 +5134,7 @@ class Wiki(object):
                     slug.startswith(self.force_prefix)):
                 current.session.flash = 'slug must have "%s" prefix' \
                     % self.force_prefix
-                redirect(URL(args=('_edit', self.force_prefix + slug)))
+                redirect(URL(args=('_create')))
             db.wiki_page.can_read.default = [Wiki.everybody]
             db.wiki_page.can_edit.default = [auth.user_group_role()]
             db.wiki_page.title.default = title_guess
@@ -4974,34 +5157,35 @@ class Wiki(object):
             redirect(URL(args=slug))
         script = """
         $(function() {
-            if (!$('#wiki_page_body').length) return;
-            var pagecontent = $('#wiki_page_body');
+            if (!jQuery('#wiki_page_body').length) return;
+            var pagecontent = jQuery('#wiki_page_body');
             pagecontent.css('font-family',
                             'Monaco,Menlo,Consolas,"Courier New",monospace');
-            var prevbutton = $('<button class="btn nopreview">Preview</button>');
-            var mediabutton = $('<button class="btn nopreview">Media</button>');
-            var preview = $('<div id="preview"></div>').hide();
-            var previewmedia = $('<div id="previewmedia"></div>');
-            var table = $('form');
-            preview.insertBefore(table);
-            prevbutton.insertBefore(table);
-            mediabutton.insertBefore(table);
-            previewmedia.insertBefore(table);
+            var prevbutton = jQuery('<button class="btn nopreview">Preview</button>');
+            var mediabutton = jQuery('<button class="btn nopreview">Media</button>');
+            var preview = jQuery('<div id="preview"></div>').hide();
+            var previewmedia = jQuery('<div id="previewmedia"></div>');
+            var form = pagecontent.closest('form');
+            preview.insertBefore(form);
+            prevbutton.insertBefore(form);
+            mediabutton.insertBefore(form);
+            previewmedia.insertBefore(form);
             mediabutton.toggle(function() {
                 web2py_component('%(urlmedia)s', 'previewmedia');
             }, function() {
                 previewmedia.empty();
             });
-            prevbutton.click(function() {
+            prevbutton.click(function(e) {
+                e.preventDefault();
                 if (prevbutton.hasClass('nopreview')) {
                     prevbutton.addClass('preview').removeClass(
                         'nopreview').html('Edit Source');
-                    web2py_ajax_page('post', '%(url)s', {body : $('#wiki_page_body').val()}, 'preview');
-                    table.fadeOut('medium', function() {preview.fadeIn()});
+                    web2py_ajax_page('post', '%(url)s', {body : jQuery('#wiki_page_body').val()}, 'preview');
+                    form.fadeOut('fast', function() {preview.fadeIn()});
                 } else {
                     prevbutton.addClass(
                         'nopreview').removeClass('preview').html('Preview');
-                    preview.fadeOut('medium', function() {table.fadeIn()});
+                    preview.fadeOut('fast', function() {form.fadeIn()});
                 }
             })
         })
@@ -5023,10 +5207,12 @@ class Wiki(object):
         self.auth.db.wiki_media.wiki_page.writable = False
         links = []
         csv = True
+        create = True
         if current.request.vars.embedded:
-            script = "var c = $('#wiki_page_body'); c.val(c.val() + $('%s').text()); return false;"
+            script = "var c = jQuery('#wiki_page_body'); c.val(c.val() + jQuery('%s').text()); return false;"
             fragment = self.auth.db.wiki_media.id.represent
             csv = False
+            create = False
             links=[
                 lambda row:
                     A('copy into source', _href='#', _onclick=script % (fragment(row.id, row)))
@@ -5036,6 +5222,7 @@ class Wiki(object):
             orderby=self.auth.db.wiki_media.title,
             links = links,
             csv = csv,
+            create = create,
             args=['_editmedia', slug],
             user_signature=False)
         return dict(content=content)
@@ -5045,40 +5232,52 @@ class Wiki(object):
             return self.not_authorized()
         db = self.auth.db
         slugs=db(db.wiki_page.id>0).select(db.wiki_page.id,db.wiki_page.slug)
-        options=[OPTION(row.slug,_value=row.id) for row in slugs] 
+        options=[OPTION(row.slug,_value=row.id) for row in slugs]
         options.insert(0, OPTION('',_value=''))
-        form = SQLFORM.factory(Field("slug", default=current.request.args(1),
-                                     requires=(IS_SLUG(),
-                                     IS_NOT_IN_DB(db,db.wiki_page.slug))),
-                               Field("from_template", "reference wiki_page",
-                                     requires=IS_EMPTY_OR(IS_IN_DB(db, db.wiki_page, '%(slug)s')),
-                                     comment=current.T("Choose Template or empty for new Page")),
-                                     _class="well span6")
-        form.element("[type=submit]").attributes["_value"] = current.T("Create Page from Slug")
+        fields = [Field("slug", default=current.request.args(1) or 
+                        self.force_prefix,
+                        requires=(IS_SLUG(), IS_NOT_IN_DB(db,db.wiki_page.slug))),]
+        if self.templates:
+            fields.append(
+                Field("from_template", "reference wiki_page",
+                      requires=IS_EMPTY_OR(IS_IN_DB(db(self.templates),
+                                                    db.wiki_page._id,
+                                                    '%(slug)s')),
+                      comment=current.T(
+                        "Choose Template or empty for new Page")))
+        form = SQLFORM.factory(*fields, **dict(_class="well span6"))
+        form.element("[type=submit]").attributes["_value"] = \
+            current.T("Create Page from Slug")
 
         if form.process().accepted:
-             # form.vars.from_template = 0 if not form.vars.from_template else form.vars.from_template
-             redirect(URL(args=('_edit',form.vars.slug,form.vars.from_template or 0))) # added param
+             form.vars.from_template = 0 if not form.vars.from_template \
+                 else form.vars.from_template
+             redirect(URL(args=('_edit', form.vars.slug,form.vars.from_template or 0))) # added param
         return dict(content=form)
 
     def pages(self):
         if not self.can_manage():
             return self.not_authorized()
-        self.auth.db.wiki_page.id.represent = lambda id, row: SPAN(
-            '@////%s' % row.slug)
+        self.auth.db.wiki_page.slug.represent = lambda slug, row: SPAN(
+            '@////%s' % slug)
         self.auth.db.wiki_page.title.represent = lambda title, row: \
             A(title, _href=URL(args=row.slug))
+        wiki_table = self.auth.db.wiki_page
         content = SQLFORM.grid(
-            self.auth.db.wiki_page,
+            wiki_table,
+            fields = [wiki_table.slug,
+                      wiki_table.title, wiki_table.tags, 
+                      wiki_table.can_read, wiki_table.can_edit],
             links=[
                 lambda row:
-                    A('edit', _href=URL(args=('_edit', row.slug))),
+                    A('edit', _href=URL(args=('_edit', row.slug)),_class='btn'),
                 lambda row:
-                    A('media', _href=URL(args=('_editmedia', row.slug)))],
+                    A('media', _href=URL(args=('_editmedia', row.slug)),_class='btn')],
             details=False, editable=False, deletable=False, create=False,
             orderby=self.auth.db.wiki_page.title,
             args=['_pages'],
             user_signature=False)
+
         return dict(content=content)
 
     def media(self, id):
@@ -5106,15 +5305,19 @@ class Wiki(object):
                 base = match.group('base').replace(' ', '')
                 title = match.group('title')
                 link = match.group('link')
+                title_page = None
                 if link.startswith('@'):
                     items = link[2:].split('/')
                     if len(items) > 3:
+                        title_page = items[3]
                         link = URL(a=items[0] or None, c=items[1] or None,
                                    f=items[2] or None, args=items[3:])
                 parent = tree.get(base[1:], tree[''])
                 subtree = []
                 tree[base] = subtree
-                parent.append((current.T(title), False, link, subtree))
+                parent.append((current.T(title),
+                               request.args(0) == title_page,
+                               link, subtree))
         if self.can_see_menu():
             submenu = []
             menu.append((current.T('[Wiki]'), None, None, submenu))

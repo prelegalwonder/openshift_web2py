@@ -11,6 +11,11 @@ import copy
 import gluon.contenttype
 import gluon.fileutils
 
+try:
+    import pygraphviz as pgv
+except ImportError:
+    pgv = None
+
 response.subtitle = 'Database Administration (appadmin)'
 
 # ## critical --- make a copy of the environment
@@ -460,3 +465,103 @@ def ccache():
 
     return dict(form=form, total=total,
                 ram=ram, disk=disk, object_stats=hp != False)
+
+
+def table_template(table):
+    from gluon.html import TR, TD, TABLE, TAG
+
+    def FONT(*args, **kwargs):
+        return TAG.font(*args, **kwargs)
+
+    def types(field):
+        f_type = field.type
+        if not isinstance(f_type,str):
+            return ' '
+        elif f_type == 'string':
+            return field.length
+        elif f_type == 'id':
+            return B('pk')
+        elif f_type.startswith('reference') or \
+                f_type.startswith('list:reference'):
+            return B('fk')
+        else:
+            return ' '
+
+    # This is horribe HTML but the only one graphiz understands
+    rows = []
+    cellpadding = 4
+    color = "#000000"
+    bgcolor = "#FFFFFF"
+    face = "Helvetica"
+    face_bold = "Helvetica Bold"
+    border = 0
+
+    rows.append(TR(TD(FONT(table, _face=face_bold, _color=bgcolor),
+                           _colspan=3, _cellpadding=cellpadding,
+                           _align="center", _bgcolor=color)))
+    for row in db[table]:
+        rows.append(TR(TD(FONT(row.name, _color=color, _face=face_bold),
+                              _align="left", _cellpadding=cellpadding,
+                              _border=border),
+                       TD(FONT(row.type, _color=color, _face=face),
+                               _align="left", _cellpadding=cellpadding,
+                               _border=border),
+                       TD(FONT(types(row), _color=color, _face=face),
+                               _align="center", _cellpadding=cellpadding,
+                               _border=border)))
+    return "< %s >" % TABLE(*rows, **dict(_bgcolor=bgcolor, _border=1,
+                                          _cellborder=0, _cellspacing=0)
+                             ).xml()
+
+
+def bg_graph_model():
+    graph = pgv.AGraph(layout='dot',  directed=True,  strict=False,  rankdir='LR')
+    
+    subgraphs = dict()    
+    for tablename in db.tables:
+        if hasattr(db[tablename],'_meta_graphmodel'):
+            meta_graphmodel = db[tablename]._meta_graphmodel
+        else:
+            meta_graphmodel = dict(group='Undefined', color='#ECECEC')
+        
+        group = meta_graphmodel['group'].replace(' ', '') 
+        if not subgraphs.has_key(group):
+            subgraphs[group] = dict(meta=meta_graphmodel, tables=[])
+            subgraphs[group]['tables'].append(tablename)
+        else:
+            subgraphs[group]['tables'].append(tablename)        
+      
+        graph.add_node(tablename, name=tablename, shape='plaintext',
+                       label=table_template(tablename))
+    
+    for n, key in enumerate(subgraphs.iterkeys()):        
+        graph.subgraph(nbunch=subgraphs[key]['tables'],
+                    name='cluster%d' % n,
+                    style='filled',
+                    color=subgraphs[key]['meta']['color'],
+                    label=subgraphs[key]['meta']['group'])   
+
+    for tablename in db.tables:
+        for field in db[tablename]:
+            f_type = field.type
+            if isinstance(f_type,str) and (
+                f_type.startswith('reference') or
+                f_type.startswith('list:reference')):
+                referenced_table = f_type.split()[1].split('.')[0]
+                n1 = graph.get_node(tablename)
+                n2 = graph.get_node(referenced_table)
+                graph.add_edge(n1, n2, color="#4C4C4C", label='')
+
+    graph.layout()
+    #return graph.draw(format='png', prog='dot')
+    if not request.args:
+        return graph.draw(format='png', prog='dot')
+    else:       
+        response.headers['Content-Disposition']='attachment;filename=graph.%s'%request.args(0)
+        if request.args(0) == 'dot':        
+            return graph.string()
+        else:
+            return graph.draw(format=request.args(0), prog='dot')
+
+def graph_model():    
+    return dict(databases=databases, pgv=pgv)
