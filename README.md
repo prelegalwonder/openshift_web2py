@@ -22,6 +22,7 @@ Add this upstream repo
     cd web2py
     git remote add upstream -m master git://github.com/prelegalwonder/openshift_web2py.git
     git pull -s recursive -X theirs upstream master
+Note: If you want a specific release and not the latest snapshot, replace "master" with the branch name in the above lines (ie. 2.3.2).
     
 Then push the repo upstream
 
