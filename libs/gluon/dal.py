@@ -2664,9 +2664,9 @@ class PostgreSQLAdapter(BaseAdapter):
 
     def CONTAINS(self,first,second,case_sensitive=False):
         if first.type in ('string','text', 'json'):
-            key = '%'+str(second).replace('%','%%')+'%'
+            second = '%'+str(second).replace('%','%%')+'%'
         elif first.type.startswith('list:'):
-            key = '%|'+str(second).replace('|','||').replace('%','%%')+'|%'
+            second = '%|'+str(second).replace('|','||').replace('%','%%')+'|%'
         op = case_sensitive and self.LIKE or self.ILIKE
         return op(first,key)
 
@@ -4505,7 +4505,7 @@ class GoogleDatastoreAdapter(NoSQLAdapter):
             if isinstance(polymodel,Table) and field.name in polymodel.fields():
                 continue
             attr = {}
-            if isinstance(field.custom_qaulifier, dict):
+            if isinstance(field.custom_qualifier, dict):
                 #this is custom properties to add to the GAE field declartion
                 attr = field.custom_qualifier
             field_type = field.type
@@ -9535,6 +9535,10 @@ class Query(object):
                         newd[k] = loop(v.__dict__)
                     elif isinstance(v, SERIALIZABLE_TYPES):
                         newd[k] = v
+                    elif isinstance(v, (datetime.date,
+                                        datetime.time,
+                                        datetime.datetime)):
+                        newd[k] = unicode(v)
                 elif k == "op":
                     if callable(v):
                         newd[k] = v.__name__
