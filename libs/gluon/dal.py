@@ -808,6 +808,8 @@ class BaseAdapter(ConnectionPool):
                                     constraint_name = constraint_name, # should be quoted
                                     foreign_key = '%s (%s)' % (rtablename,
                                                                rfieldname),
+                                    table_name = tablename,
+                                    field_name = field_name,
                                     on_delete_action=field.ondelete)
                     else:
                         # make a guess here for circular references
@@ -1888,6 +1890,8 @@ class BaseAdapter(ConnectionPool):
         return value == True or str(value)[:1].lower() == 't'
 
     def parse_date(self, value, field_type):
+        if isinstance(value, datetime.datetime):
+            return value.date()
         if not isinstance(value, (datetime.date,datetime.datetime)):
             (y, m, d) = map(int, str(value)[:10].strip().split('-'))
             value = datetime.date(y, m, d)
