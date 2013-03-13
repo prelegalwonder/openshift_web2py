@@ -887,9 +887,8 @@ class DIV(XmlComponent):
 
         # get the attributes for this component
         # (they start with '_', others may have special meanings)
-        fa = ''
-        for key in sorted(self.attributes):
-            value = self[key]
+        attr = []
+        for key, value in self.attributes.iteritems():
             if key[:1] != '_':
                 continue
             name = key[1:]
@@ -897,8 +896,16 @@ class DIV(XmlComponent):
                 value = name
             elif value is False or value is None:
                 continue
+            attr.append((name, value))
+        data = self.attributes.get('data',{})
+        for key, value in data.iteritems():
+            name = 'data-' + key
+            value = data[key]
+            attr.append((name,value))
+        attr.sort()
+        fa = ''
+        for name,value in attr:
             fa += ' %s="%s"' % (name, xmlescape(value, True))
-
         # get the xml for the inner components
         co = join([xmlescape(component) for component in
                    self.components])
@@ -1479,7 +1486,7 @@ class A(DIV):
             self['_href'] = self['_href'] or '#null'
         elif self['callback']:
             returnfalse = "var e = arguments[0] || window.event; e.cancelBubble=true; if (e.stopPropagation) {e.stopPropagation(); e.stopImmediatePropagation(); e.preventDefault();}"
-            if d:
+            if d and not self['noconfirm']:
                 self['_onclick'] = "if(confirm(w2p_ajax_confirm_message||'Are you sure you want to delete this object?')){ajax('%s',[],'%s');%s};%s" % \
                     (self['callback'], self['target'] or '', d, returnfalse)
             else:
@@ -2305,7 +2312,7 @@ class BEAUTIFY(DIV):
         for c in self.components:
             if hasattr(c, 'value') and not callable(c.value):
                 if c.value:
-                    components.append(c.value)                        
+                    components.append(c.value)
             if hasattr(c, 'xml') and callable(c.xml):
                 components.append(c)
                 continue

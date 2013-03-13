@@ -20,7 +20,7 @@ def what():
     import urllib
     try:
         images = XML(urllib.urlopen(
-            'http://web2py.com/poweredby/default/images').read())
+            'http://www.web2py.com/poweredby/default/images').read())
     except:
         images = []
     return response.render(images=images)
@@ -61,11 +61,11 @@ def videos():
 
 
 def security():
-    redirect('http://www.web2py.com/book/default/chapter/01#security')
+    redirect('http://www.web2py.com/book/default/chapter/01#Security')
 
 
 def api():
-    redirect('http://web2py.com/book/default/chapter/04#API')
+    redirect('http://www.web2py.com/book/default/chapter/04#API')
 
 
 @cache('license', time_expire=cache_expire)
@@ -74,10 +74,14 @@ def license():
     filename = os.path.join(request.env.gluon_parent, 'LICENSE')
     return response.render(dict(license=MARKMIN(read_file(filename))))
 
-
 def version():
-    return 'Version %s.%s.%s (%s) %s' % request.env.web2py_version
-
+    if request.args(0)=='raw':
+        return request.env.web2py_version
+    from gluon.fileutils import parse_version
+    (a, b, c, pre_release, build) = parse_version(request.env.web2py_version)
+    return 'Version %i.%i.%i (%.4i-%.2i-%.2i %.2i:%.2i:%.2i) %s' % (
+        a,b,c,build.year,build.month,build.day,
+        build.hour,build.minute,build.second,pre_release)
 
 @cache('examples', time_expire=cache_expire)
 def examples():

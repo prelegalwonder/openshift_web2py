@@ -117,6 +117,7 @@ Supported DAL URI strings:
 'firebird_embedded://username:password@c://path'
 'informix://user:password@server:3050/database'
 'informixu://user:password@server:3050/database' # unicode informix
+'ingres://database'  # or use an ODBC connection string, e.g. 'ingres://dsn=dsn_name'
 'google:datastore' # for google app engine datastore
 'google:sql' # for google app engine with sql (mysql compatible)
 'teradata://DSN=dsn;UID=user;PWD=pass; DATABASE=database' # experimental
@@ -350,8 +351,9 @@ if not 'google' in DRIVERS:
         DRIVERS.append('MSSQL(pyodbc)')
         DRIVERS.append('DB2(pyodbc)')
         DRIVERS.append('Teradata(pyodbc)')
+        DRIVERS.append('Ingres(pyodbc)')
     except ImportError:
-        LOGGER.debug('no MSSQL/DB2/Teradata driver pyodbc')
+        LOGGER.debug('no MSSQL/DB2/Teradata/Ingres driver pyodbc')
 
     try:
         import Sybase
@@ -412,13 +414,6 @@ if not 'google' in DRIVERS:
     except ImportError:
         LOGGER.debug('no SQLite/PostgreSQL driver zxJDBC')
         is_jdbc = False
-
-    try:
-        import ingresdbi
-        DRIVERS.append('Ingres(ingresdbi)')
-    except ImportError:
-        LOGGER.debug('no Ingres driver ingresdbi')
-    # NOTE could try JDBC.......
 
     try:
         import couchdb
@@ -2668,7 +2663,7 @@ class PostgreSQLAdapter(BaseAdapter):
         elif first.type.startswith('list:'):
             second = '%|'+str(second).replace('|','||').replace('%','%%')+'|%'
         op = case_sensitive and self.LIKE or self.ILIKE
-        return op(first,key)
+        return op(first,second)
 
     # GIS functions
 
@@ -3455,9 +3450,9 @@ class FireBirdAdapter(BaseAdapter):
 
     def CONTAINS(self, first, second, case_sensitive=False):
         if first.type in ('string','text'):
-            key = str(second).replace('%','%%')
+            second = str(second).replace('%','%%')
         elif first.type.startswith('list:'):
-            key = '|'+str(second).replace('|','||').replace('%','%%')+'|'
+            second = '|'+str(second).replace('|','||').replace('%','%%')+'|'
         return self.CONTAINING(first,second)
 
     def _drop(self,table,mode):
@@ -3862,7 +3857,7 @@ INGRES_SEQNAME='ii***lineitemsequence' # NOTE invalid database object name
                                        # to be a delimited identifier)
 
 class IngresAdapter(BaseAdapter):
-    drivers = ('ingresdbi',)
+    drivers = ('pyodbc',)
 
     types = {
         'boolean': 'CHAR(1)',
@@ -3913,6 +3908,7 @@ class IngresAdapter(BaseAdapter):
                  adapter_args={}, do_connect=True, after_connection=None):
         self.db = db
         self.dbengine = "ingres"
+        self._driver = pyodbc
         self.uri = uri
         if do_connect: self.find_driver(adapter_args,uri)
         self.pool_size = pool_size
@@ -3920,22 +3916,27 @@ class IngresAdapter(BaseAdapter):
         self.db_codec = db_codec
         self._after_connection = after_connection
         self.find_or_make_work_folder()
-        connstr = self._uri.split(':', 1)[1]
+        connstr = uri.split(':', 1)[1]
         # Simple URI processing
         connstr = connstr.lstrip()
         while connstr.startswith('/'):
             connstr = connstr[1:]
-        database_name=connstr # Assume only (local) dbname is passed in
-        vnode = '(local)'
-        servertype = 'ingres'
-        trace = (0, None) # No tracing
-        driver_args.update(database=database_name,
-                           vnode=vnode,
-                           servertype=servertype,
-                           trace=trace)
-        def connector(driver_args=driver_args):
-            return self.driver.connect(**driver_args)
+        if '=' in connstr:
+            # Assume we have a regular ODBC connection string and just use it
+            ruri  = connstr
+        else:
+            # Assume only (local) dbname is passed in with OS auth
+            database_name = connstr
+            default_driver_name = 'Ingres'
+            vnode = '(local)'
+            servertype = 'ingres'
+            ruri = 'Driver={%s};Server=%s;Database=%s' % (default_driver_name, vnode, database_name)
+        def connector(cnxn=ruri,driver_args=driver_args):
+            return self.driver.connect(cnxn,**driver_args)
+
         self.connector = connector
+        
+        # TODO if version is >= 10, set types['id'] to Identity column, see http://community.actian.com/wiki/Using_Ingres_Identity_Columns
         if do_connect: self.reconnect()
 
     def create_sequence_and_triggers(self, query, table, **args):
@@ -3961,12 +3962,12 @@ class IngresAdapter(BaseAdapter):
         return int(self.cursor.fetchone()[0]) # don't really need int type cast here...
 
     def integrity_error_class(self):
-        return ingresdbi.IntegrityError
+        return self._driver.IntegrityError
 
 
 class IngresUnicodeAdapter(IngresAdapter):
 
-    drivers = ('ingresdbi',)
+    drivers = ('pyodbc',)
 
     types = {
         'boolean': 'CHAR(1)',
@@ -4464,7 +4465,7 @@ class GoogleDatastoreAdapter(NoSQLAdapter):
                  adapter_args={}, do_connect=True, after_connection=None):
         self.types.update({
                 'boolean': gae.BooleanProperty,
-                'string': (lambda: gae.StringProperty(multiline=True)),
+                'string': (lambda **kwargs: gae.StringProperty(multiline=True, **kwargs)),
                 'text': gae.TextProperty,
                 'json': gae.TextProperty,
                 'password': gae.StringProperty,
@@ -4480,9 +4481,9 @@ class GoogleDatastoreAdapter(NoSQLAdapter):
                 'datetime': gae.DateTimeProperty,
                 'id': None,
                 'reference': gae.IntegerProperty,
-                'list:string': (lambda: gae.StringListProperty(default=None)),
-                'list:integer': (lambda: gae.ListProperty(int,default=None)),
-                'list:reference': (lambda: gae.ListProperty(int,default=None)),
+                'list:string': (lambda **kwargs: gae.StringListProperty(default=None, **kwargs)),
+                'list:integer': (lambda **kwargs: gae.ListProperty(int,default=None, **kwargs)),
+                'list:reference': (lambda **kwargs: gae.ListProperty(int,default=None, **kwargs)),
                 })
         self.db = db
         self.uri = uri
@@ -9234,7 +9235,11 @@ class Field(Expression):
             dest_file.close()
         return newfilename
 
-    def retrieve(self, name, path=None):
+    def retrieve(self, name, path=None, nameonly=False):
+        """
+        if nameonly==True return (filename, fullfilename) instead of 
+        (filename, stream)
+        """
         self_uploadfield = self.uploadfield
         if self.custom_retrieve:
             return self.custom_retrieve(name, path)
@@ -9262,7 +9267,12 @@ class Field(Expression):
             stream = self.uploadfs.open(name, 'rb')
         else:
             # ## if file is on regular filesystem
-            stream = pjoin(file_properties['path'], name)
+            # this is intentially a sting with filename and not a stream
+            # this propagates and allows stream_file_or_304_or_206 to be called
+            fullname = pjoin(file_properties['path'],name)
+            if nameonly:
+                return (filename, fullname)
+            stream = open(fullname,'rb')
         return (filename, stream)
 
     def retrieve_file_properties(self, name, path=None):

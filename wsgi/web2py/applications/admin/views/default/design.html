@@ -7,7 +7,7 @@ def peekfile(path,file,vars={},title=None):
 	return A(file.replace('\\\\','/'),_title=title,_href=URL('peek', args=args, vars=vars))
 def editfile(path,file,vars={}):
 	args=(path,file) if 'app' in vars else (app,path,file)
-	return A(SPAN(T('Edit')),_class='button editbutton btn',_href=URL('edit', args=args, vars=vars))
+	return A(SPAN(T('Edit')),_class='button editbutton btn btn-mini',_href=URL('edit', args=args, vars=vars))
 def testfile(path,file):
 	return A(TAG[''](IMG(_src=URL('static', 'images/test_icon.png'), _alt=T('test')), 
 						SPAN(T("Run tests in this file (to run all files, you may also use the button labelled 'test')"))), 
@@ -17,9 +17,9 @@ def testfile(path,file):
 						**{'_data-placement':'right',
 							'_data-original-title':T("Run tests in this file (to run all files, you may also use the button labelled 'test')")})
 def editlanguagefile(path,file,vars={}):
-	return A(SPAN(T('Edit')),_class='button editbutton btn',_href=URL('edit_language', args=(app, path, file), vars=vars))
+	return A(SPAN(T('Edit')),_class='button editbutton btn btn-mini',_href=URL('edit_language', args=(app, path, file), vars=vars))
 def editpluralsfile(path,file,vars={}):
-	return A(SPAN(T('Edit')),_class='button editbutton btn',_href=URL('edit_plurals', args=(app, path, file), vars=vars))
+	return A(SPAN(T('Edit')),_class='button editbutton btn btn-mini',_href=URL('edit_plurals', args=(app, path, file), vars=vars))
 def file_upload_form(location, anchor=None):
 	form=FORM(
 			LABEL(T("upload file:")),
@@ -125,9 +125,10 @@ def deletefile(arglist, vars={}):
 	</ul>
 	{{pass}}
 	<div class="controls formfield">
-		<div class="row-fluid">
-			<div class="span3">{{=file_create_form('%s/models/' % app, 'models')}}</div>
-		</div>
+	  <button onclick="jQuery('#form1').slideToggle()" class="btn btn-mini">Create</button>
+	  <div id="form1" class="row-fluid" style="display:none">
+	    <div class="span3">{{=file_create_form('%s/models/' % app, 'models')}}</div>
+	  </div>
 	</div>
 </div>
 
@@ -172,9 +173,10 @@ for c in controllers: controller_functions+=[c[:-3]+'/%s.html'%x for x in functi
 	</ul>
 	{{pass}}
 	<div class="controls formfield">
-		<div class="row-fluid">
-			<div class="span3">{{=file_create_form('%s/controllers/' % app, 'controllers')}}</div>
-		</div>
+	  <button onclick="jQuery('#form2').slideToggle()" class="btn btn-mini">Create</button>
+	  <div id="form2" class="row-fluid" style="display:none">
+	    <div class="span3">{{=file_create_form('%s/controllers/' % app, 'controllers')}}</div>
+	  </div>
 	</div>
 </div>
 
@@ -211,9 +213,10 @@ for c in controllers: controller_functions+=[c[:-3]+'/%s.html'%x for x in functi
 	</ul>
 	{{pass}}
 	<div class="controls formfield">
-		<div class="row-fluid">
-			<div class="span3">{{=file_create_form('%s/views/' % app, 'views')}}</div>
-		</div>
+	  <button onclick="jQuery('#form3').slideToggle()" class="btn btn-mini">Create</button>
+	  <div id="form3" class="row-fluid" style="display:none">
+	    <div class="span3">{{=file_create_form('%s/views/' % app, 'views')}}</div>
+	  </div>
 	</div>
 </div>
 
@@ -274,9 +277,10 @@ for c in controllers: controller_functions+=[c[:-3]+'/%s.html'%x for x in functi
 	</ul>
 	{{pass}}
 	<div class="controls formfield">
-		<div class="row-fluid">
-			<div class="span3">{{=file_create_form('%s/languages/' % app, 'languages', T('(something like "it-it")'))}}</div>
-		</div>
+	  <button onclick="jQuery('#form4').slideToggle()" class="btn btn-mini">Create</button>
+	  <div id="form4" class="row-fluid" style="display:none">
+	    <div class="span3">{{=file_create_form('%s/languages/' % app, 'languages', T('(something like "it-it")'))}}</div>
+	  </div>
 	</div>
 </div>
 
@@ -328,10 +332,11 @@ for c in controllers: controller_functions+=[c[:-3]+'/%s.html'%x for x in functi
 	</ul>
 	{{pass}}
 	<div class="controls formfield">
-		<div class="row-fluid">
-			<div class="span3">{{=file_create_form('%s/static/' % app, 'static')}}<em>{{=T('or alternatively')}}</em></div>
-			<div class="span3">{{=file_upload_form('%s/static/' % app, 'static')}}</div>
-		</div>
+	  <button onclick="jQuery('#form5').slideToggle()" class="btn btn-mini">Create/Upload</button>
+	  <div id="form5" class="row-fluid" style="display:none">
+	    <div class="span3">{{=file_create_form('%s/static/' % app, 'static')}}<em>{{=T('or alternatively')}}</em></div>
+	    <div class="span3">{{=file_upload_form('%s/static/' % app, 'static')}}</div>
+	  </div>
 	</div>
 </div>
 
@@ -363,10 +368,11 @@ for c in controllers: controller_functions+=[c[:-3]+'/%s.html'%x for x in functi
 	</ul>
 	{{pass}}
 	<div class="controls formfield">
-		<div class="row-fluid">
-			<div class="span3">{{=file_create_form('%s/modules/' % app, 'modules')}}<em>{{=T('or alternatively')}}</em></div>
-			<div class="span3">{{=file_upload_form('%s/modules/' % app, 'modules')}}</div>
-		</div>
+	  <button onclick="jQuery('#form5').slideToggle()" class="btn btn-mini">Create/Upload</button>
+	  <div id="form5" class="row-fluid" style="display:none">
+	    <div class="span3">{{=file_create_form('%s/modules/' % app, 'modules')}}<em>{{=T('or alternatively')}}</em></div>
+	    <div class="span3">{{=file_upload_form('%s/modules/' % app, 'modules')}}</div>
+	  </div>
 	</div>
 </div>
 
@@ -419,10 +425,11 @@ for c in controllers: controller_functions+=[c[:-3]+'/%s.html'%x for x in functi
 	{{pass}}
 	</ul>
 	<div class="controls formfield">
-		<div class="row-fluid">
-			<div class="span3">{{=file_create_form('%s/private/' % app, 'private')}}<em>{{=T('or alternatively')}}</em></div>
-			<div class="span3">{{=file_upload_form('%s/private/' % app, 'private')}}</div>
-		</div>
+	  <button onclick="jQuery('#form6').slideToggle()" class="btn btn-mini">Create/Upload</button>
+	  <div id="form6" class="row-fluid" style="display:none">
+	    <div class="span3">{{=file_create_form('%s/private/' % app, 'private')}}<em>{{=T('or alternatively')}}</em></div>
+	    <div class="span3">{{=file_upload_form('%s/private/' % app, 'private')}}</div>
+	  </div>
 	</div>
 </div>
 
@@ -451,10 +458,12 @@ for c in controllers: controller_functions+=[c[:-3]+'/%s.html'%x for x in functi
 	<p><strong>{{=T('There are no plugins')}}</strong></p>
 	{{pass}}
 	<div class="controls formfield">
-		<div class="row-fluid">
-			<div class="span3">{{=upload_plugin_form(app, 'plugins')}}</div>
-		</div>
-	</div>
+	  <button onclick="jQuery('#form7').slideToggle()" class="btn btn-mini">Upload</button>
+	  <div id="form7" class="row-fluid" style="display:none">
+	    <div class="row-fluid">
+	      <div class="span3">{{=upload_plugin_form(app, 'plugins')}}</div>
+	    </div>
+	  </div>
 </div>
 
 <script>
@@ -465,7 +474,7 @@ function filter_files() {
           files=data['files'];
           message=data['message'];
           for(var i=0; i<files.length; i++)
-            jQuery('li#'+files[i].replace(/\//g,'__').replace('.','__')).slideDown();
+            jQuery('li#_'+files[i].replace(/\//g,'__').replace('.','__')).slideDown();
           jQuery('.flash').html(message).slideDown();
           });
       } else {
