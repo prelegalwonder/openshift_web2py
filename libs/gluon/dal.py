@@ -633,6 +633,7 @@ class BaseAdapter(ConnectionPool):
 
     TRUE = 'T'
     FALSE = 'F'
+    T_SEP = ' '
     types = {
         'boolean': 'CHAR(1)',
         'string': 'CHAR(%(length)s)',
@@ -1810,7 +1811,7 @@ class BaseAdapter(ConnectionPool):
                 obj = str(obj)
         elif fieldtype == 'datetime':
             if isinstance(obj, datetime.datetime):
-                obj = obj.isoformat()[:19].replace('T',' ')
+                obj = obj.isoformat(self.T_SEP)[:19]
             elif isinstance(obj, datetime.date):
                 obj = obj.isoformat()[:10]+' 00:00:00'
             else:
@@ -3033,6 +3034,7 @@ class OracleAdapter(BaseAdapter):
 
 class MSSQLAdapter(BaseAdapter):
     drivers = ('pyodbc',)
+    T_SEP = 'T'
 
     types = {
         'boolean': 'BIT',
@@ -8817,6 +8819,8 @@ class Expression(object):
             result_type = 'integer'
         elif self.type in ['date','time','datetime','double','float']:
             result_type = 'double'
+        elif self.type.startswith('decimal('):
+            result_type = self.type
         else:
             raise SyntaxError("subtraction operation not supported for type")
         return Expression(db,db._adapter.SUB,self,other,result_type)
