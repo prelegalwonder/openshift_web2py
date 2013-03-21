@@ -1126,6 +1126,9 @@ class BaseAdapter(ConnectionPool):
     def EPOCH(self, first):
         return self.EXTRACT(first, 'epoch')
 
+    def LENGTH(self, first):
+        return "LENGTH(%s)" % self.expand(first)
+
     def AGGREGATE(self, first, what):
         return "%s(%s)" % (what, self.expand(first))
 
@@ -2260,7 +2263,7 @@ class SpatiaLiteAdapter(SQLiteAdapter):
         # Linux uses libspatialite.so
         # Mac OS X uses libspatialite.dylib
         libspatialite = SPATIALLIBS[platform.system()]
-        self.execute(r'SELECT load_extension("%s");') % libspatialite
+        self.execute(r'SELECT load_extension("%s");' % libspatialite)
 
         self.connection.create_function('web2py_extract', 2,
                                         SQLiteAdapter.web2py_extract)
@@ -3448,6 +3451,9 @@ class FireBirdAdapter(BaseAdapter):
     def SUBSTRING(self,field,parameters):
         return 'SUBSTRING(%s from %s for %s)' % (self.expand(field), parameters[0], parameters[1])
 
+    def LENGTH(self, first):
+        return "CHAR_LENGTH(%s)" % self.expand(first)
+
     def CONTAINING(self,first,second):
         "case in-sensitive like operator"
         return '(%s CONTAINING %s)' % (self.expand(first),
@@ -4422,6 +4428,7 @@ class NoSQLAdapter(BaseAdapter):
     def LOWER(self,first): raise SyntaxError("Not supported")
     def UPPER(self,first): raise SyntaxError("Not supported")
     def EXTRACT(self,first,what): raise SyntaxError("Not supported")
+    def LENGTH(self, first): raise SyntaxError("Not supported")
     def AGGREGATE(self,first,what): raise SyntaxError("Not supported")
     def LEFT_JOIN(self): raise SyntaxError("Not supported")
     def RANDOM(self): raise SyntaxError("Not supported")
@@ -8746,7 +8753,7 @@ class Expression(object):
 
     def len(self):
         db = self.db
-        return Expression(db, db._adapter.AGGREGATE, self, 'LENGTH', 'integer')
+        return Expression(db, db._adapter.LENGTH, self, None, 'integer')
 
     def avg(self):
         db = self.db
