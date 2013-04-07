@@ -223,18 +223,19 @@ def _extractall(filename, path='.', members=None):
     return ret
 
 
-def tar(file, dir, expression='^.+$'):
+def tar(file, dir, expression='^.+$', filenames=None):
     """
     tars dir into file, only tars file that match expression
     """
 
     tar = tarfile.TarFile(file, 'w')
     try:
-        for file in listdir(dir, expression, add_dirs=True):
+        if filenames is None:
+            filenames = listdir(dir, expression, add_dirs=True)
+        for file in filenames:
             tar.add(os.path.join(dir, file), file, False)
     finally:
         tar.close()
-
 
 def untar(file, dir):
     """
@@ -244,14 +245,14 @@ def untar(file, dir):
     _extractall(file, dir)
 
 
-def w2p_pack(filename, path, compiled=False):
+def w2p_pack(filename, path, compiled=False, filenames=None):
     filename = abspath(filename)
     path = abspath(path)
     tarname = filename + '.tar'
     if compiled:
         tar_compiled(tarname, path, '^[\w\.\-]+$')
     else:
-        tar(tarname, path, '^[\w\.\-]+$')
+        tar(tarname, path, '^[\w\.\-]+$', filenames=filenames)
     w2pfp = gzopen(filename, 'wb')
     tarfp = open(tarname, 'rb')
     w2pfp.write(tarfp.read())
@@ -366,16 +367,19 @@ def get_session(request, other_application='admin'):
     return osession
 
 
-def check_credentials(request, other_application='admin', expiration=60 * 60):
+def check_credentials(request, other_application='admin',
+                      expiration=60 * 60, gae_login=True):
     """ checks that user is authorized to access other_application"""
     if request.env.web2py_runtime_gae:
         from google.appengine.api import users
         if users.is_current_user_admin():
             return True
-        else:
+        elif gae_login:
             login_html = '<a href="%s">Sign in with your google account</a>.' \
                 % users.create_login_url(request.env.path_info)
             raise HTTP(200, '<html><body>%s</body></html>' % login_html)
+        else:
+            return False
     else:
         dt = time.time() - expiration
         s = get_session(request, other_application)

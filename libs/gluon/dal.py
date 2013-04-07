@@ -122,6 +122,7 @@ Supported DAL URI strings:
 'google:sql' # for google app engine with sql (mysql compatible)
 'teradata://DSN=dsn;UID=user;PWD=pass; DATABASE=database' # experimental
 'imap://user:password@server:port' # experimental
+'mongodb://user:password@server:port/database' # experimental
 
 For more info:
 help(DAL)
@@ -199,7 +200,7 @@ TABLE_ARGS = set(
 
 SELECT_ARGS = set(
     ('orderby', 'groupby', 'limitby','required', 'cache', 'left',
-     'distinct', 'having', 'join','for_update', 'processor','cacheable'))
+     'distinct', 'having', 'join','for_update', 'processor','cacheable', 'orderby_on_limitby'))
 
 ogetattr = object.__getattribute__
 osetattr = object.__setattr__
@@ -1254,24 +1255,15 @@ class BaseAdapter(ConnectionPool):
         return '(%s LIKE %s)' % (self.expand(first),
                                  self.expand('%'+second, 'string'))
 
-    def CONTAINS(self, first, second, case_sensitive=False):
-        if isinstance(second,Expression):
-            field = self.expand(first)
-            expr = self.expand(second,'string')
-            if first.type.startswith('list:'):
-                expr = 'CONCAT("|", %s, "|")' % expr
-            elif not first.type in ('string', 'text', 'json'):
-                raise RuntimeError("Expression Not Supported")
-            return 'INSTR(%s,%s)' % (field, expr)
-        else:
-            if first.type in ('string', 'text', 'json'):
-                key = '%'+str(second).replace('%','%%')+'%'
-            elif first.type.startswith('list:'):
-                key = '%|'+str(second).replace('|','||').replace('%','%%')+'|%'
-            else:
-                raise RuntimeError("Expression Not Supported")
-            op = case_sensitive and self.LIKE or self.ILIKE
-            return op(first,key)
+    def CONTAINS(self,first,second,case_sensitive=False):     
+        if first.type in ('string','text', 'json'):
+            second = Expression(None,self.CONCAT('%',Expression(
+                        None,self.REPLACE(second,('%','%%'))),'%'))
+        elif first.type.startswith('list:'):
+            second = Expression(None,self.CONCAT('%|',Expression(None,self.REPLACE(
+                        Expression(None,self.REPLACE(second,('%','%%'))),('|','||'))),'|%'))
+        op = case_sensitive and self.LIKE or self.ILIKE
+        return op(first,second)
 
     def EQ(self, first, second=None):
         if second is None:
@@ -1309,9 +1301,24 @@ class BaseAdapter(ConnectionPool):
         return '(%s >= %s)' % (self.expand(first),
                                self.expand(second,first.type))
 
+    def is_numerical_type(self, ftype):
+        return ftype in ('integer','boolean','double','bigint') or \
+            ftype.startswith('decimal')
+
+    def REPLACE(self, first, (second, third)):
+        return 'REPLACE(%s,%s,%s)' % (self.expand(first,'string'), 
+                                      self.expand(second,'string'),
+                                      self.expand(third,'string'))
+
+    def CONCAT(self, *items):
+        return '(%s)' % ' || '.join(self.expand(x,'string') for x in items)
+
     def ADD(self, first, second):
-        return '(%s + %s)' % (self.expand(first),
-                              self.expand(second, first.type))
+        if self.is_numerical_type(first.type):
+            return '(%s + %s)' % (self.expand(first),
+                                  self.expand(second, first.type))
+        else:
+            return self.CONCAT(first, second)
 
     def SUB(self, first, second):
         return '(%s - %s)' % (self.expand(first),
@@ -1502,6 +1509,7 @@ class BaseAdapter(ConnectionPool):
             raise SyntaxError('invalid select attribute: %s' % key)
         args_get = attributes.get
         tablenames = tables(query)
+        tablenames_for_common_filters = tablenames
         for field in fields:
             if isinstance(field, basestring) \
                     and REGEX_TABLE_DOT_FIELD.match(field):
@@ -1528,6 +1536,7 @@ class BaseAdapter(ConnectionPool):
         orderby = args_get('orderby', False)
         having = args_get('having', False)
         limitby = args_get('limitby', False)
+        orderby_on_limitby = args_get('orderby_on_limitby', True)
         for_update = args_get('for_update', False)
         if self.can_select_for_update is False and for_update is True:
             raise SyntaxError('invalid select attribute: for_update')
@@ -1565,6 +1574,8 @@ class BaseAdapter(ConnectionPool):
                     dict.fromkeys(tables(t))) for t in joinon]
             joinont = [t.first._tablename for t in joinon]
             [tables_to_merge.pop(t) for t in joinont if t in tables_to_merge]
+            tablenames_for_common_filters = [t for t in tablenames
+                        if not t in joinont ]
             important_tablenames = joint + joinont + tables_to_merge.keys()
             excluded = [t for t in tablenames
                         if not t in important_tablenames ]
@@ -1572,7 +1583,7 @@ class BaseAdapter(ConnectionPool):
             excluded = tablenames
 
         if use_common_filters(query):
-            query = self.common_filter(query,excluded)
+            query = self.common_filter(query,tablenames_for_common_filters)
         sql_w = ' WHERE ' + self.expand(query) if query else ''
 
         def alias(t):
@@ -1619,7 +1630,7 @@ class BaseAdapter(ConnectionPool):
             else:
                 sql_o += ' ORDER BY %s' % self.expand(orderby)
         if limitby:
-            if not orderby and tablenames:
+            if orderby_on_limitby and not orderby and tablenames:
                 sql_o += ' ORDER BY %s' % ', '.join(['%s.%s'%(t,x) for t in tablenames for x in (hasattr(self.db[t],'_primarykey') and self.db[t]._primarykey or [self.db[t]._id.name])])
             # oracle does not support limitby
         sql = self.select_limitby(sql_s, sql_f, sql_t, sql_w, sql_o, limitby)
@@ -1942,17 +1953,17 @@ class BaseAdapter(ConnectionPool):
         return value
 
     def parse_list_integers(self, value, field_type):
-        if not self.dbengine=='google:datastore':
+        if not isinstance(self, NoSQLAdapter):
             value = bar_decode_integer(value)
         return value
 
     def parse_list_references(self, value, field_type):
-        if not self.dbengine=='google:datastore':
+        if not isinstance(self, NoSQLAdapter):
             value = bar_decode_integer(value)
         return [self.parse_reference(r, field_type[5:]) for r in value]
 
     def parse_list_strings(self, value, field_type):
-        if not self.dbengine=='google:datastore':
+        if not isinstance(self, NoSQLAdapter):
             value = bar_decode_string(value)
         return value
 
@@ -2413,6 +2424,9 @@ class MySQLAdapter(BaseAdapter):
     def EPOCH(self, first):
         return "UNIX_TIMESTAMP(%s)" % self.expand(first)
 
+    def CONCAT(self, *items):
+        return 'CONCAT(%s)' % ','.join(self.expand(x,'string') for x in items)
+
     def REGEXP(self,first,second):
         return '(%s REGEXP %s)' % (self.expand(first),
                                    self.expand(second,'string'))
@@ -2609,7 +2623,11 @@ class PostgreSQLAdapter(BaseAdapter):
                    "port=%s password='%s'") \
                    % (db, user, host, port, password)
         # choose diver according uri
-        self.__version__ = "%s %s" % (self.driver.__name__, self.driver.__version__)
+        if self.driver:
+            self.__version__ = "%s %s" % (self.driver.__name__,
+                                          self.driver.__version__)
+        else:
+            self.__version__ = None
         def connector(msg=msg,driver_args=driver_args):
             return self.driver.connect(msg,**driver_args)
         self.connector = connector
@@ -2663,14 +2681,6 @@ class PostgreSQLAdapter(BaseAdapter):
     def ENDSWITH(self,first,second):
         return '(%s ILIKE %s)' % (self.expand(first),
                                   self.expand('%'+second,'string'))
-
-    def CONTAINS(self,first,second,case_sensitive=False):
-        if first.type in ('string','text', 'json'):
-            second = '%'+str(second).replace('%','%%')+'%'
-        elif first.type.startswith('list:'):
-            second = '%|'+str(second).replace('|','||').replace('%','%%')+'|%'
-        op = case_sensitive and self.LIKE or self.ILIKE
-        return op(first,second)
 
     # GIS functions
 
@@ -3106,7 +3116,9 @@ class MSSQLAdapter(BaseAdapter):
             (lmin, lmax) = limitby
             sql_s += ' TOP %i' % lmax
         if 'GROUP BY' in sql_o:
-            sql_o = sql_o[:sql_o.find('ORDER BY ')]
+            orderfound = sql_o.find('ORDER BY ')
+            if orderfound >= 0:
+                sql_o = sql_o[:orderfound]
         return 'SELECT %s %s FROM %s%s%s;' % (sql_s, sql_f, sql_t, sql_w, sql_o)
 
     TRUE = 1
@@ -3195,6 +3207,9 @@ class MSSQLAdapter(BaseAdapter):
 
     def EPOCH(self, first):
         return "DATEDIFF(second, '1970-01-01 00:00:00', %s)" % self.expand(first)
+
+    def CONCAT(self, *items):
+        return '(%s)' % ' + '.join(self.expand(x,'string') for x in items)
 
     # GIS Spatial Extensions
 
@@ -3454,17 +3469,12 @@ class FireBirdAdapter(BaseAdapter):
     def LENGTH(self, first):
         return "CHAR_LENGTH(%s)" % self.expand(first)
 
-    def CONTAINING(self,first,second):
-        "case in-sensitive like operator"
+    def CONTAINS(self,first,second,case_sensitive=False):
+        if first.type.startswith('list:'):
+            second = Expression(None,self.CONCAT('|',Expression(
+                        None,self.REPLACE(second,('|','||'))),'|'))
         return '(%s CONTAINING %s)' % (self.expand(first),
                                        self.expand(second, 'string'))
-
-    def CONTAINS(self, first, second, case_sensitive=False):
-        if first.type in ('string','text'):
-            second = str(second).replace('%','%%')
-        elif first.type.startswith('list:'):
-            second = '|'+str(second).replace('|','||').replace('%','%%')+'|'
-        return self.CONTAINING(first,second)
 
     def _drop(self,table,mode):
         sequence_name = table._sequence_name
@@ -4364,13 +4374,14 @@ class NoSQLAdapter(BaseAdapter):
             elif fieldtype == 'blob':
                 pass
             elif fieldtype == 'json':
-                obj = self.to_unicode(obj)
-                if have_serializers:
-                    obj = serializers.loads_json(obj)
-                elif simplejson:
-                    obj = simplejson.loads(obj)
-                else:
-                    raise RuntimeError("missing simplejson")
+                if isinstance(obj, basestring):
+                    obj = self.to_unicode(obj)
+                    if have_serializers:
+                        obj = serializers.loads_json(obj)
+                    elif simplejson:
+                        obj = simplejson.loads(obj)
+                    else:
+                        raise RuntimeError("missing simplejson")
             elif is_string and field_is_type('list:string'):
                 return map(self.to_unicode,obj)
             elif is_list:
@@ -5188,6 +5199,7 @@ class MongoDBAdapter(NoSQLAdapter):
                                  "Requires an integer or base 16 value")
         elif isinstance(arg, self.ObjectId):
             return arg
+
         if not isinstance(arg, (int, long)):
             raise TypeError("object_id argument must be of type " +
                             "ObjectId or an objectid representable integer")
@@ -5197,8 +5209,26 @@ class MongoDBAdapter(NoSQLAdapter):
             hexvalue = hex(arg)[2:].replace("L", "")
         return self.ObjectId(hexvalue)
 
+    def parse_reference(self, value, field_type):
+        # here we have to check for ObjectID before base parse
+        if isinstance(value, self.ObjectId):
+            value = int(str(value), 16)
+        return super(MongoDBAdapter,
+                     self).parse_reference(value, field_type)
+
+    def parse_id(self, value, field_type):
+        if isinstance(value, self.ObjectId):
+            value = int(str(value), 16)
+        return super(MongoDBAdapter,
+                     self).parse_id(value, field_type)
+
     def represent(self, obj, fieldtype):
-        value = NoSQLAdapter.represent(self, obj, fieldtype)
+        # the base adatpter does not support MongoDB ObjectId
+        if isinstance(obj, self.ObjectId):
+            value = obj
+        else:
+            value = NoSQLAdapter.represent(self, obj, fieldtype)
+        # reference types must be convert to ObjectID
         if fieldtype  =='date':
             if value == None:
                 return value
@@ -5215,15 +5245,24 @@ class MongoDBAdapter(NoSQLAdapter):
             # mongodb doesn't has a  time object and so it must datetime,
             # string or integer
             return datetime.datetime.combine(d, value)
-        elif fieldtype == 'list:string' or \
-             fieldtype == 'list:integer' or \
-             fieldtype == 'list:reference':
+        elif (isinstance(fieldtype, basestring) and
+              fieldtype.startswith('list:')):
+            if fieldtype.startswith('list:reference'):
+                newval = []
+                for v in value:
+                    newval.append(self.object_id(v))
+                return newval
             return value
+        elif ((isinstance(fieldtype, basestring) and
+               fieldtype.startswith("reference")) or
+               (isinstance(fieldtype, Table))):
+            value = self.object_id(value)
+
         return value
 
     # Safe determines whether a asynchronious request is done or a
     # synchronious action is done
-    # For safety, we use by default synchronious requests
+    # For safety, we use by default synchronous requests
     def insert(self, table, fields, safe=None):
         if safe==None:
             safe = self.safe
@@ -5271,14 +5310,18 @@ class MongoDBAdapter(NoSQLAdapter):
                 if expression.first.type == 'id':
                     expression.first.name = '_id'
                 # cast to Mongo ObjectId
-                expression.second = self.object_id(expression.second)
+                if isinstance(expression.second, (tuple, list, set)):
+                    expression.second = [self.object_id(item) for
+                                         item in expression.second]
+                else:
+                    expression.second = self.object_id(expression.second)
                 result = expression.op(expression.first, expression.second)
+
         if isinstance(expression, Field):
             if expression.type=='id':
                 result = "_id"
             else:
                 result =  expression.name
-
         elif isinstance(expression, (Expression, Query)):
             if not expression.second is None:
                 result = expression.op(expression.first, expression.second)
@@ -5289,7 +5332,7 @@ class MongoDBAdapter(NoSQLAdapter):
             else:
                 result = expression.op
         elif field_type:
-            result = str(self.represent(expression,field_type))
+            result = self.represent(expression,field_type)
         elif isinstance(expression,(list,tuple)):
             result = ','.join(self.represent(item,field_type) for
                               item in expression)
@@ -5343,7 +5386,6 @@ class MongoDBAdapter(NoSQLAdapter):
         else:
             raise SyntaxError("The table name could not be found in " +
                               "the query nor from the select statement.")
-
         mongoqry_dict = self.expand(query)
         fields = fields or self.db[tablename]
         for field in fields:
@@ -5393,15 +5435,12 @@ class MongoDBAdapter(NoSQLAdapter):
                 # record id's
                 if fieldname == "id": fieldname = "_id"
                 if fieldname in record:
-                    if isinstance(record[fieldname],
-                                  self.ObjectId):
-                        value = int(str(record[fieldname]), 16)
-                    else:
-                        value = record[fieldname]
+                    value = record[fieldname]
                 else:
                     value = None
                 row.append(value)
             rows.append(row)
+
         processor = attributes.get('processor', self.parse)
         result = processor(rows, fields, newnames, False)
         return result
@@ -5501,7 +5540,7 @@ class MongoDBAdapter(NoSQLAdapter):
     def BELONGS(self, first, second):
         if isinstance(second, str):
             return {self.expand(first) : {"$in" : [ second[:-1]]} }
-        elif second==[] or second==():
+        elif second==[] or second==() or second==set():
             return {1:0}
         items = [self.expand(item, first.type) for item in second]
         return {self.expand(first) : {"$in" : items} }
@@ -8770,6 +8809,10 @@ class Expression(object):
     def upper(self):
         db = self.db
         return Expression(db, db._adapter.UPPER, self, None, self.type)
+
+    def replace(self,a,b):
+        db = self.db
+        return Expression(db, db._adapter.REPLACE, self, (a,b), self.type)
 
     def year(self):
         db = self.db

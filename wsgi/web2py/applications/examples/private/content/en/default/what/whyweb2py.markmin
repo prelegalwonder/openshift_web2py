@@ -47,7 +47,7 @@ Here is a more complex complete application that lets the visitor upload images 
 ``
 db=DAL('sqlite://storage.db')
 db.define_table('image', 
-    Field('name'),
+    Field('name', notnull=True),
     Field('file','upload'))
 ``:code_python
 
@@ -55,10 +55,10 @@ db.define_table('image',
 
 ``
 def index():
-    form = SQLFORM(db.image)
-    if form.process().accepted:
+    form = SQLFORM(db.image).process()
+    if form.accepted:
         response.flash = 'image uploaded'
-    return dict(form = form)""",counter=None,_class='boxCode')}}
+    return locals()
 ``:code_python
 
 ### In View
@@ -66,7 +66,7 @@ def index():
 ``
 {{extend 'layout.html'}}
 <h1>Image upload form</h1>
-{{form}}
+{{=form}}
 ``:code_python
    
     Uploaded images are safely renamed to avoid directory traversal vulnerabilities, stored on the filesystem (or database) and a corresponding entry is inserted in the database, linking the file. A built-in mechanism prevents involuntary double form submission. All DB IO is transaction safe by default. Any exception in the code causes the transaction to rollback.

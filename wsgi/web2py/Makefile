@@ -30,7 +30,7 @@ update:
 	echo "remember that pymysql was tweaked"
 src:
 	### Use semantic versioning
-	echo 'Version 2.4.5-stable+timestamp.'`date +%Y.%m.%d.%H.%M.%S` > VERSION
+	echo 'Version 2.4.6-stable+timestamp.'`date +%Y.%m.%d.%H.%M.%S` > VERSION
 	### rm -f all junk files
 	make clean
 	### clean up baisc apps
@@ -114,7 +114,6 @@ commit:
 	make src
 	echo '' > NEWINSTALL
 	hg commit -m "$(S)"
-	#bzr commit -m "$(S)"
 	git commit -a -m "$(S)"
 push:
 	hg push

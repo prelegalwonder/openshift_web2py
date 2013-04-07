@@ -32,6 +32,7 @@ except ImportError:
     JSONErrors += (JSONDecodeError,)
 
 __all__ = [
+    'ANY_OF',
     'CLEANUP',
     'CRYPT',
     'IS_ALPHANUMERIC',
@@ -49,6 +50,7 @@ __all__ = [
     'IS_IN_SET',
     'IS_INT_IN_RANGE',
     'IS_IPV4',
+    'IS_IPV6',
     'IS_LENGTH',
     'IS_LIST_OF',
     'IS_LOWER',
@@ -650,7 +652,7 @@ class IS_NOT_IN_DB(Validator):
             if row and any(str(row[f]) != str(id[f]) for f in id):
                 return (value, translate(self.error_message))
         else:
-            row = subset.select(table._id, limitby=(0, 1)).first()
+            row = subset.select(table._id, field, limitby=(0, 1)).first()
             if row and str(row.id) != str(id):
                 return (value, translate(self.error_message))
         return (value, None)
@@ -2591,6 +2593,38 @@ class IS_SLUG(Validator):
         return (urlify(value, self.maxlen, self.keep_underscores), None)
 
 
+class ANY_OF(Validator):
+    """
+    test if any of the validators in a list return successfully
+
+    >>> ANY_OF([IS_EMAIL(),IS_ALPHANUMERIC()])('a@b.co')
+    ('a@b.co', None)
+    >>> ANY_OF([IS_EMAIL(),IS_ALPHANUMERIC()])('abco')
+    ('abco', None)
+    >>> ANY_OF([IS_EMAIL(),IS_ALPHANUMERIC()])('@ab.co')
+    ('@ab.co', 'enter only letters, numbers, and underscore')
+    >>> ANY_OF([IS_ALPHANUMERIC(),IS_EMAIL()])('@ab.co')
+    ('@ab.co', 'enter a valid email address')
+    """
+
+    def __init__(self, subs):
+        self.subs = subs
+
+    def __call__(self, value):
+        for validator in self.subs:
+            value, error = validator(value)
+            if error == None:
+                break
+        return value, error
+
+    def formatter(self, value):
+        # Use the formatter of the first subvalidator
+        # that validates the value and has a formatter
+        for validator in self.subs:
+            if hasattr(validator, 'formatter') and validator(value)[1] != None:
+                return validator.formatter(value)
+
+
 class IS_EMPTY_OR(Validator):
     """
     dummy class for testing IS_EMPTY_OR
@@ -3386,6 +3420,147 @@ class IS_IPV4(Validator):
             if ok:
                 return (value, None)
         return (value, translate(self.error_message))
+
+class IS_IPV6(Validator):
+    """
+    Checks if field's value is an IP version 6 address. First attempts to
+    use the ipaddress library and falls back to contrib/ipaddr.py from Google
+    (https://code.google.com/p/ipaddr-py/)
+
+    Arguments:
+    is_private: None (default): indifferent
+                True (enforce): address must be in fc00::/7 range
+                False (forbid): address must NOT be in fc00::/7 range
+    is_link_local: Same as above but uses fe80::/10 range
+    is_reserved: Same as above but uses IETF reserved range
+    is_mulicast: Same as above but uses ff00::/8 range
+    is_routeable: Similar to above but enforces not private, link_local,
+                  reserved or multicast
+    is_6to4: Same as above but uses 2002::/16 range
+    is_teredo: Same as above but uses 2001::/32 range
+    subnets: value must be a member of at least one from list of subnets
+
+    Examples:
+
+        #Check for valid IPv6 address:
+        INPUT(_type='text', _name='name', requires=IS_IPV6())
+
+        #Check for valid IPv6 address is a link_local address:
+        INPUT(_type='text', _name='name', requires=IS_IPV6(is_link_local=True))
+
+        #Check for valid IPv6 address that is Internet routeable:
+        INPUT(_type='text', _name='name', requires=IS_IPV6(is_routeable=True))
+
+        #Check for valid IPv6 address in specified subnet:
+        INPUT(_type='text', _name='name', requires=IS_IPV6(subnets=['2001::/32'])
+
+    >>> IS_IPV6()('fe80::126c:8ffa:fe22:b3af')
+    ('fe80::126c:8ffa:fe22:b3af', None)
+    >>> IS_IPV6()('192.168.1.1')
+    ('192.168.1.1', 'enter valid IPv6 address')
+    >>> IS_IPV6(error_message='bad ip')('192.168.1.1')
+    ('192.168.1.1', 'bad ip')
+    >>> IS_IPV6(is_link_local=True)('fe80::126c:8ffa:fe22:b3af')
+    ('fe80::126c:8ffa:fe22:b3af', None)
+    >>> IS_IPV6(is_link_local=False)('fe80::126c:8ffa:fe22:b3af')
+    ('fe80::126c:8ffa:fe22:b3af', 'enter valid IPv6 address')
+    >>> IS_IPV6(is_link_local=True)('2001::126c:8ffa:fe22:b3af')
+    ('2001::126c:8ffa:fe22:b3af', 'enter valid IPv6 address')
+    >>> IS_IPV6(is_multicast=True)('2001::126c:8ffa:fe22:b3af')
+    ('2001::126c:8ffa:fe22:b3af', 'enter valid IPv6 address')
+    >>> IS_IPV6(is_multicast=True)('ff00::126c:8ffa:fe22:b3af')
+    ('ff00::126c:8ffa:fe22:b3af', None)
+    >>> IS_IPV6(is_routeable=True)('2001::126c:8ffa:fe22:b3af')
+    ('2001::126c:8ffa:fe22:b3af', None)
+    >>> IS_IPV6(is_routeable=True)('ff00::126c:8ffa:fe22:b3af')
+    ('ff00::126c:8ffa:fe22:b3af', 'enter valid IPv6 address')
+    >>> IS_IPV6(subnets='2001::/32')('2001::8ffa:fe22:b3af')
+    ('2001::8ffa:fe22:b3af', None)
+    >>> IS_IPV6(subnets='fb00::/8')('2001::8ffa:fe22:b3af')
+    ('2001::8ffa:fe22:b3af', 'enter valid IPv6 address')
+    >>> IS_IPV6(subnets=['fc00::/8','2001::/32'])('2001::8ffa:fe22:b3af')
+    ('2001::8ffa:fe22:b3af', None)
+    >>> IS_IPV6(subnets='invalidsubnet')('2001::8ffa:fe22:b3af')
+    ('2001::8ffa:fe22:b3af', 'invalid subnet provided')
+    
+    """
+
+    def __init__(
+            self,
+            is_private=None,
+            is_link_local=None,
+            is_reserved=None,
+            is_multicast=None,
+            is_routeable=None,
+            is_6to4=None,
+            is_teredo=None,
+            subnets=None,
+            error_message='enter valid IPv6 address'):
+        self.is_private = is_private
+        self.is_link_local = is_link_local
+        self.is_reserved = is_reserved
+        self.is_multicast = is_multicast
+        self.is_routeable = is_routeable
+        self.is_6to4 = is_6to4
+        self.is_teredo = is_teredo
+        self.subnets = subnets
+        self.error_message = error_message
+
+    def __call__(self, value):
+        try:
+            import ipaddress
+        except ImportError:
+            from contrib import ipaddr as ipaddress
+
+        try:
+            ip = ipaddress.IPv6Address(value)
+            ok = True
+        except ipaddress.AddressValueError:
+            return (value, translate(self.error_message))
+
+        if self.subnets:
+            # iterate through self.subnets to see if value is a member
+            ok = False
+            if isinstance(self.subnets, str):
+                self.subnets = [self.subnets]
+            for network in self.subnets:
+                try:
+                    ipnet = ipaddress.IPv6Network(network)
+                except (ipaddress.NetmaskValueError, ipaddress.AddressValueError):
+                    return (value, translate('invalid subnet provided'))
+                if ip in ipnet:
+                    ok = True
+
+        if self.is_routeable:
+            self.is_private = False
+            self.is_link_local = False
+            self.is_reserved = False
+            self.is_multicast = False
+
+        if not (self.is_private is None or self.is_private ==
+                ip.is_private):
+            ok = False
+        if not (self.is_link_local is None or self.is_link_local ==
+                ip.is_link_local):
+            ok = False
+        if not (self.is_reserved is None or self.is_reserved ==
+                ip.is_reserved):
+            ok = False
+        if not (self.is_multicast is None or self.is_multicast ==
+                ip.is_multicast):
+            ok = False
+        if not (self.is_6to4 is None or self.is_6to4 ==
+                ip.is_6to4):
+            ok = False
+        if not (self.is_teredo is None or self.is_teredo ==
+                ip.is_teredo):
+            ok = False
+
+        if ok:
+            return (value, None)
+
+        return (value, translate(self.error_message))
+
 
 if __name__ == '__main__':
     import doctest
