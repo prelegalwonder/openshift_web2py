@@ -892,6 +892,7 @@ class Auth(object):
         username_case_sensitive=True,
         update_fields = ['email'],
         ondelete="CASCADE",
+        wiki = Settings(),
     )
         # ## these are messages that can be customized
     default_messages = dict(
@@ -3369,7 +3370,11 @@ class Auth(object):
              extra=None,
              menu_groups=None,
              templates=None,
-             migrate=True):
+             migrate=True,
+             controller=None,
+             function=None):
+
+        if controller and function: resolve = False
 
         if not hasattr(self, '_wiki'):
             self._wiki = Wiki(self, render=render,
@@ -3379,9 +3384,12 @@ class Auth(object):
                               env=env, extra=extra or {},
                               menu_groups=menu_groups,
                               templates=templates,
-                              migrate=migrate)
+                              migrate=migrate,
+                              controller=controller,
+                              function=function)
         else:
             self._wiki.env.update(env or {})
+
         # if resolve is set to True, process request as wiki call
         # resolve=False allows initial setup without wiki redirection
         wiki = None
@@ -3397,6 +3405,13 @@ class Auth(object):
             if isinstance(wiki, basestring):
                 wiki = XML(wiki)
             return wiki
+
+    def wikimenu(self):
+        """to be used in menu.py for app wide wiki menus"""
+        if (hasattr(self, "_wiki") and
+            self._wiki.settings.controller and
+            self._wiki.settings.function):
+            self._wiki.automenu()
 
 
 class Crud(object):
@@ -4977,9 +4992,10 @@ class Wiki(object):
     def __init__(self, auth, env=None, render='markmin',
                  manage_permissions=False, force_prefix='',
                  restrict_search=False, extra=None,
-                 menu_groups=None, templates=None, migrate=True):
+                 menu_groups=None, templates=None, migrate=True,
+                 controller=None, function=None):
 
-        settings = self.settings = Settings()
+        settings = self.settings = auth.settings.wiki
 
         # render: "markmin", "html", ..., <function>
         settings.render = render
@@ -4990,11 +5006,14 @@ class Wiki(object):
         settings.extra = extra or {}
         settings.menu_groups = menu_groups
         settings.templates = templates
+        settings.controller = controller
+        settings.function = function
 
         db = auth.db
         self.env = env or {}
         self.env['component'] = Wiki.component
         self.auth = auth
+        self.wiki_menu_items = None
 
         if self.auth.user:
             self.settings.force_prefix = force_prefix % self.auth.user
@@ -5133,10 +5152,20 @@ class Wiki(object):
 
     ### END POLICY
 
+    def automenu(self):
+        """adds the menu if not present"""
+        request = current.request
+        if not self.wiki_menu_items and self.settings.controller and self.settings.function:
+            self.wiki_menu_items = self.menu(self.settings.controller,
+                                             self.settings.function)
+            current.response.menu += self.wiki_menu_items
+
     def __call__(self):
         request = current.request
-        automenu = self.menu(request.controller, request.function)
-        current.response.menu += automenu
+        settings.controller = settings.controller or request.controller
+        settings.function = settings.function or request.function
+        self.automenu()
+
         zero = request.args(0) or 'index'
         if zero and zero.isdigit():
             return self.media(int(zero))
@@ -5263,19 +5292,21 @@ class Wiki(object):
             pagecontent.css('font-family',
                             'Monaco,Menlo,Consolas,"Courier New",monospace');
             var prevbutton = jQuery('<button class="btn nopreview">Preview</button>');
-            var mediabutton = jQuery('<button class="btn nopreview">Media</button>');
             var preview = jQuery('<div id="preview"></div>').hide();
             var previewmedia = jQuery('<div id="previewmedia"></div>');
             var form = pagecontent.closest('form');
             preview.insertBefore(form);
             prevbutton.insertBefore(form);
-            mediabutton.insertBefore(form);
-            previewmedia.insertBefore(form);
-            mediabutton.toggle(function() {
-                web2py_component('%(urlmedia)s', 'previewmedia');
-            }, function() {
-                previewmedia.empty();
-            });
+            if(%(link_media)s) {
+              var mediabutton = jQuery('<button class="btn nopreview">Media</button>');
+              mediabutton.insertBefore(form);
+              previewmedia.insertBefore(form);
+              mediabutton.toggle(function() {
+                  web2py_component('%(urlmedia)s', 'previewmedia');
+              }, function() {
+                  previewmedia.empty();
+              });
+            }
             prevbutton.click(function(e) {
                 e.preventDefault();
                 if (prevbutton.hasClass('nopreview')) {
@@ -5290,7 +5321,7 @@ class Wiki(object):
                 }
             })
         })
-        """ % dict(url=URL(args=('_preview', slug)),
+        """ % dict(url=URL(args=('_preview', slug)),link_media=('true' if page else 'false'),
                    urlmedia=URL(extension='load',
                                 args=('_editmedia',slug),
                                 vars=dict(embedded=1)))
@@ -5415,8 +5446,8 @@ class Wiki(object):
                     items = link[2:].split('/')
                     if len(items) > 3:
                         title_page = items[3]
-                        link = URL(a=items[0] or None, c=items[1] or None,
-                                   f=items[2] or None, args=items[3:])
+                        link = URL(a=items[0] or None, c=items[1] or controller,
+                                   f=items[2] or function, args=items[3:])
                 parent = tree.get(base[1:], tree[''])
                 subtree = []
                 tree[base] = subtree
