@@ -1255,7 +1255,7 @@ class BaseAdapter(ConnectionPool):
         return '(%s LIKE %s)' % (self.expand(first),
                                  self.expand('%'+second, 'string'))
 
-    def CONTAINS(self,first,second,case_sensitive=False):     
+    def CONTAINS(self,first,second,case_sensitive=False):
         if first.type in ('string','text', 'json'):
             second = Expression(None,self.CONCAT('%',Expression(
                         None,self.REPLACE(second,('%','%%'))),'%'))
@@ -1306,7 +1306,7 @@ class BaseAdapter(ConnectionPool):
             ftype.startswith('decimal')
 
     def REPLACE(self, first, (second, third)):
-        return 'REPLACE(%s,%s,%s)' % (self.expand(first,'string'), 
+        return 'REPLACE(%s,%s,%s)' % (self.expand(first,'string'),
                                       self.expand(second,'string'),
                                       self.expand(third,'string'))
 
@@ -6851,6 +6851,9 @@ class Row(object):
     def __int__(self):
         return object.__getattribute__(self,'id')
 
+    def __long__(self):
+        return long(object.__getattribute__(self,'id'))
+
     def __eq__(self,other):
         try:
             return self.as_dict() == other.as_dict()
@@ -9575,8 +9578,12 @@ class Query(object):
     def __and__(self, other):
         return Query(self.db,self.db._adapter.AND,self,other)
 
+    __rand__ = __and__
+
     def __or__(self, other):
         return Query(self.db,self.db._adapter.OR,self,other)
+
+    __ror__ = __or__
 
     def __invert__(self):
         if self.op==self.db._adapter.NOT:
@@ -9833,7 +9840,7 @@ class Set(object):
         return built
 
     def isempty(self):
-        return not self.select(limitby=(0,1))
+        return not self.select(limitby=(0,1), orderby_on_limitby=False)
 
     def count(self,distinct=None, cache=None):
         db = self.db

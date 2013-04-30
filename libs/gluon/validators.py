@@ -648,11 +648,11 @@ class IS_NOT_IN_DB(Validator):
         id = self.record_id
         if isinstance(id, dict):
             fields = [table[f] for f in id]
-            row = subset.select(*fields, **dict(limitby=(0, 1))).first()
+            row = subset.select(*fields, **dict(limitby=(0, 1), orderby_on_limitby=False)).first()
             if row and any(str(row[f]) != str(id[f]) for f in id):
                 return (value, translate(self.error_message))
         else:
-            row = subset.select(table._id, field, limitby=(0, 1)).first()
+            row = subset.select(table._id, field, limitby=(0, 1), orderby_on_limitby=False).first()
             if row and str(row.id) != str(id):
                 return (value, translate(self.error_message))
         return (value, None)
@@ -2654,8 +2654,8 @@ class IS_EMPTY_OR(Validator):
         if hasattr(other, 'options'):
             self.options = self._options
 
-    def _options(self):
-        options = self.other.options()
+    def _options(self, zero=False):
+        options = self.other.options(zero=zero)
         if (not options or options[0][0] != '') and not self.multiple:
             options.insert(0, ('', ''))
         return options

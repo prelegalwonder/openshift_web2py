@@ -1073,7 +1073,7 @@ class SQLFORM(FORM):
             cond = readonly or \
                 (not ignore_rw and not field.writable and field.readable)
 
-            if default and not cond:
+            if default is not None and not cond:
                 default = field.formatter(default)
             dspval = default
             inpval = default
@@ -1648,9 +1648,9 @@ class SQLFORM(FORM):
         selectfields = []
         for field in fields:
             name = str(field).replace('.', '-')
-            # treat ftype 'decimal' as 'double' 
+            # treat ftype 'decimal' as 'double'
             # (this fixes problems but needs refactoring!
-            ftype = field.type.split(' ')[0]            
+            ftype = field.type.split(' ')[0]
             if ftype.startswith('decimal'): ftype = 'double'
             elif ftype=='bigint': ftype = 'integer'
             elif ftype.startswith('big-'): ftype = ftype[4:]
@@ -1780,7 +1780,8 @@ class SQLFORM(FORM):
              selectable_submit_button='Submit',
              buttons_placement = 'right',
              links_placement = 'right',
-             noconfirm=False
+             noconfirm=False,
+             cache_count=None
              ):
 
         # jQuery UI ThemeRoller classes (empty if ui is disabled)
@@ -1833,6 +1834,33 @@ class SQLFORM(FORM):
         create = wenabled and create
         editable = wenabled and editable
         deletable = wenabled and deletable
+        rows = None
+
+        def fetch_count(dbset):
+            ##FIXME for google:datastore cache_count is ignored
+            ## if it's not an integer
+            if cache_count is None or isinstance(cache_count, tuple):
+                if groupby:
+                    c = 'count(*)'
+                    nrows = db.executesql(
+                        'select count(*) from (%s);' %
+                        dbset._select(c, left=left, cacheable=True,
+                                      groupby=groupby, cache=cache_count)[:-1])[0][0]
+                elif left:
+                    c = 'count(*)'
+                    nrows = dbset.select(c, left=left, cacheable=True, cache=cache_count).first()[c]
+                elif dbset._db._adapter.dbengine=='google:datastore':
+                    #if we don't set a limit, this can timeout for a large table
+                    nrows = dbset.db._adapter.count(dbset.query, limit=1000)
+                else:
+                    nrows = dbset.count(cache=cache_count)
+            elif isinstance(cache_count, (int, long)):
+                    nrows = cache_count
+            elif callable(cache_count):
+                nrows = cache_count(dbset, request.vars)
+            else:
+                nrows = 0
+            return nrows
 
         def url(**b):
             b['args'] = args + b.get('args', [])
@@ -1964,6 +1992,7 @@ class SQLFORM(FORM):
             res.update_form = update_form
             res.view_form = view_form
             res.search_form = search_form
+            res.rows = None
             return res
 
         elif details and request.args(-3) == 'view':
@@ -1980,15 +2009,17 @@ class SQLFORM(FORM):
             res.update_form = update_form
             res.view_form = view_form
             res.search_form = search_form
+            res.rows = None
             return res
         elif editable and request.args(-3) == 'edit':
             table = db[request.args[-2]]
             record = table(request.args[-1]) or redirect(URL('error'))
             sqlformargs.update(editargs)
+            deletable_ = deletable(record) if callable(deletable) else deletable
             update_form = SQLFORM(
                 table,
                 record, upload=upload, ignore_rw=ignore_rw,
-                formstyle=formstyle, deletable=deletable,
+                formstyle=formstyle, deletable=deletable_,
                 _class='web2py_form',
                 submit_button=T('Submit'),
                 delete_label=T('Check to delete'),
@@ -2005,12 +2036,20 @@ class SQLFORM(FORM):
             res.update_form = update_form
             res.view_form = view_form
             res.search_form = search_form
+            res.rows = None
             return res
         elif deletable and request.args(-3) == 'delete':
             table = db[request.args[-2]]
-            if ondelete:
-                ondelete(table, request.args[-1])
-            db(table[table._id.name] == request.args[-1]).delete()
+            if not callable(deletable):
+                if ondelete:
+                    ondelete(table, request.args[-1])
+                db(table[table._id.name] == request.args[-1]).delete()
+            else:
+                record = table(request.args[-1]) or redirect(URL('error'))
+                if deletable(record):
+                    if ondelete:
+                        ondelete(table, request.args[-1])
+                    record.delete_record()
             redirect(referrer)
 
         exportManager = dict(
@@ -2062,7 +2101,7 @@ class SQLFORM(FORM):
                 else:
                     rows = dbset.select(left=left, orderby=orderby,
                                     cacheable=True, *expcolumns)
-
+                
                 value = exportManager[export_type]
                 clazz = value[0] if hasattr(value, '__getitem__') else value
                 oExp = clazz(rows)
@@ -2129,20 +2168,7 @@ class SQLFORM(FORM):
         if subquery:
             dbset = dbset(subquery)
         try:
-            if groupby:
-                c = 'count(*)'
-                nrows = db.executesql(
-                    'select count(*) from (%s);' %
-                    dbset._select(c, left=left, cacheable=True,
-                                  groupby=groupby)[:-1])[0][0]
-            elif left:
-                c = 'count(*)'
-                nrows = dbset.select(c, left=left, cacheable=True).first()[c]
-            elif dbset._db._adapter.dbengine=='google:datastore':
-                #if we don't set a limit, this can timeout for a large table
-                nrows = dbset.db._adapter.count(dbset.query, limit=1000)
-            else:
-                nrows = dbset.count()
+            nrows = fetch_count(dbset)
         except:
             nrows = 0
             error = T('Unsupported query')
@@ -2434,6 +2460,7 @@ class SQLFORM(FORM):
         res.update_form = update_form
         res.view_form = view_form
         res.search_form = search_form
+        res.rows = rows
         return res
 
     @staticmethod

@@ -248,6 +248,7 @@ class Mail(object):
         settings.sender = sender
         settings.login = login
         settings.tls = tls
+        settings.hostname = None
         settings.ssl = False
         settings.cipher_type = None
         settings.gpg_home = None
@@ -412,16 +413,20 @@ class Mail(object):
         if (not text is None or not html is None) and (not raw):
             attachment = MIMEMultipart.MIMEMultipart('alternative')
             if not text is None:
-                if isinstance(text, basestring):
+                if not isinstance(text, basestring):
+                    text = text.read()
+                if isinstance(text, unicode):
+                    text = text.encode('utf-8')
+                elif not encoding=='utf-8':
                     text = text.decode(encoding).encode('utf-8')
-                else:
-                    text = text.read().decode(encoding).encode('utf-8')
                 attachment.attach(MIMEText.MIMEText(text, _charset='utf-8'))
             if not html is None:
-                if isinstance(html, basestring):
+                if not isinstance(html, basestring):
+                    html = html.read()
+                if isinstance(html, unicode):
+                    html = html.encode('utf-8')
+                elif not encoding=='utf-8':
                     html = html.decode(encoding).encode('utf-8')
-                else:
-                    html = html.read().decode(encoding).encode('utf-8')
                 attachment.attach(
                     MIMEText.MIMEText(html, 'html', _charset='utf-8'))
             payload_in.attach(attachment)
@@ -682,9 +687,9 @@ class Mail(object):
                 else:
                     server = smtplib.SMTP(*smtp_args)
                 if self.settings.tls and not self.settings.ssl:
-                    server.ehlo()
+                    server.ehlo(self.settings.hostname)
                     server.starttls()
-                    server.ehlo()
+                    server.ehlo(self.settings.hostname)
                 if self.settings.login:
                     server.login(*self.settings.login.split(':', 1))
                 result = server.sendmail(
@@ -1183,6 +1188,14 @@ class Auth(object):
         # ## these are messages that can be customized
         messages = self.messages = Messages(current.T)
         messages.update(Auth.default_messages)
+        messages.update(ajax_failed_authentication=DIV(H4('NOT AUTHORIZED'),
+            'Please ',
+            A('login',
+              _href=self.settings.login_url +
+              ('?_next=' + urllib.quote(current.request.env.http_web2py_component_location))
+              if current.request.env.http_web2py_component_location else ''),
+            ' to view this content.',
+            _class='not-authorized alert alert-block'))
         messages.lock_keys = True
 
         # for "remember me" option
@@ -2948,7 +2961,7 @@ class Auth(object):
                 if requires_login:
                     if not user:
                         if current.request.ajax:
-                            raise HTTP(401)
+                            raise HTTP(401, self.messages.ajax_failed_authentication)
                         elif not otherwise is None:
                             if callable(otherwise):
                                 return otherwise()
@@ -2956,8 +2969,6 @@ class Auth(object):
                         elif self.settings.allow_basic_login_only or \
                                 basic_accepted or current.request.is_restful:
                             raise HTTP(403, "Not authorized")
-                        elif current.request.ajax:
-                            return A('login', _href=self.settings.login_url)
                         else:
                             next = self.here()
                             current.session.flash = current.response.flash
@@ -3465,7 +3476,7 @@ class Crud(object):
 
         messages = self.messages = Messages(current.T)
         messages.submit_button = 'Submit'
-        messages.delete_label = 'Check to delete:'
+        messages.delete_label = 'Check to delete'
         messages.record_created = 'Record Created'
         messages.record_updated = 'Record Updated'
         messages.record_deleted = 'Record Deleted'
