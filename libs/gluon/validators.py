@@ -51,6 +51,7 @@ __all__ = [
     'IS_INT_IN_RANGE',
     'IS_IPV4',
     'IS_IPV6',
+    'IS_IPADDRESS',
     'IS_LENGTH',
     'IS_LIST_OF',
     'IS_LOWER',
@@ -706,17 +707,20 @@ class IS_INT_IN_RANGE(Validator):
         self.minimum = self.maximum = None
         if minimum is None:
             if maximum is None:
-                self.error_message = error_message or 'enter an integer'
+                self.error_message = translate(
+                    error_message or 'enter an integer')
             else:
                 self.maximum = int(maximum)
                 if error_message is None:
-                    error_message = 'enter an integer less than or equal to %(max)g'
+                    error_message = \
+                        'enter an integer less than or equal to %(max)g'
                 self.error_message = translate(
                     error_message) % dict(max=self.maximum - 1)
         elif maximum is None:
             self.minimum = int(minimum)
             if error_message is None:
-                error_message = 'enter an integer greater than or equal to %(min)g'
+                error_message = \
+                    'enter an integer greater than or equal to %(min)g'
             self.error_message = translate(
                 error_message) % dict(min=self.minimum)
         else:
@@ -2510,17 +2514,18 @@ class IS_UPPER(Validator):
         return (value.decode('utf8').upper().encode('utf8'), None)
 
 
-def urlify(value, maxlen=80, keep_underscores=False):
+def urlify(s, maxlen=80, keep_underscores=False):
     """
     Convert incoming string to a simplified ASCII subset.
     if (keep_underscores): underscores are retained in the string
     else: underscores are translated to hyphens (default)
     """
-    s = value.lower()                     # to lowercase
-    s = s.decode('utf-8')                 # to utf-8
+    if isinstance(s, str):
+        s = s.decode('utf-8')             # to unicode
+    s = s.lower()                         # to lowercase
     s = unicodedata.normalize('NFKD', s)  # normalize eg è => e, ñ => n
-    s = s.encode('ASCII', 'ignore')       # encode as ASCII
-    s = re.sub('&\w+;', '', s)            # strip html entities
+    s = s.encode('ascii', 'ignore')       # encode as ASCII
+    s = re.sub('&\w+?;', '', s)           # strip html entities
     if keep_underscores:
         s = re.sub('\s+', '-', s)         # whitespace to hyphens
         s = re.sub('[^\w\-]', '', s)

@@ -94,9 +94,8 @@ class DropboxAccount(object):
         return form
 
     def logout_url(self, next="/"):
-        current.session.dropbox_request_token = None
+        self.sess.unlink()
         current.session.auth = None
-        redirect('https://www.dropbox.com/logout')
         return next
 
     def get_client(self):
@@ -106,15 +105,15 @@ class DropboxAccount(object):
 
     def put(self, filename, file):
         if not hasattr(self,'client'): self.get_client()
-        return json.loads(self.client.put_file(filename, file))['bytes']
+        return self.client.put_file(filename, file)['bytes']
 
-    def get(self, filename, file):
+    def get(self, filename):
         if not hasattr(self,'client'): self.get_client()
         return self.client.get_file(filename)
 
     def dir(self, path):
         if not hasattr(self,'client'): self.get_client()
-        return json.loads(self.client.metadata(path))
+        return self.client.metadata(path)
 
 
 def use_dropbox(auth, filename='private/dropbox.key', **kwargs):

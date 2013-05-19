@@ -371,15 +371,16 @@ class Mail(object):
         if not isinstance(sender, str):
             raise Exception('Sender address not specified')
 
-        if not raw:
+        if not raw and attachments:
+            # Use multipart/mixed if there is attachments
             payload_in = MIMEMultipart.MIMEMultipart('mixed')
-        else:
+        elif raw:
             # no encoding configuration for raw messages
             if not isinstance(message, basestring):
                 message = message.read()
             if isinstance(message, unicode):
                 text = message.encode('utf-8')
-            elif not encoding=='utf-8':
+            elif not encoding == 'utf-8':
                 text = message.decode(encoding).encode('utf-8')
             else:
                 text = message
@@ -411,25 +412,43 @@ class Mail(object):
             html = None
 
         if (not text is None or not html is None) and (not raw):
-            attachment = MIMEMultipart.MIMEMultipart('alternative')
+
             if not text is None:
                 if not isinstance(text, basestring):
                     text = text.read()
                 if isinstance(text, unicode):
                     text = text.encode('utf-8')
-                elif not encoding=='utf-8':
+                elif not encoding == 'utf-8':
                     text = text.decode(encoding).encode('utf-8')
-                attachment.attach(MIMEText.MIMEText(text, _charset='utf-8'))
             if not html is None:
                 if not isinstance(html, basestring):
                     html = html.read()
                 if isinstance(html, unicode):
                     html = html.encode('utf-8')
-                elif not encoding=='utf-8':
+                elif not encoding == 'utf-8':
                     html = html.decode(encoding).encode('utf-8')
+
+            # Construct mime part only if needed
+            if text and html:
+                # We have text and html we need multipart/alternative
+                attachment = MIMEMultipart.MIMEMultipart('alternative')
+                attachment.attach(MIMEText.MIMEText(text, _charset='utf-8'))
                 attachment.attach(
                     MIMEText.MIMEText(html, 'html', _charset='utf-8'))
-            payload_in.attach(attachment)
+            elif text:
+                attachment = MIMEText.MIMEText(text, _charset='utf-8')
+            elif html:
+                attachment = \
+                    MIMEText.MIMEText(html, 'html', _charset='utf-8')
+
+            if attachments:
+                # If there is attachments put text and html into
+                # multipart/mixed
+                payload_in.attach(attachment)
+            else:
+                # No attachments no multipart/mixed
+                payload_in = attachment
+
         if (attachments is None) or raw:
             pass
         elif isinstance(attachments, (list, tuple)):
@@ -872,6 +891,7 @@ class Auth(object):
         on_failed_authentication=lambda x: redirect(x),
         formstyle="table3cols",
         label_separator=": ",
+        allow_delete_accounts=False,
         password_field='password',
         table_user_name='auth_user',
         table_group_name='auth_group',
@@ -897,6 +917,7 @@ class Auth(object):
         username_case_sensitive=True,
         update_fields = ['email'],
         ondelete="CASCADE",
+        client_side = True,
         wiki = Settings(),
     )
         # ## these are messages that can be customized
@@ -905,7 +926,7 @@ class Auth(object):
         register_button='Register',
         password_reset_button='Request reset password',
         password_change_button='Change password',
-        profile_save_button='Save profile',
+        profile_save_button='Apply changes',
         submit_button='Submit',
         verify_password='Verify Password',
         delete_label='Check to delete',
@@ -1752,7 +1773,7 @@ class Auth(object):
         if 'registration_id' in checks \
                 and user \
                 and user.registration_id \
-                and user.registration_id != keys.get('registration_id', None):
+                and ('registration_id' not in keys or user.registration_id != str(keys['registration_id'])):
             user = None  # THINK MORE ABOUT THIS? DO WE TRUST OPENID PROVIDER?
         if user:
             update_keys = dict(registration_id=keys['registration_id'])
@@ -2134,7 +2155,7 @@ class Auth(object):
                     callback(onfail, None)
                     redirect(
                         self.url(args=request.args, vars=request.get_vars),
-                        client_side=True)
+                        client_side=self.settings.client_side)
 
         else:
             # use a central authentication server
@@ -2151,7 +2172,8 @@ class Auth(object):
             else:
                 # we need to pass through login again before going on
                 next = self.url(self.settings.function, args='login')
-                redirect(cas.login_url(next), client_side=True)
+                redirect(cas.login_url(next),
+                         client_side=self.settings.client_side)
 
         # process authenticated users
         if user:
@@ -2174,7 +2196,7 @@ class Auth(object):
                 if next == session._auth_next:
                     session._auth_next = None
                 next = replace_id(next, form)
-                redirect(next, client_side=True)
+                redirect(next, client_side=self.settings.client_side)
 
             table_user[username].requires = old_requires
             return form
@@ -2183,7 +2205,7 @@ class Auth(object):
 
         if next == session._auth_next:
             del session._auth_next
-        redirect(next, client_side=True)
+        redirect(next, client_side=self.settings.client_side)
 
     def logout(self, next=DEFAULT, onlogout=DEFAULT, log=DEFAULT):
         """
@@ -2235,7 +2257,8 @@ class Auth(object):
         response = current.response
         session = current.session
         if self.is_logged_in():
-            redirect(self.settings.logged_url, client_side=True)
+            redirect(self.settings.logged_url,
+                     client_side=self.settings.client_side)
         if next is DEFAULT:
             next = self.next or self.settings.register_next
         if onvalidation is DEFAULT:
@@ -2246,7 +2269,9 @@ class Auth(object):
             log = self.messages.register_log
 
         table_user = self.table_user()
-        if 'username' in table_user.fields:
+        if self.settings.login_userfield:
+            username = self.settings.login_userfield
+        elif 'username' in table_user.fields:
             username = 'username'
         else:
             username = 'email'
@@ -2351,7 +2376,7 @@ class Auth(object):
                 next = self.url(args=request.args)
             else:
                 next = replace_id(next, form)
-            redirect(next, client_side=True)
+            redirect(next, client_side=self.settings.client_side)
         return form
 
     def is_logged_in(self):
@@ -2599,7 +2624,7 @@ class Auth(object):
                 raise Exception
         except Exception:
             session.flash = self.messages.invalid_reset_password
-            redirect(next, client_side=True)
+            redirect(next, client_side=self.settings.client_side)
         passfield = self.settings.password_field
         form = SQLFORM.factory(
             Field('new_password', 'password',
@@ -2624,7 +2649,7 @@ class Auth(object):
             session.flash = self.messages.password_changed
             if self.settings.login_after_password_change:
                 self.login_user(user)
-            redirect(next, client_side=True)
+            redirect(next, client_side=self.settings.client_side)
         return form
 
     def request_reset_password(
@@ -2682,10 +2707,12 @@ class Auth(object):
             user = table_user(email=form.vars.email)
             if not user:
                 session.flash = self.messages.invalid_email
-                redirect(self.url(args=request.args), client_side=True)
+                redirect(self.url(args=request.args),
+                         client_side=self.settings.client_side)
             elif user.registration_key in ('pending', 'disabled', 'blocked'):
                 session.flash = self.messages.registration_pending
-                redirect(self.url(args=request.args), client_side=True)
+                redirect(self.url(args=request.args),
+                         client_side=self.settings.client_side)
             if self.email_reset_password(user):
                 session.flash = self.messages.email_sent
             else:
@@ -2696,7 +2723,7 @@ class Auth(object):
                 next = self.url(args=request.args)
             else:
                 next = replace_id(next, form)
-            redirect(next, client_side=True)
+            redirect(next, client_side=self.settings.client_side)
         # old_requires = table_user.email.requires
         return form
 
@@ -2741,7 +2768,8 @@ class Auth(object):
         """
 
         if not self.is_logged_in():
-            redirect(self.settings.login_url, client_side=True)
+            redirect(self.settings.login_url,
+                     client_side=self.settings.client_side)
         db = self.db
         table_user = self.table_user()
         s = db(table_user.id == self.user.id)
@@ -2791,7 +2819,7 @@ class Auth(object):
                     next = self.url(args=request.args)
                 else:
                     next = replace_id(next, form)
-                redirect(next, client_side=True)
+                redirect(next, client_side=self.settings.client_side)
         return form
 
     def profile(
@@ -2811,7 +2839,8 @@ class Auth(object):
 
         table_user = self.table_user()
         if not self.is_logged_in():
-            redirect(self.settings.login_url, client_side=True)
+            redirect(self.settings.login_url,
+                     client_side=self.settings.client_side)
         passfield = self.settings.password_field
         table_user[passfield].writable = False
         request = current.request
@@ -2834,20 +2863,24 @@ class Auth(object):
             delete_label=self.messages.delete_label,
             upload=self.settings.download_url,
             formstyle=self.settings.formstyle,
-            separator=self.settings.label_separator
+            separator=self.settings.label_separator,
+            deletable=self.settings.allow_delete_accounts,
             )
         if form.accepts(request, session,
                         formname='profile',
-                        onvalidation=onvalidation, hideerror=self.settings.hideerror):
+                        onvalidation=onvalidation,
+                        hideerror=self.settings.hideerror):
             self.user.update(table_user._filter_fields(form.vars))
             session.flash = self.messages.profile_updated
             self.log_event(log, self.user)
             callback(onaccept, form)
+            if form.deleted:
+                return self.logout()
             if not next:
                 next = self.url(args=request.args)
             else:
                 next = replace_id(next, form)
-            redirect(next, client_side=True)
+            redirect(next, client_side=self.settings.client_side)
         return form
 
     def is_impersonating(self):

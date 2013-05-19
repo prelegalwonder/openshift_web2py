@@ -196,7 +196,7 @@ CALLABLETYPES = (types.LambdaType, types.FunctionType,
 TABLE_ARGS = set(
     ('migrate','primarykey','fake_migrate','format','redefine',
      'singular','plural','trigger_name','sequence_name',
-     'common_filter','polymodel','table_class','on_define',))
+     'common_filter','polymodel','table_class','on_define','actual_name'))
 
 SELECT_ARGS = set(
     ('orderby', 'groupby', 'limitby','required', 'cache', 'left',
@@ -266,7 +266,7 @@ REGEX_STORE_PATTERN = re.compile('\.(?P<e>\w{1,5})$')
 REGEX_QUOTES = re.compile("'[^']*'")
 REGEX_ALPHANUMERIC = re.compile('^[0-9a-zA-Z]\w*$')
 REGEX_PASSWORD = re.compile('\://([^:@]*)\:')
-REGEX_NOPASSWD = re.compile('(?<=\:)([^:@/]+)(?=@.+)')
+REGEX_NOPASSWD = re.compile('\/\/[\w\.\-]+[\:\/](.+)(?=@)') # was '(?<=[\:\/])([^:@/]+)(?=@.+)'
 
 # list of drivers will be built on the fly
 # and lists only what is available
@@ -457,6 +457,8 @@ def pluralize(singular, rules=PLURALIZE_RULES):
         if plural: return plural
 
 def hide_password(uri):
+    if isinstance(uri,(list,tuple)):
+        return [hide_password(item) for item in uri]
     return REGEX_NOPASSWD.sub('******',uri)
 
 def OR(a,b):
@@ -470,6 +472,11 @@ def IDENTITY(x): return x
 def varquote_aux(name,quotestr='%s'):
     return name if REGEX_W.match(name) else quotestr % name
 
+def quote_keyword(a,keyword='timestamp'):
+    regex = re.compile('\.keyword(?=\w)')
+    a = regex.sub('."%s"' % keyword,a)
+    return a
+    
 if 'google' in DRIVERS:
 
     is_jdbc = False
@@ -583,10 +590,14 @@ class ConnectionPool(object):
         if the connection is not active (closed by db server) it will loop
         if not self.pool_size or no active connections in pool makes a new one
         """
-        if getattr(self,'connection',None) != None:
+        if getattr(self,'connection', None) != None:
             return
         if f is None:
             f = self.connector
+
+        if not hasattr(self, "driver") or self.driver is None:
+            LOGGER.debug("Skipping connection since there's no driver")
+            return
 
         if not self.pool_size:
             self.connection = f()
@@ -917,7 +928,7 @@ class BaseAdapter(ConnectionPool):
                 foreign_key = ', '.join(pkeys),
                 on_delete_action = field.ondelete)
 
-        if hasattr(table,'_primarykey'):
+        if getattr(table,'_primarykey',None):
             query = "CREATE TABLE %s(\n    %s,\n    %s) %s" % \
                 (tablename, fields,
                  self.PRIMARY_KEY(', '.join(table._primarykey)),other)
@@ -1184,7 +1195,7 @@ class BaseAdapter(ConnectionPool):
             self.file_delete(table._dbt)
             logfile.write('success!\n')
 
-    def _insert(self, table, fields):
+    def _insert(self, table, fields):        
         if fields:
             keys = ','.join(f.name for f, v in fields)
             values = ','.join(self.expand(v, f.type) for f, v in fields)
@@ -1378,13 +1389,16 @@ class BaseAdapter(ConnectionPool):
         else:
             return str(expression)
 
+    def table_alias(self,name):
+        return str(name if isinstance(name,Table) else self.db[name])
+
     def alias(self, table, alias):
         """
         Given a table object, makes a new table object
         with alias name.
         """
         other = copy.copy(table)
-        other['_ot'] = other._tablename
+        other['_ot'] = other._ot or other._tablename
         other['ALL'] = SQLALL(other)
         other['_tablename'] = alias
         for fieldname in other.fields:
@@ -1586,20 +1600,19 @@ class BaseAdapter(ConnectionPool):
             query = self.common_filter(query,tablenames_for_common_filters)
         sql_w = ' WHERE ' + self.expand(query) if query else ''
 
-        def alias(t):
-            return str(self.db[t])
         if inner_join and not left:
-            sql_t = ', '.join([alias(t) for t in iexcluded + \
+            sql_t = ', '.join([self.table_alias(t) for t in iexcluded + \
                                    itables_to_merge.keys()])
             for t in ijoinon:
-                sql_t += ' %s %s' % (icommand, str(t))
+                sql_t += ' %s %s' % (icommand, t)
         elif not inner_join and left:
-            sql_t = ', '.join([alias(t) for t in excluded + \
+            sql_t = ', '.join([self.table_alias(t) for t in excluded + \
                                    tables_to_merge.keys()])
             if joint:
-                sql_t += ' %s %s' % (command, ','.join([t for t in joint]))
+                sql_t += ' %s %s' % (command, 
+                                     ','.join([self.table_alias(t) for t in joint]))
             for t in joinon:
-                sql_t += ' %s %s' % (command, str(t))
+                sql_t += ' %s %s' % (command, t)
         elif inner_join and left:
             all_tables_in_query = set(important_tablenames + \
                                       iimportant_tablenames + \
@@ -1607,15 +1620,16 @@ class BaseAdapter(ConnectionPool):
             tables_in_joinon = set(joinont + ijoinont)
             tables_not_in_joinon = \
                 all_tables_in_query.difference(tables_in_joinon)
-            sql_t = ','.join([alias(t) for t in tables_not_in_joinon])
+            sql_t = ','.join([self.table_alias(t) for t in tables_not_in_joinon])
             for t in ijoinon:
-                sql_t += ' %s %s' % (icommand, str(t))
+                sql_t += ' %s %s' % (icommand, t)
             if joint:
-                sql_t += ' %s %s' % (command, ','.join([t for t in joint]))
+                sql_t += ' %s %s' % (command, 
+                                     ','.join([self.table_alias(t) for t in joint]))
             for t in joinon:
-                sql_t += ' %s %s' % (command, str(t))
+                sql_t += ' %s %s' % (command, t)
         else:
-            sql_t = ', '.join(alias(t) for t in tablenames)
+            sql_t = ', '.join(self.table_alias(t) for t in tablenames)
         if groupby:
             if isinstance(groupby, (list, tuple)):
                 groupby = xorify(groupby)
@@ -1697,7 +1711,7 @@ class BaseAdapter(ConnectionPool):
             sql_w = ' WHERE ' + self.expand(query)
         else:
             sql_w = ''
-        sql_t = ','.join(tablenames)
+        sql_t = ','.join(self.table_alias(t) for t in tablenames)
         if distinct:
             if isinstance(distinct,(list, tuple)):
                 distinct = xorify(distinct)
@@ -1755,11 +1769,13 @@ class BaseAdapter(ConnectionPool):
     def log_execute(self, *a, **b):
         if not self.connection: return None
         command = a[0]
+        if hasattr(self,'filter_sql_command'):
+            command = self.filter_sql_command(command)
         if self.db._debug:
             LOGGER.debug('SQL: %s' % command)
         self.db._lastsql = command
         t0 = time.time()
-        ret = self.cursor.execute(*a, **b)
+        ret = self.cursor.execute(command, *a[1:], **b)
         self.db._timings.append((command,time.time()-t0))
         del self.db._timings[:-TIMINGSSIZE]
         return ret
@@ -1897,7 +1913,7 @@ class BaseAdapter(ConnectionPool):
         return value
 
     def parse_boolean(self, value, field_type):
-        return value == True or str(value)[:1].lower() == 't'
+        return value == self.TRUE or str(value)[:1].lower() == 't'
 
     def parse_date(self, value, field_type):
         if isinstance(value, datetime.datetime):
@@ -3322,6 +3338,55 @@ class MSSQL2Adapter(MSSQLAdapter):
     def execute(self,a):
         return self.log_execute(a.decode('utf8'))
 
+class VerticaAdapter(MSSQLAdapter):
+    drivers = ('pyodbc',)
+    T_SEP = ' '
+
+    types = {
+        'boolean': 'BOOLEAN',
+        'string': 'VARCHAR(%(length)s)',
+        'text': 'BYTEA',
+        'json': 'VARCHAR(%(length)s)',
+        'password': 'VARCHAR(%(length)s)',
+        'blob': 'BYTEA',
+        'upload': 'VARCHAR(%(length)s)',
+        'integer': 'INT',
+        'bigint': 'BIGINT',
+        'float': 'FLOAT',
+        'double': 'DOUBLE PRECISION',
+        'decimal': 'DECIMAL(%(precision)s,%(scale)s)',
+        'date': 'DATE',
+        'time': 'TIME',
+        'datetime': 'DATETIME',
+        'id': 'IDENTITY',
+        'reference': 'INT REFERENCES %(foreign_key)s ON DELETE %(on_delete_action)s',
+        'list:integer': 'BYTEA',
+        'list:string': 'BYTEA',
+        'list:reference': 'BYTEA',
+        'big-reference': 'BIGINT REFERENCES %(foreign_key)s ON DELETE %(on_delete_action)s',
+        }
+
+
+    def EXTRACT(self, first, what):
+        return "DATE_PART('%s', TIMESTAMP %s)" % (what, self.expand(first))
+
+    def _truncate(self, table, mode=''):
+        tablename = table._tablename
+        return ['TRUNCATE %s %s;' % (tablename, mode or '')]
+
+    def select_limitby(self, sql_s, sql_f, sql_t, sql_w, sql_o, limitby):
+        if limitby:
+            (lmin, lmax) = limitby
+            sql_o += ' LIMIT %i OFFSET %i' % (lmax - lmin, lmin)
+        return 'SELECT %s %s FROM %s%s%s;' % \
+            (sql_s, sql_f, sql_t, sql_w, sql_o)
+
+    def lastrowid(self,table):
+        self.execute('SELECT LAST_INSERT_ID();')
+        return long(self.cursor.fetchone()[0])
+
+    def execute(self, a):
+        return self.log_execute(a)
 
 class SybaseAdapter(MSSQLAdapter):
     drivers = ('Sybase',)
@@ -4719,12 +4784,17 @@ class GoogleDatastoreAdapter(NoSQLAdapter):
                         "text and blob field types not allowed in projection queries")
                 else:
                     projection.append(f.name)
+        elif args_get('filterfields') == True:
+            projection = []
+            for f in fields:
+                projection.append(f.name)
 
-        # projection's can't include 'id'.
+        # real projection's can't include 'id'.
         # it will be added to the result later
         query_projection = [
             p for p in projection if \
-                p != db[tablename]._id.name] if projection \
+                p != db[tablename]._id.name] if projection and \
+                args_get('projection') == True\
                 else None
 
         cursor = None
@@ -4802,6 +4872,11 @@ class GoogleDatastoreAdapter(NoSQLAdapter):
            what is accepted imposed by GAE: each field must be indexed,
            projection queries cannot contain blob or text fields, and you
            cannot use == and also select that same field.  see https://developers.google.com/appengine/docs/python/datastore/queries#Query_Projection
+         - optional attribute 'filterfields' when set to True web2py will only
+           parse the explicitly listed fields into the Rows object, even though
+           all fields are returned in the query.  This can be used to reduce
+           memory usage in cases where true projection queries are not
+           usable.
          - optional attribute 'reusecursor' allows use of cursor with queries
            that have the limitby attribute.  Set the attribute to True for the
            first query, set it to the value of db['_lastcursor'] to continue
@@ -6644,6 +6719,7 @@ ADAPTERS = {
     'mssql': MSSQLAdapter,
     'mssql2': MSSQL2Adapter,
     'mssql3': MSSQL3Adapter,
+    'vertica': VerticaAdapter,
     'sybase': SybaseAdapter,
     'db2': DB2Adapter,
     'teradata': TeradataAdapter,
@@ -6665,7 +6741,6 @@ ADAPTERS = {
     'mongodb': MongoDBAdapter,
     'imap': IMAPAdapter
 }
-
 
 def sqlhtml_validators(field):
     """
@@ -8081,6 +8156,22 @@ def Reference_pickler(data):
 
 copyreg.pickle(Reference, Reference_pickler, Reference_unpickler)
 
+class MethodAdder(object):
+    def __init__(self,table):
+        self.table = table
+    def __call__(self):
+        return self.register()
+    def __getattr__(self,method_name):
+        return self.register(method_name)
+    def register(self,method_name=None):
+        def _decorated(f):
+            instance = self.table
+            import types
+            method = types.MethodType(f, instance, instance.__class__)
+            name = method_name or f.func_name
+            setattr(instance, name, method)
+            return f
+        return _decorated
 
 class Table(object):
 
@@ -8114,19 +8205,20 @@ class Table(object):
         """
         self._actual = False # set to True by define_table()
         self._tablename = tablename
-        self._sequence_name = args.get('sequence_name',None) or \
+        self._ot = args.get('actual_name')
+        self._sequence_name = args.get('sequence_name') or \
             db and db._adapter.sequence_name(tablename)
-        self._trigger_name = args.get('trigger_name',None) or \
+        self._trigger_name = args.get('trigger_name') or \
             db and db._adapter.trigger_name(tablename)
-        self._common_filter = args.get('common_filter', None)
-        self._format = args.get('format',None)
+        self._common_filter = args.get('common_filter')
+        self._format = args.get('format')
         self._singular = args.get(
             'singular',tablename.replace('_',' ').capitalize())
         self._plural = args.get(
             'plural',pluralize(self._singular.lower()).capitalize())
         # horrible but for backard compatibility of appamdin:
-        if 'primarykey' in args and args['primarykey']:
-            self._primarykey = args.get('primarykey', None)
+        if 'primarykey' in args and args['primarykey'] is not None:
+            self._primarykey = args.get('primarykey')
 
         self._before_insert = []
         self._before_update = [Set.delete_uploaded_files]
@@ -8134,6 +8226,8 @@ class Table(object):
         self._after_insert = []
         self._after_update = []
         self._after_delete = []
+
+        self.add_method = MethodAdder(self)
 
         fieldnames,newfields=set(),[]
         if hasattr(self,'_primarykey'):
@@ -8420,8 +8514,8 @@ class Table(object):
     def __repr__(self):
         return '<Table %s (%s)>' % (self._tablename,','.join(self.fields()))
 
-    def __str__(self):
-        if hasattr(self,'_ot') and self._ot is not None:
+    def __str__(self):        
+        if self._ot is not None:
             if 'Oracle' in str(type(self._db._adapter)):     # <<< patch
                 return '%s %s' % (self._ot, self._tablename) # <<< patch
             return '%s AS %s' % (self._ot, self._tablename)
@@ -9714,7 +9808,9 @@ class Set(object):
         return '<Set %s>' % BaseAdapter.expand(self.db._adapter,self.query)
 
     def __call__(self, query, ignore_common_filters=False):
-        if isinstance(query,Table):
+        if query is None:
+            return self
+        elif isinstance(query,Table):
             query = self.db._adapter.id_query(query)
         elif isinstance(query,str):
             query = Expression(self.db,query)

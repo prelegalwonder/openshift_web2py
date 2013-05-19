@@ -1456,8 +1456,9 @@ class SQLFORM(FORM):
                     if not f:
                         continue
                     else:
-                        f = os.path.join(current.request.folder,
-                                         os.path.normpath(f))
+                        f = os.path.join(
+                            current.request.folder, 
+                            os.path.normpath(f))
                         source_file = open(f, 'rb')
                         original_filename = os.path.split(f)[1]
                 elif hasattr(f, 'file'):
@@ -1466,6 +1467,10 @@ class SQLFORM(FORM):
                     ### do not know why this happens, it should not
                     (source_file, original_filename) = \
                         (cStringIO.StringIO(f), 'file.txt')
+                else:
+                    # this should never happen, why does it happen?
+                    print 'f=',repr(f)
+                    continue
                 newfilename = field.store(source_file, original_filename,
                                           field.uploadfolder)
                 # this line was for backward compatibility but problematic
@@ -1781,7 +1786,8 @@ class SQLFORM(FORM):
              buttons_placement = 'right',
              links_placement = 'right',
              noconfirm=False,
-             cache_count=None
+             cache_count=None,
+             client_side_delete=False,
              ):
 
         # jQuery UI ThemeRoller classes (empty if ui is disabled)
@@ -2050,7 +2056,7 @@ class SQLFORM(FORM):
                     if ondelete:
                         ondelete(table, request.args[-1])
                     record.delete_record()
-            redirect(referrer)
+            redirect(referrer, client_side=client_side_delete)
 
         exportManager = dict(
             csv_with_hidden_cols=(ExporterCSV, 'CSV (hidden cols)'),
