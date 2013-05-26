@@ -1856,7 +1856,7 @@ class BaseAdapter(ConnectionPool):
                 if have_serializers:
                     obj = serializers.json(obj)
                 elif simplejson:
-                    obj = simplejson.dumps(items)
+                    obj = simplejson.dumps(obj)
                 else:
                     raise RuntimeError("missing simplejson")
         if not isinstance(obj,bytes):
@@ -2521,6 +2521,9 @@ class MySQLAdapter(BaseAdapter):
     def lastrowid(self,table):
         self.execute('select last_insert_id();')
         return int(self.cursor.fetchone()[0])
+
+    def integrity_error_class(self):
+        return self.cursor.IntegrityError
 
 class PostgreSQLAdapter(BaseAdapter):
     drivers = ('psycopg2','pg8000')
