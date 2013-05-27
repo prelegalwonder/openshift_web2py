@@ -2672,7 +2672,9 @@ class PostgreSQLAdapter(BaseAdapter):
         elif self.driver_name == "zxJDBC":
             supports_json = self.connection.dbversion >= "9.2.0"
         else: supports_json = None
-        if supports_json: self.types["json"] = "JSON"
+        if supports_json:
+            self.types["json"] = "JSON"
+            self.native_json = True
         else: LOGGER.debug("Your database version does not support the JSON data type (using TEXT instead)")
 
     def LIKE(self,first,second):
@@ -8709,6 +8711,12 @@ class Table(object):
                 value = None
             elif field.type=='blob':
                 value = base64.b64decode(value)
+            elif field.type=='json':
+                try:
+                    json = serializers.json
+                    value = json(value)
+                except TypeError:
+                    pass
             elif field.type=='double' or field.type=='float':
                 if not value.strip():
                     value = None
@@ -10362,7 +10370,7 @@ class Rows(object):
         # test for multiple rows
         multi = False
         f = self.first()
-        if f:
+        if f and isinstance(key, basestring):
             multi = any([isinstance(v, f.__class__) for v in f.values()])
             if (not "." in key) and multi:
                 # No key provided, default to int indices
