@@ -878,6 +878,7 @@ class Auth(object):
         alternate_requires_registration=False,
         create_user_groups="user_%(id)s",
         everybody_group_id=None,
+        manager_group_role=None,
         login_captcha=None,
         register_captcha=None,
         retrieve_username_captcha=None,
@@ -3054,7 +3055,7 @@ class Auth(object):
             return self.has_permission(name, table_name, record_id)
         return self.requires(has_permission, otherwise=otherwise)
 
-    def requires_signature(self, otherwise=None):
+    def requires_signature(self, otherwise=None, hash_vars=True):
         """
         decorator that prevents access to action if not logged in or
         if user logged in is not a member of group_id.
@@ -3062,7 +3063,7 @@ class Auth(object):
         group_id is calculated.
         """
         def verify():
-            return URL.verify(current.request, user_signature=True)
+            return URL.verify(current.request, user_signature=True, hash_vars=hash_vars)
         return self.requires(verify, otherwise)
 
     def add_group(self, role, description=''):

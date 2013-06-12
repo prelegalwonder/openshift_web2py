@@ -18,6 +18,7 @@ try:
 except ImportError:
     from cgi import parse_qs as psq
 import os
+import copy
 from http import HTTP
 from html import XmlComponent
 from html import XML, SPAN, TAG, A, DIV, CAT, UL, LI, TEXTAREA, BR, IMG, SCRIPT
@@ -81,6 +82,27 @@ def safe_float(x):
         return 0
 
 
+def show_if(cond):
+    if not cond:
+        return None
+    base = "%s_%s" % (cond.first.tablename, cond.first.name)
+    if ((cond.op.__name__ == 'EQ' and cond.second == True) or 
+        (cond.op.__name__ == 'NE' and cond.second == False)):            
+        return base,":checked"
+    if ((cond.op.__name__ == 'EQ' and cond.second == False) or
+        (cond.op.__name__ == 'NE' and cond.second == True)):
+        return base,":not(:checked)"
+    if cond.op.__name__ == 'EQ':
+        return base,"[value='%s']" % cond.second
+    if cond.op.__name__ == 'NE':
+        return base,"[value!='%s']" % cond.second
+    if cond.op.__name__ == 'CONTAINS':
+        return base,"[value~='%s']" % cond.second    
+    if cond.op.__name__ == 'BELONGS' and isinstance(cond.second,(list,tuple)):
+        return base,','.join("[value='%s']" % (v) for v in cond.second)
+    raise RuntimeError("Not Implemented Error")
+
+
 class FormWidget(object):
     """
     helper for SQLFORM to generate form input fields
@@ -101,12 +123,16 @@ class FormWidget(object):
         :param attributes: any other supplied attributes
         """
         attr = dict(
-            _id='%s_%s' % (field._tablename, field.name),
+            _id='%s_%s' % (field.tablename, field.name),
             _class=cls._class or
                 widget_class.match(str(field.type)).group(),
-            _name=field.name,
+            _name=field.name,            
             requires=field.requires,
         )
+        if getattr(field,'show_if',None):
+            trigger, cond = show_if(field.show_if)
+            attr['_data-show-trigger'] = trigger
+            attr['_data-show-if'] = cond
         attr.update(widget_attributes)
         attr.update(attributes)
         return attr
@@ -261,7 +287,7 @@ class ListWidget(StringWidget):
 
     @classmethod
     def widget(cls, field, value, **attributes):
-        _id = '%s_%s' % (field._tablename, field.name)
+        _id = '%s_%s' % (field.tablename, field.name)
         _name = field.name
         if field.type == 'list:integer':
             _class = 'integer'
@@ -625,7 +651,8 @@ class AutocompleteWidget(object):
         self.help_fields = help_fields or []
         self.help_string = help_string
         if self.help_fields and not self.help_string:
-            self.help_string = ' '.join('%%(%s)s' for f in self.help_fields)
+            self.help_string = ' '.join('%%(%s)s'%f.name 
+                                        for f in self.help_fields)
 
         self.request = request
         self.keyword = keyword % dict(tablename=field.tablename,
@@ -651,9 +678,9 @@ class AutocompleteWidget(object):
         if self.keyword in self.request.vars:
             field = self.fields[0]
             if is_gae:
-                rows = self.db(field.__ge__(self.request.vars[self.keyword]) & field.__lt__(self.request.vars[self.keyword] + u'\ufffd')).select(orderby=self.orderby, limitby=self.limitby, *self.fields)
+                rows = self.db(field.__ge__(self.request.vars[self.keyword]) & field.__lt__(self.request.vars[self.keyword] + u'\ufffd')).select(orderby=self.orderby, limitby=self.limitby, *(self.fields+self.help_fields))
             else:
-                rows = self.db(field.like(self.request.vars[self.keyword] + '%')).select(orderby=self.orderby, limitby=self.limitby, distinct=self.distinct, *self.fields)
+                rows = self.db(field.like(self.request.vars[self.keyword] + '%')).select(orderby=self.orderby, limitby=self.limitby, distinct=self.distinct, *(self.fields+self.help_fields))
             if rows:
                 if self.is_reference:
                     id_field = self.fields[1]
@@ -1740,6 +1767,7 @@ class SQLFORM(FORM):
         return CAT(
             DIV(_id=panel_id, _style="display:none;", *criteria), fadd)
 
+
     @staticmethod
     def grid(query,
              fields=None,
@@ -1930,14 +1958,20 @@ class SQLFORM(FORM):
             for join in left:
                 tablenames += db._adapter.tables(join)
         tables = [db[tablename] for tablename in tablenames]
-        if not fields:
-            fields = reduce(lambda a, b: a + b,
-                            [[field for field in table] for table in tables])
+        if fields:
+            columns = copy.copy(fields)
+        else:
+            fields = []
+            columns = []
+            for table in tables:
+                fields += [f for f in table]
+                columns +=  [f for f in table]
+                for k,f in table.iteritems():
+                    if isinstance(f,Field.Virtual) and f.readable:
+                        f.tablename = table._tablename
+                        columns.append(f)
         if not field_id:
             field_id = tables[0]._id
-        columns = [str(field) for field in fields
-                   if field._tablename in tablenames]
-
         if not any(str(f)==str(field_id) for f in fields):
             fields = [f for f in fields]+[field_id]
         table = field_id.table
@@ -2087,12 +2121,12 @@ class SQLFORM(FORM):
                     if sign == '~':
                         orderby = ~orderby
 
-            expcolumns = columns
+            expcolumns = [str(f) for f in columns]
             if export_type.endswith('with_hidden_cols'):
                 expcolumns = []
                 for table in tables:
                     for field in table:
-                        if field.readable and field._tablename in tablenames:
+                        if field.readable and field.tablename in tablenames:
                             expcolumns.append(field)
 
             if export_type in exportManager and exportManager[export_type]:
@@ -2193,9 +2227,7 @@ class SQLFORM(FORM):
         headcols = []
         if selectable:
             headcols.append(TH(_class=ui.get('default')))
-        for field in fields:
-            if columns and not str(field) in columns:
-                continue
+        for field in columns:
             if not field.readable:
                 continue
             key = str(field)
@@ -2249,7 +2281,7 @@ class SQLFORM(FORM):
             limitby = None
 
         try:
-            table_fields = [f for f in fields if f._tablename in tablenames]
+            table_fields = [f for f in fields if f.tablename in tablenames]
             if dbset._db._adapter.dbengine=='google:datastore':
                 rows = dbset.select(left=left,orderby=orderby,
                                     groupby=groupby,limitby=limitby,
@@ -2337,14 +2369,12 @@ class SQLFORM(FORM):
                     trcols.append(
                         INPUT(_type="checkbox", _name="records", _value=id,
                                     value=request.vars.records))
-                for field in fields:
-                    if not str(field) in columns:
-                        continue
+                for field in columns:
                     if not field.readable:
                         continue
                     if field.type == 'blob':
                         continue
-                    value = row[field]
+                    value = row[str(field)]
                     maxlength = maxtextlengths.get(str(field), maxtextlength)
                     if field.represent:
                         try:
@@ -2352,7 +2382,7 @@ class SQLFORM(FORM):
                         except KeyError:
                             try:
                                 value = field.represent(
-                                    value, row[field._tablename])
+                                    value, row[field.tablename])
                             except KeyError:
                                 pass
                     elif field.type == 'boolean':
