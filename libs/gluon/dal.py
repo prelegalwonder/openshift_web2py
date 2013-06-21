@@ -8541,11 +8541,12 @@ class Table(object):
             for name,ofield in to_compute:
                 # try compute it
                 try:
-                    new_fields[name] = (ofield,ofield.compute(row))
+                    row[name] = new_value = ofield.compute(row)
+                    new_fields[name] = (ofield, new_value)
                 except (KeyError, AttributeError):
-                    # error sinlently unless field is required!
+                    # error silently unless field is required!
                     if ofield.required:
-                        raise SyntaxError('unable to comput field: %s' % name)
+                        raise SyntaxError('unable to compute field: %s' % name)
         return new_fields.values()
 
     def _attempt_upload(self, fields):
