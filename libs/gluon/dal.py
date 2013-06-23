@@ -6045,25 +6045,25 @@ class IMAPAdapter(NoSQLAdapter):
 
         add <timedelta> adds to the date object
         """
-        months = [None, "Jan","Feb","Mar","Apr","May","Jun",
-                  "Jul", "Aug","Sep","Oct","Nov","Dec"]
+        months = [None, "JAN","FEB","MAR","APR","MAY","JUN",
+                  "JUL", "AUG","SEP","OCT","NOV","DEC"]
         if isinstance(date, basestring):
             # Prevent unexpected date response format
             try:
                 dayname, datestring = date.split(",")
-            except (ValueError):
-                LOGGER.debug("Could not parse date text: %s" % date)
+                date_list = datestring.strip().split()
+                year = int(date_list[2])
+                month = months.index(date_list[1].upper())
+                day = int(date_list[0])
+                hms = map(int, date_list[3].split(":"))
+                return datetime.datetime(year, month, day,
+                    hms[0], hms[1], hms[2]) + add
+            except (ValueError, AttributeError, IndexError), e:
+                LOGGER.error("Could not parse date text: %s. %s" %
+                             (date, e))
                 return None
-            date_list = datestring.strip().split()
-            year = int(date_list[2])
-            month = months.index(date_list[1])
-            day = int(date_list[0])
-            hms = map(int, date_list[3].split(":"))
-            return datetime.datetime(year, month, day,
-                                     hms[0], hms[1], hms[2]) + add
         elif isinstance(date, (datetime.datetime, datetime.date)):
             return (date + add).strftime("%d-%b-%Y")
-
         else:
             return None
 
@@ -6071,6 +6071,8 @@ class IMAPAdapter(NoSQLAdapter):
     def header_represent(f, r):
         from email.header import decode_header
         text, encoding = decode_header(f)[0]
+        if encoding:
+            text = text.decode(encoding).encode('utf-8')
         return text
 
     def encode_text(self, text, charset, errors="replace"):
@@ -6184,7 +6186,7 @@ class IMAPAdapter(NoSQLAdapter):
                             Field("mime", "string", writable=False),
                             Field("email", "string", writable=False, readable=False),
                             Field("attachments", list, writable=False, readable=False),
-                            Field("encoding")
+                            Field("encoding", writable=False)
                             )
 
             # Set a special _mailbox attribute for storing
@@ -6406,7 +6408,7 @@ class IMAPAdapter(NoSQLAdapter):
                 if "%s.size" % tablename in colnames:
                     if part is not None:
                         size += len(str(part))
-            item_dict["%s.content" % tablename] = bar_encode(content)
+            item_dict["%s.content" % tablename] = content
             item_dict["%s.attachments" % tablename] = attachments
             item_dict["%s.size" % tablename] = size
             imapqry_list.append(item_dict)
