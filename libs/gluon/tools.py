@@ -1450,7 +1450,7 @@ class Auth(object):
         """
         tables = [table for table in tables]
         for table in tables:
-            if 'modified_on' in table.fields() and not current_record in table.fields():
+            if '_id' in table.fields() and 'modified_on' in table.fields() and not current_record in table.fields():
                 table._enable_record_versioning(
                     archive_db=archive_db,
                     archive_name=archive_names,
@@ -1791,7 +1791,8 @@ class Auth(object):
                 guess = keys.get('email', 'anonymous').split('@')[0]
                 keys['first_name'] = keys.get('username', guess)
             user_id = table_user.insert(**table_user._filter_fields(keys))
-            user = self.user = table_user[user_id]
+            user = self.user = table_user[user_id]            
+            print user
             if self.settings.create_user_groups:
                 group_id = self.add_group(
                     self.settings.create_user_groups % user)

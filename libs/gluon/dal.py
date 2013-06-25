@@ -1255,13 +1255,22 @@ class BaseAdapter(ConnectionPool):
         return '(%s LIKE %s)' % (self.expand(first),
                                  self.expand('%'+second, 'string'))
 
-    def CONTAINS(self,first,second,case_sensitive=False):
+    def CONTAINS(self,first,second,case_sensitive=False):        
         if first.type in ('string','text', 'json'):
-            second = Expression(None,self.CONCAT('%',Expression(
-                        None,self.REPLACE(second,('%','%%'))),'%'))
+            if isinstance(second,Expression):
+                second = Expression(None,self.CONCAT('%',Expression(
+                            None,self.REPLACE(second,('%','%%'))),'%'))
+            else:
+                second = '%'+str(second).replace('%','%%')+'%'
         elif first.type.startswith('list:'):
-            second = Expression(None,self.CONCAT('%|',Expression(None,self.REPLACE(
-                        Expression(None,self.REPLACE(second,('%','%%'))),('|','||'))),'|%'))
+            if isinstance(second,Expression):
+                second = Expression(None,self.CONCAT(
+                        '%|',Expression(None,self.REPLACE(
+                                Expression(None,self.REPLACE(
+                                        second,('%','%%'))),('|','||'))),'|%'))
+            else:
+                second = '%|'+str(second).replace('%','%%')\
+                    .replace('|','||')+'|%'
         op = case_sensitive and self.LIKE or self.ILIKE
         return op(first,second)
 
@@ -2549,6 +2558,9 @@ class PostgreSQLAdapter(BaseAdapter):
         'geography': 'GEOGRAPHY',
         'big-id': 'BIGSERIAL PRIMARY KEY',
         'big-reference': 'BIGINT REFERENCES %(foreign_key)s ON DELETE %(on_delete_action)s',
+        'reference FK': ', CONSTRAINT FK_%(constraint_name)s FOREIGN KEY (%(field_name)s) REFERENCES %(foreign_key)s ON DELETE %(on_delete_action)s',
+        'reference TFK': ' CONSTRAINT FK_%(foreign_table)s_PK FOREIGN KEY (%(field_name)s) REFERENCES %(foreign_table)s (%(foreign_key)s) ON DELETE %(on_delete_action)s',
+
         }
 
     def varquote(self,name):
@@ -6863,7 +6875,7 @@ class Row(object):
     def __setitem__(self, key, value):
         setattr(self, str(key), value)
 
-    __delitem__ = delattr
+    __delitem__ = object.__delattr__
 
     __copy__ = lambda self: Row(self)
 
