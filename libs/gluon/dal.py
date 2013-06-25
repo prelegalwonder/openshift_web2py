@@ -644,6 +644,8 @@ class BaseAdapter(ConnectionPool):
     TRUE = 'T'
     FALSE = 'F'
     T_SEP = ' '
+    QUOTE_TEMPLATE = '"%s"'
+
     types = {
         'boolean': 'CHAR(1)',
         'string': 'CHAR(%(length)s)',
@@ -1046,7 +1048,7 @@ class BaseAdapter(ConnectionPool):
                 if self.dbengine in ('postgres',) and ftype.startswith('geometry'):
                     geotype, parms = ftype[:-1].split('(')
                     schema = parms.split(',')[0]
-                    query = [ "SELECT DropGeometryColumn ('%(schema)s', '%(table)s', '%(field)s');" % 
+                    query = [ "SELECT DropGeometryColumn ('%(schema)s', '%(table)s', '%(field)s');" %
                               dict(schema=schema, table=tablename, field=key,) ]
                 elif self.dbengine in ('firebird',):
                     query = ['ALTER TABLE %s DROP %s;' % (tablename, key)]
@@ -1067,12 +1069,13 @@ class BaseAdapter(ConnectionPool):
                     drop_expr = 'ALTER TABLE %s DROP %s;'
                 else:
                     drop_expr = 'ALTER TABLE %s DROP COLUMN %s;'
-                query = ['ALTER TABLE %s ADD %s__tmp %s;' % (t, key, tt),
-                         'UPDATE %s SET %s__tmp=%s;' % (t, key, key),
+                key_tmp = key + '__tmp'
+                query = ['ALTER TABLE %s ADD %s %s;' % (t, key_tmp, tt),
+                         'UPDATE %s SET %s=%s;' % (t, key_tmp, key),
                          drop_expr % (t, key),
                          'ALTER TABLE %s ADD %s %s;' % (t, key, tt),
-                         'UPDATE %s SET %s=%s__tmp;' % (t, key, key),
-                         drop_expr % (t, key)]
+                         'UPDATE %s SET %s=%s;' % (t, key, key_tmp),
+                         drop_expr % (t, key_tmp)]
                 metadata_change = True
             elif sql_fields[key]['type'] != sql_fields_old[key]['type']:
                 sql_fields_current[key] = sql_fields[key]
@@ -1097,7 +1100,7 @@ class BaseAdapter(ConnectionPool):
                             db.commit()
                             self.save_dbt(table,sql_fields_current)
                             logfile.write('success!\n')
-                        
+
             elif metadata_change:
                 self.save_dbt(table,sql_fields_current)
 
@@ -1255,7 +1258,7 @@ class BaseAdapter(ConnectionPool):
         return '(%s LIKE %s)' % (self.expand(first),
                                  self.expand('%'+second, 'string'))
 
-    def CONTAINS(self,first,second,case_sensitive=False):        
+    def CONTAINS(self,first,second,case_sensitive=False):
         if first.type in ('string','text', 'json'):
             if isinstance(second,Expression):
                 second = Expression(None,self.CONCAT('%',Expression(
@@ -1361,7 +1364,7 @@ class BaseAdapter(ConnectionPool):
 
     def expand(self, expression, field_type=None):
         if isinstance(expression, Field):
-            out = '%s.%s' % (expression.tablename, expression.name)
+            out = '%s.%s' % (expression.table, expression.name)
             if field_type == 'string' and not expression.type in (
                 'string','text','json','password'):
                 out = 'CAST(%s AS %s)' % (out, self.types['text'])
@@ -1448,6 +1451,7 @@ class BaseAdapter(ConnectionPool):
         sql_v = ','.join(['%s=%s' % (field.name,
                                      self.expand(value, field.type)) \
                               for (field, value) in fields])
+        tablename = "%s" % self.db[tablename]
         return 'UPDATE %s SET %s%s;' % (tablename, sql_v, sql_w)
 
     def update(self, tablename, query, fields):
@@ -2433,6 +2437,8 @@ class MySQLAdapter(BaseAdapter):
         'big-reference': 'BIGINT, INDEX %(index_name)s (%(field_name)s), FOREIGN KEY (%(field_name)s) REFERENCES %(foreign_key)s ON DELETE %(on_delete_action)s',
         }
 
+    QUOTE_TEMPLATE = "`%s`"
+
     def varquote(self,name):
         return varquote_aux(name,'`%s`')
 
@@ -3081,6 +3087,8 @@ class OracleAdapter(BaseAdapter):
 class MSSQLAdapter(BaseAdapter):
     drivers = ('pyodbc',)
     T_SEP = 'T'
+
+    QUOTE_TEMPLATE = "[%s]"
 
     types = {
         'boolean': 'BIT',
@@ -8492,9 +8500,10 @@ class Table(object):
 
     def __str__(self):
         if self._ot is not None:
-            if 'Oracle' in str(type(self._db._adapter)):     # <<< patch
-                return '%s %s' % (self._ot, self._tablename) # <<< patch
-            return '%s AS %s' % (self._ot, self._tablename)
+            return self._db._adapter.QUOTE_TEMPLATE % self._ot
+            #if 'Oracle' in str(type(self._db._adapter)):     # <<< patch
+            #    return '%s %s' % (self._ot, self._tablename) # <<< patch
+            #return '%s AS %s' % (self._ot, self._tablename)
         return self._tablename
 
     def _drop(self, mode = ''):
@@ -9959,7 +9968,7 @@ class Set(object):
         fields = table._listify(update_fields,update=True)
         if not fields:
             raise SyntaxError("No fields to update")
-        ret = db._adapter.update(tablename,self.query,fields)
+        ret = db._adapter.update("%s" % table,self.query,fields)
         ret and [f(self,update_fields) for f in table._after_update]
         return ret
 
@@ -9971,7 +9980,8 @@ class Set(object):
         table = self.db[tablename]
         fields = table._listify(update_fields,update=True)
         if not fields: raise SyntaxError("No fields to update")
-        ret = self.db._adapter.update(tablename,self.query,fields)
+
+        ret = self.db._adapter.update("%s" % table,self.query,fields)
         return ret
 
     def validate_and_update(self, **update_fields):
@@ -10301,10 +10311,10 @@ class Rows(object):
         """
         Takes an index and returns a copy of the indexed row with values
         transformed via the "represent" attributes of the associated fields.
-        
+
         If no index is specified, a generator is returned for iteration
         over all the rows.
-        
+
         fields -- a list of fields to transform (if None, all fields with
                   "represent" attributes will be transformed).
         """
