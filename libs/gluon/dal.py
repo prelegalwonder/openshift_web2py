@@ -1364,7 +1364,7 @@ class BaseAdapter(ConnectionPool):
 
     def expand(self, expression, field_type=None):
         if isinstance(expression, Field):
-            out = '%s.%s' % (expression.table, expression.name)
+            out = '%s.%s' % (expression.table._tablename, expression.name)
             if field_type == 'string' and not expression.type in (
                 'string','text','json','password'):
                 out = 'CAST(%s AS %s)' % (out, self.types['text'])
@@ -5718,7 +5718,7 @@ class MongoDBAdapter(NoSQLAdapter):
         # There is a technical difference, but mongodb doesn't support
         # that, but the result will be the same
         val = second if isinstance(second,self.ObjectId) else \
-            {' $regex':".*" + re.escape(self.expand(second, 'string')) + ".*"}
+            {'$regex':".*" + re.escape(self.expand(second, 'string')) + ".*"}
         return {self.expand(first) : val}
 
     def LIKE(self, first, second):
@@ -5751,7 +5751,7 @@ class MongoDBAdapter(NoSQLAdapter):
         #There is a technical difference, but mongodb doesn't support
         # that, but the result will be the same
         #TODO contains operators need to be transformed to Regex
-        return {self.expand(first) : {' $regex': \
+        return {self.expand(first) : {'$regex': \
         ".*" + re.escape(self.expand(second, 'string')) + ".*"}}
 
 
@@ -6865,23 +6865,21 @@ class Row(object):
     this is only used to store a Row
     """
 
-    def __init__(self,*args,**kwargs):
-        self.__dict__.update(*args,**kwargs)
+    __init__ = lambda self,*args,**kwargs: self.__dict__.update(*args,**kwargs)
 
-    def __getitem__(self, key):
-        key=str(key)
-        m = REGEX_TABLE_DOT_FIELD.match(key)
+    def __getitem__(self, k):
+        key=str(k)
         if key in self.get('_extra',{}):
             return self._extra[key]
-        elif m:
+        m = REGEX_TABLE_DOT_FIELD.match(key)
+        if m:
             try:
                 return ogetattr(self, m.group(1))[m.group(2)]
             except (KeyError,AttributeError,TypeError):
                 key = m.group(2)
         return ogetattr(self, key)
 
-    def __setitem__(self, key, value):
-        setattr(self, str(key), value)
+    __setitem__ = lambda self, key, value: setattr(self, str(key), value)
 
     __delitem__ = object.__delattr__
 
@@ -6889,47 +6887,31 @@ class Row(object):
 
     __call__ = __getitem__
 
-    def get(self,key,default=None):
-        return self.__dict__.get(key,default)
+    get = lambda self, key, default=None: self.__dict__.get(key,default)
 
-    def __contains__(self,key):
-        return key in self.__dict__
 
-    has_key = __contains__
+    has_key = __contains__ = lambda self, key: key in self.__dict__
 
-    def __nonzero__(self):
-        return len(self.__dict__)>0
+    __nonzero__ = lambda self: len(self.__dict__)>0
 
-    def update(self, *args, **kwargs):
-        self.__dict__.update(*args, **kwargs)
+    update = lambda self, *args, **kwargs:  self.__dict__.update(*args, **kwargs)
 
-    def keys(self):
-        return self.__dict__.keys()
+    keys = lambda self: self.__dict__.keys()
 
-    def items(self):
-        return self.__dict__.items()
+    items = lambda self: self.__dict__.items()
 
-    def values(self):
-        return self.__dict__.values()
+    values = lambda self: self.__dict__.values()
 
-    def __iter__(self):
-        return self.__dict__.__iter__()
+    __iter__ = lambda self: self.__dict__.__iter__()
 
-    def iteritems(self):
-        return self.__dict__.iteritems()
+    iteritems = lambda self: self.__dict__.iteritems()
 
-    def __str__(self):
-        ### this could be made smarter
-        return '<Row %s>' % self.as_dict()
+    __str__ = __repr__ = lambda self: '<Row %s>' % self.as_dict()
 
-    def __repr__(self):
-        return '<Row %s>' % self.as_dict()
+    __int__ = lambda self: object.__getattribute__(self,'id')
 
-    def __int__(self):
-        return object.__getattribute__(self,'id')
+    __long__ = lambda self: long(object.__getattribute__(self,'id'))
 
-    def __long__(self):
-        return long(object.__getattribute__(self,'id'))
 
     def __eq__(self,other):
         try:
@@ -8500,10 +8482,10 @@ class Table(object):
 
     def __str__(self):
         if self._ot is not None:
-            return self._db._adapter.QUOTE_TEMPLATE % self._ot
-            #if 'Oracle' in str(type(self._db._adapter)):     # <<< patch
-            #    return '%s %s' % (self._ot, self._tablename) # <<< patch
-            #return '%s AS %s' % (self._ot, self._tablename)
+            ot = self._db._adapter.QUOTE_TEMPLATE % self._ot
+            if 'Oracle' in str(type(self._db._adapter)):
+                return '%s %s' % (ot, self._tablename)
+            return '%s AS %s' % (ot, self._tablename)
         return self._tablename
 
     def _drop(self, mode = ''):
