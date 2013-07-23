@@ -1116,7 +1116,7 @@ class Auth(object):
                    f=f, args=args, vars=vars, scheme=scheme)
 
     def here(self):
-        return URL(args=current.request.args, vars=current.request.vars)
+        return current.request.env.request_uri
 
     def __init__(self, environment=None, db=None, mailer=True,
                  hmac_key=None, controller='default', function='user',
@@ -1500,7 +1500,7 @@ class Auth(object):
                   label=T('Modified By'),  ondelete=ondelete))
 
     def define_tables(self, username=None, signature=None,
-                      migrate=True, fake_migrate=False):
+                      migrate=None, fake_migrate=None):
         """
         to be called unless tables are defined manually
 
@@ -1516,6 +1516,8 @@ class Auth(object):
         """
 
         db = self.db
+        if migrate is None: migrate = db._migrate
+        if fake_migrate is None: fake_migrate = db._fake_migrate
         settings = self.settings
         if username is None:
             username = settings.use_username
@@ -1747,6 +1749,9 @@ class Auth(object):
         else:
             user_id = None  # user unknown
         vars = vars or {}
+        # log messages should not be translated
+        if type(descrption).__name__ == 'lazyT':
+            description = description.m
         self.table_event().insert(
             description=str(description % vars),
             origin=origin, user_id=user_id)
@@ -1791,7 +1796,7 @@ class Auth(object):
                 guess = keys.get('email', 'anonymous').split('@')[0]
                 keys['first_name'] = keys.get('username', guess)
             user_id = table_user.insert(**table_user._filter_fields(keys))
-            user = table_user[user_id]            
+            user = table_user[user_id]
             print user
             if self.settings.create_user_groups:
                 group_id = self.add_group(
@@ -1853,11 +1858,14 @@ class Auth(object):
             delattr(user,'password')
         else:
             user = Row(user)
-            for key,value in user.items():
+            for key, value in user.items():
                 if callable(value) or key=='password':
                     delattr(user,key)
+        sessdb = current.response.session_db_table and current.response.session_db_table._db or None
         current.session.renew(
-            clear_session=not self.settings.keep_session_onlogin, db=self.db)
+            clear_session=not self.settings.keep_session_onlogin,
+            db=sessdb
+            )
         current.session.auth = Storage(
             user = user,
             last_visit=current.request.now,
@@ -2038,13 +2046,18 @@ class Auth(object):
         ### pass
 
         if next is DEFAULT:
-            next = self.next or self.settings.login_next
+            # important for security
+            next = self.settings.login_next
+            if self.next:
+                host = self.next.split('//',1)[-1].split('/')[0]
+                if host in self.settings.cas_domains:
+                    next = self.next
         if onvalidation is DEFAULT:
             onvalidation = self.settings.login_onvalidation
         if onaccept is DEFAULT:
             onaccept = self.settings.login_onaccept
         if log is DEFAULT:
-            log = self.messages.login_log
+            log = self.messages['login_log']
 
         onfail = self.settings.login_onfail
 
@@ -2158,7 +2171,7 @@ class Auth(object):
                                     form.vars, self.settings.update_fields)
                                 break
                 if not user:
-                    self.log_event(self.messages.login_failed_log,
+                    self.log_event(self.messages['login_failed_log'],
                                    request.post_vars)
                     # invalid login
                     session.flash = self.messages.invalid_login
@@ -2233,7 +2246,7 @@ class Auth(object):
         if onlogout:
             onlogout(self.user)
         if log is DEFAULT:
-            log = self.messages.logout_log
+            log = self.messages['logout_log']
         if self.user:
             self.log_event(log, self.user)
         if self.settings.login_form != self:
@@ -2244,8 +2257,10 @@ class Auth(object):
 
         current.session.auth = None
         current.session.flash = self.messages.logged_out
+        sessdb = current.response.session_db_table and current.response.session_db_table._db or None
         current.session.renew(
-            clear_session=not self.settings.keep_session_onlogout, db=self.db)
+            clear_session=not self.settings.keep_session_onlogout,
+            db=sessdb)
         if not next is None:
             redirect(next)
 
@@ -2278,7 +2293,7 @@ class Auth(object):
         if onaccept is DEFAULT:
             onaccept = self.settings.register_onaccept
         if log is DEFAULT:
-            log = self.messages.register_log
+            log = self.messages['register_log']
 
         table_user = self.table_user()
         if self.settings.login_userfield:
@@ -2327,7 +2342,7 @@ class Auth(object):
 
                     if formstyle == 'bootstrap':
                         form.custom.widget.password_two[
-                            '_class'] = 'input-xlarge'
+                            '_class'] = 'span4'
 
                     addrow(
                         form, self.messages.verify_password +
@@ -2430,7 +2445,7 @@ class Auth(object):
         if current.session.auth and current.session.auth.user:
             current.session.auth.user.registration_key = user.registration_key
         if log is DEFAULT:
-            log = self.messages.verify_email_log
+            log = self.messages['verify_email_log']
         if next is DEFAULT:
             next = self.settings.verify_email_next
         if onaccept is DEFAULT:
@@ -2473,7 +2488,7 @@ class Auth(object):
         if onaccept is DEFAULT:
             onaccept = self.settings.retrieve_username_onaccept
         if log is DEFAULT:
-            log = self.messages.retrieve_username_log
+            log = self.messages['retrieve_username_log']
         old_requires = table_user.email.requires
         table_user.email.requires = [IS_IN_DB(self.db, table_user.email,
             error_message=self.messages.invalid_email)]
@@ -2555,7 +2570,7 @@ class Auth(object):
         if onaccept is DEFAULT:
             onaccept = self.settings.retrieve_password_onaccept
         if log is DEFAULT:
-            log = self.messages.retrieve_password_log
+            log = self.messages['retrieve_password_log']
         old_requires = table_user.email.requires
         table_user.email.requires = [IS_IN_DB(self.db, table_user.email,
             error_message=self.messages.invalid_email)]
@@ -2695,7 +2710,7 @@ class Auth(object):
         if onaccept is DEFAULT:
             onaccept = self.settings.reset_password_onaccept
         if log is DEFAULT:
-            log = self.messages.reset_password_log
+            log = self.messages['reset_password_log']
         table_user.email.requires = [
             IS_EMAIL(error_message=self.messages.invalid_email),
             IS_IN_DB(self.db, table_user.email,
@@ -2795,7 +2810,7 @@ class Auth(object):
         if onaccept is DEFAULT:
             onaccept = self.settings.change_password_onaccept
         if log is DEFAULT:
-            log = self.messages.change_password_log
+            log = self.messages['change_password_log']
         passfield = self.settings.password_field
         form = SQLFORM.factory(
             Field('old_password', 'password',
@@ -2864,7 +2879,7 @@ class Auth(object):
         if onaccept is DEFAULT:
             onaccept = self.settings.profile_onaccept
         if log is DEFAULT:
-            log = self.messages.profile_log
+            log = self.messages['profile_log']
         form = SQLFORM(
             table_user,
             self.user.id,
@@ -2930,7 +2945,7 @@ class Auth(object):
             self.user = auth.user
             self.update_groups()
             onaccept = self.settings.login_onaccept
-            log = self.messages.impersonate_log
+            log = self.messages['impersonate_log']
             self.log_event(log, dict(id=current_id, other_id=auth.user.id))
             if onaccept:
                 form = Storage(dict(vars=self.user))
@@ -3086,7 +3101,7 @@ class Auth(object):
 
         group_id = self.table_group().insert(
             role=role, description=description)
-        self.log_event(self.messages.add_group_log,
+        self.log_event(self.messages['add_group_log'],
                        dict(group_id=group_id, role=role))
         return group_id
 
@@ -3143,7 +3158,7 @@ class Auth(object):
             r = True
         else:
             r = False
-        self.log_event(self.messages.has_membership_log,
+        self.log_event(self.messages['has_membership_log'],
                        dict(user_id=user_id, group_id=group_id, check=r))
         return r
 
@@ -3167,7 +3182,7 @@ class Auth(object):
         else:
             id = membership.insert(group_id=group_id, user_id=user_id)
         self.update_groups()
-        self.log_event(self.messages.add_membership_log,
+        self.log_event(self.messages['add_membership_log'],
                        dict(user_id=user_id, group_id=group_id))
         return id
 
@@ -3181,7 +3196,7 @@ class Auth(object):
         if not user_id and self.user:
             user_id = self.user.id
         membership = self.table_membership()
-        self.log_event(self.messages.del_membership_log,
+        self.log_event(self.messages['del_membership_log'],
                        dict(user_id=user_id, group_id=group_id))
         ret = self.db(membership.user_id
                       == user_id)(membership.group_id
@@ -3237,7 +3252,7 @@ class Auth(object):
         else:
             r = False
         if user_id:
-            self.log_event(self.messages.has_permission_log,
+            self.log_event(self.messages['has_permission_log'],
                            dict(user_id=user_id, name=name,
                                 table_name=table_name, record_id=record_id))
         return r
@@ -3264,7 +3279,7 @@ class Auth(object):
             id = permission.insert(group_id=group_id, name=name,
                                    table_name=str(table_name),
                                    record_id=long(record_id))
-        self.log_event(self.messages.add_permission_log,
+        self.log_event(self.messages['add_permission_log'],
                        dict(permission_id=id, group_id=group_id,
                             name=name, table_name=table_name,
                             record_id=record_id))
@@ -3282,7 +3297,7 @@ class Auth(object):
         """
 
         permission = self.table_permission()
-        self.log_event(self.messages.del_permission_log,
+        self.log_event(self.messages['del_permission_log'],
                        dict(group_id=group_id, name=name,
                             table_name=table_name, record_id=record_id))
         return self.db(permission.group_id == group_id)(permission.name
@@ -3633,7 +3648,7 @@ class Crud(object):
         if ondelete is DEFAULT:
             ondelete = self.settings.update_ondelete
         if log is DEFAULT:
-            log = self.messages.update_log
+            log = self.messages['update_log']
         if deletable is DEFAULT:
             deletable = self.settings.update_deletable
         if message is DEFAULT:
@@ -3724,7 +3739,7 @@ class Crud(object):
         if onaccept is DEFAULT:
             onaccept = self.settings.create_onaccept
         if log is DEFAULT:
-            log = self.messages.create_log
+            log = self.messages['create_log']
         if message is DEFAULT:
             message = self.messages.record_created
         return self.update(
@@ -4910,7 +4925,7 @@ class Expose(object):
     def __init__(self, base=None, basename=None, extensions=None, allow_download=True):
         """
         Usage:
-        
+
         def static():
             return dict(files=Expose())
 
@@ -4992,7 +5007,7 @@ class Expose(object):
         return ''
 
     def xml(self):
-        return DIV(            
+        return DIV(
             H2(self.breadcrumbs(self.basename)),
             self.paragraph or '',
             self.table_folders(),
@@ -5151,7 +5166,7 @@ class Wiki(object):
                     db.wiki_tag.insert(name=tag, wiki_page=page.id)
         db.wiki_page._after_insert.append(update_tags_insert)
         db.wiki_page._after_update.append(update_tags_update)
-       
+
         if (auth.user and
             check_credentials(current.request, gae_login=False) and
             not 'wiki_editor' in auth.user_groups.values()):

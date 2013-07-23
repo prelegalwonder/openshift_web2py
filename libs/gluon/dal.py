@@ -567,6 +567,11 @@ class ConnectionPool(object):
         """ this actually does not make the folder. it has to be there """
         self.folder = getattr(THREAD_LOCAL,'folder','')
 
+        if (os.path.isabs(self.folder) and 
+            isinstance(self, UseDatabaseStoredFile) and
+            self.folder.startswith(os.getcwd())):
+            self.folder = os.path.relpath(self.folder, os.getcwd())
+
         # Creating the folder if it does not exist
         if False and self.folder and not exists(self.folder):
             os.mkdir(self.folder)
@@ -640,6 +645,8 @@ class BaseAdapter(ConnectionPool):
     support_distributed_transaction = False
     uploads_in_blob = False
     can_select_for_update = True
+    dbpath = None
+    folder = None
 
     TRUE = 'T'
     FALSE = 'F'
@@ -710,6 +717,7 @@ class BaseAdapter(ConnectionPool):
         os.unlink(filename)
 
     def find_driver(self,adapter_args,uri=None):
+        self.adapter_args = adapter_args
         if getattr(self,'driver',None) != None:
             return
         drivers_available = [driver for driver in self.drivers
@@ -731,6 +739,29 @@ class BaseAdapter(ConnectionPool):
             self.driver = globals().get(self.driver_name)
         else:
             raise RuntimeError("no driver available %s" % str(self.drivers))
+
+    def log(self, message, table=None):
+        """ Logs migrations
+
+        It will not log changes if logfile is not specified. Defaults
+        to sql.log
+        """
+
+        isabs = None
+        logfilename = self.adapter_args.get('logfile','sql.log')
+        writelog = bool(logfilename)
+        if writelog:
+            isabs = os.path.isabs(logfilename)
+
+        if table and table._dbt and writelog and self.folder:
+            if isabs:
+                table._loggername = logfilename
+            else:
+                table._loggername = pjoin(self.folder, logfilename)
+            logfile = self.file_open(table._loggername, 'a')
+            logfile.write(message)
+            self.file_close(logfile)
+
 
     def __init__(self, db,uri,pool_size=0, folder=None, db_codec='UTF-8',
                  credential_decoder=IDENTITY, driver_args={},
@@ -949,16 +980,11 @@ class BaseAdapter(ConnectionPool):
             table._dbt = pjoin(
                 dbpath, '%s_%s.table' % (table._db._uri_hash, tablename))
 
-        if table._dbt:
-            table._loggername = pjoin(dbpath, 'sql.log')
-            logfile = self.file_open(table._loggername, 'a')
-        else:
-            logfile = None
         if not table._dbt or not self.file_exists(table._dbt):
             if table._dbt:
-                logfile.write('timestamp: %s\n'
-                               % datetime.datetime.today().isoformat())
-                logfile.write(query + '\n')
+                self.log('timestamp: %s\n%s\n'
+                         % (datetime.datetime.today().isoformat(),
+                            query), table)
             if not fake_migrate:
                 self.create_sequence_and_triggers(query,table)
                 table._db.commit()
@@ -972,24 +998,22 @@ class BaseAdapter(ConnectionPool):
                 pickle.dump(sql_fields, tfile)
                 self.file_close(tfile)
                 if fake_migrate:
-                    logfile.write('faked!\n')
+                    self.log('faked!\n', table)
                 else:
-                    logfile.write('success!\n')
+                    self.log('success!\n', table)
         else:
             tfile = self.file_open(table._dbt, 'r')
             try:
                 sql_fields_old = pickle.load(tfile)
             except EOFError:
                 self.file_close(tfile)
-                self.file_close(logfile)
                 raise RuntimeError('File %s appears corrupted' % table._dbt)
             self.file_close(tfile)
             if sql_fields != sql_fields_old:
                 self.migrate_table(table,
                                    sql_fields, sql_fields_old,
-                                   sql_fields_aux, logfile,
+                                   sql_fields_aux, None,
                                    fake_migrate=fake_migrate)
-        self.file_close(logfile)
         return query
 
     def migrate_table(
@@ -1001,6 +1025,8 @@ class BaseAdapter(ConnectionPool):
         logfile,
         fake_migrate=False,
         ):
+
+        # logfile is deprecated (moved to adapter.log method)
         db = table._db
         db._migrated.append(table._tablename)
         tablename = table._tablename
@@ -1082,15 +1108,15 @@ class BaseAdapter(ConnectionPool):
                 metadata_change = True
 
             if query:
-                logfile.write('timestamp: %s\n'
-                              % datetime.datetime.today().isoformat())
+                self.log('timestamp: %s\n'
+                    % datetime.datetime.today().isoformat(), table)
                 db['_lastsql'] = '\n'.join(query)
                 for sub_query in query:
-                    logfile.write(sub_query + '\n')
+                    self.log(sub_query + '\n', table)
                     if fake_migrate:
                         if db._adapter.commit_on_alter_table:
                             self.save_dbt(table,sql_fields_current)
-                        logfile.write('faked!\n')
+                        self.log('faked!\n', table)
                     else:
                         self.execute(sub_query)
                         # Caveat: mysql, oracle and firebird do not allow multiple alter table
@@ -1099,7 +1125,7 @@ class BaseAdapter(ConnectionPool):
                         if db._adapter.commit_on_alter_table:
                             db.commit()
                             self.save_dbt(table,sql_fields_current)
-                            logfile.write('success!\n')
+                            self.log('success!\n', table)
 
             elif metadata_change:
                 self.save_dbt(table,sql_fields_current)
@@ -1107,7 +1133,7 @@ class BaseAdapter(ConnectionPool):
         if metadata_change and not (query and db._adapter.commit_on_alter_table):
             db.commit()
             self.save_dbt(table,sql_fields_current)
-            logfile.write('success!\n')
+            self.log('success!\n', table)
 
     def save_dbt(self,table, sql_fields_current):
         tfile = self.file_open(table._dbt, 'w')
@@ -1172,12 +1198,10 @@ class BaseAdapter(ConnectionPool):
 
     def drop(self, table, mode=''):
         db = table._db
-        if table._dbt:
-            logfile = self.file_open(table._loggername, 'a')
         queries = self._drop(table, mode)
         for query in queries:
             if table._dbt:
-                logfile.write(query + '\n')
+                self.log(query + '\n', table)
             self.execute(query)
         db.commit()
         del db[table._tablename]
@@ -1185,7 +1209,7 @@ class BaseAdapter(ConnectionPool):
         db._remove_references_to(table)
         if table._dbt:
             self.file_delete(table._dbt)
-            logfile.write('success!\n')
+            self.log('success!\n', table)
 
     def _insert(self, table, fields):
         if fields:
@@ -1421,25 +1445,15 @@ class BaseAdapter(ConnectionPool):
 
     def truncate(self, table, mode= ' '):
         # Prepare functions "write_to_logfile" and "close_logfile"
-        if table._dbt:
-            logfile = self.file_open(table._loggername, 'a')
-        else:
-            class Logfile(object):
-                def write(self, value):
-                    pass
-                def close(self):
-                    pass
-            logfile = Logfile()
-
         try:
             queries = table._db._adapter._truncate(table, mode)
             for query in queries:
-                logfile.write(query + '\n')
+                self.log(query + '\n', table)
                 self.execute(query)
             table._db.commit()
-            logfile.write('success!\n')
+            self.log('success!\n', table)
         finally:
-            logfile.close()
+            pass
 
     def _update(self, tablename, query, fields):
         if query:
@@ -1857,7 +1871,7 @@ class BaseAdapter(ConnectionPool):
             if isinstance(obj, datetime.datetime):
                 obj = obj.isoformat(self.T_SEP)[:19]
             elif isinstance(obj, datetime.date):
-                obj = obj.isoformat()[:10]+' 00:00:00'
+                obj = obj.isoformat()[:10]+self.T_SEP+'00:00:00'
             else:
                 obj = str(obj)
         elif fieldtype == 'time':
@@ -2108,8 +2122,8 @@ class BaseAdapter(ConnectionPool):
             new_rows.append(new_row)
         rowsobj = Rows(db, new_rows, colnames, rawrows=rows)
 
+
         for tablename in virtualtables:
-            ### new style virtual fields
             table = db[tablename]
             fields_virtual = [(f,v) for (f,v) in table.iteritems()
                               if isinstance(v,FieldVirtual)]
@@ -2212,20 +2226,20 @@ class SQLiteAdapter(BaseAdapter):
         path_encoding = sys.getfilesystemencoding() \
             or locale.getdefaultlocale()[1] or 'utf8'
         if uri.startswith('sqlite:memory'):
-            dbpath = ':memory:'
+            self.dbpath = ':memory:'
         else:
-            dbpath = uri.split('://',1)[1]
-            if dbpath[0] != '/':
+            self.dbpath = uri.split('://',1)[1]
+            if self.dbpath[0] != '/':
                 if PYTHON_VERSION == 2:
-                    dbpath = pjoin(
-                        self.folder.decode(path_encoding).encode('utf8'), dbpath)
+                    self.dbpath = pjoin(
+                        self.folder.decode(path_encoding).encode('utf8'), self.dbpath)
                 else:
-                    dbpath = pjoin(self.folder, dbpath)
+                    self.dbpath = pjoin(self.folder, self.dbpath)
         if not 'check_same_thread' in driver_args:
             driver_args['check_same_thread'] = False
         if not 'detect_types' in driver_args and do_connect:
             driver_args['detect_types'] = self.driver.PARSE_DECLTYPES
-        def connector(dbpath=dbpath, driver_args=driver_args):
+        def connector(dbpath=self.dbpath, driver_args=driver_args):
             return self.driver.Connection(dbpath, **driver_args)
         self.connector = connector
         if do_connect: self.reconnect()
@@ -2280,17 +2294,17 @@ class SpatiaLiteAdapter(SQLiteAdapter):
         path_encoding = sys.getfilesystemencoding() \
             or locale.getdefaultlocale()[1] or 'utf8'
         if uri.startswith('spatialite:memory'):
-            dbpath = ':memory:'
+            self.dbpath = ':memory:'
         else:
-            dbpath = uri.split('://',1)[1]
-            if dbpath[0] != '/':
-                dbpath = pjoin(
-                    self.folder.decode(path_encoding).encode('utf8'), dbpath)
+            self.dbpath = uri.split('://',1)[1]
+            if self.dbpath[0] != '/':
+                self.dbpath = pjoin(
+                    self.folder.decode(path_encoding).encode('utf8'), self.dbpath)
         if not 'check_same_thread' in driver_args:
             driver_args['check_same_thread'] = False
         if not 'detect_types' in driver_args and do_connect:
             driver_args['detect_types'] = self.driver.PARSE_DECLTYPES
-        def connector(dbpath=dbpath, driver_args=driver_args):
+        def connector(dbpath=self.dbpath, driver_args=driver_args):
             return self.driver.Connection(dbpath, **driver_args)
         self.connector = connector
         if do_connect: self.reconnect()
@@ -2385,13 +2399,13 @@ class JDBCSQLiteAdapter(SQLiteAdapter):
         path_encoding = sys.getfilesystemencoding() \
             or locale.getdefaultlocale()[1] or 'utf8'
         if uri.startswith('sqlite:memory'):
-            dbpath = ':memory:'
+            self.dbpath = ':memory:'
         else:
-            dbpath = uri.split('://',1)[1]
-            if dbpath[0] != '/':
-                dbpath = pjoin(
-                    self.folder.decode(path_encoding).encode('utf8'), dbpath)
-        def connector(dbpath=dbpath,driver_args=driver_args):
+            self.dbpath = uri.split('://',1)[1]
+            if self.dbpath[0] != '/':
+                self.dbpath = pjoin(
+                    self.folder.decode(path_encoding).encode('utf8'), self.dbpath)
+        def connector(dbpath=self.dbpath,driver_args=driver_args):
             return self.driver.connect(
                 self.driver.getConnection('jdbc:sqlite:'+dbpath),
                 **driver_args)
@@ -2568,6 +2582,8 @@ class PostgreSQLAdapter(BaseAdapter):
         'reference TFK': ' CONSTRAINT FK_%(foreign_table)s_PK FOREIGN KEY (%(field_name)s) REFERENCES %(foreign_table)s (%(foreign_key)s) ON DELETE %(on_delete_action)s',
 
         }
+
+    QUOTE_TEMPLATE = '%s'
 
     def varquote(self,name):
         return varquote_aux(name,'"%s"')
@@ -4242,15 +4258,15 @@ class DatabaseStoredFile:
         return self.db._adapter.escape(obj)
 
     def __init__(self,db,filename,mode):
-        if not db._adapter.dbengine in ('mysql', 'postgres'):
-            raise RuntimeError("only MySQL/Postgres can store metadata .table files in database for now")
+        if not db._adapter.dbengine in ('mysql', 'postgres', 'sqlite'):
+            raise RuntimeError("only MySQL/Postgres/SQLite can store metadata .table files in database for now")
         self.db = db
         self.filename = filename
         self.mode = mode
         if not self.web2py_filesystem:
             if db._adapter.dbengine == 'mysql':
                 sql = "CREATE TABLE IF NOT EXISTS web2py_filesystem (path VARCHAR(255), content LONGTEXT, PRIMARY KEY(path) ) ENGINE=InnoDB;"
-            elif db._adapter.dbengine == 'postgres':
+            elif db._adapter.dbengine in ('postgres', 'sqlite'):
                 sql = "CREATE TABLE IF NOT EXISTS web2py_filesystem (path VARCHAR(255), content TEXT, PRIMARY KEY(path));"
             self.db.executesql(sql)
             DatabaseStoredFile.web2py_filesystem = True
@@ -4305,8 +4321,13 @@ class DatabaseStoredFile:
         if exists(filename):
             return True
         query = "SELECT path FROM web2py_filesystem WHERE path='%s'" % filename
-        if db.executesql(query):
-            return True
+        try:
+            if db.executesql(query):
+                return True
+        except Exception:
+            # no web2py_filesystem found?
+            tb = traceback.format_exc()
+            LOGGER.error("Could not retrieve %s\n%s" % (filename, tb))
         return False
 
 
@@ -5540,8 +5561,9 @@ class MongoDBAdapter(NoSQLAdapter):
         filter = None
         if query:
             filter = self.expand(query)
+        # do not try to update id fields to avoid backend errors
         modify = {'$set': dict((k.name, self.represent(v, k.type)) for
-                  k, v in fields)}
+                  k, v in fields if (not k.name in ("_id", "id")))}
         return modify, filter
 
     def update(self, tablename, query, fields, safe=None):
@@ -6776,7 +6798,7 @@ def sqlhtml_validators(field):
     if field_type in (('string', 'text', 'password')):
         requires.append(validators.IS_LENGTH(field_length))
     elif field_type == 'json':
-        requires.append(validators.IS_EMPTY_OR(validators.IS_JSON()))
+        requires.append(validators.IS_EMPTY_OR(validators.IS_JSON(native_json=field.db._adapter.native_json)))
     elif field_type == 'double' or field_type == 'float':
         requires.append(validators.IS_FLOAT_IN_RANGE(-1e100, 1e100))
     elif field_type in ('integer','bigint'):
@@ -6871,8 +6893,8 @@ class Row(object):
         key=str(k)
         _extra = self.__dict__.get('_extra', None)
         if _extra is not None:
-            v = _extra.get(key, None)
-            if v:
+            v = _extra.get(key, DEFAULT)
+            if v != DEFAULT:
                 return v
         m = REGEX_TABLE_DOT_FIELD.match(key)
         if m:
@@ -8298,17 +8320,19 @@ class Table(object):
                                   archive_name = '%(tablename)s_archive',
                                   current_record = 'current_record',
                                   is_active = 'is_active'):
-        archive_db = archive_db or self._db
+        db = self._db
+        archive_db = archive_db or db
         archive_name = archive_name % dict(tablename=self._tablename)
         if archive_name in archive_db.tables():
             return # do not try define the archive if already exists
         fieldnames = self.fields()
-        same_db = archive_db is self._db
+        same_db = archive_db is db
         field_type = self if same_db else 'bigint'
         clones = []
         for field in self:
+            nfk = same_db or not field.type.startswith('reference')
             clones.append(field.clone(
-                    unique=False, type=field.type if same_db else 'bigint'))
+                    unique=False, type=field.type if nfk else 'bigint'))
         archive_db.define_table(
             archive_name, Field(current_record,field_type), *clones)
         self._before_update.append(
@@ -8317,7 +8341,10 @@ class Table(object):
         if is_active and is_active in fieldnames:
             self._before_delete.append(
                 lambda qset: qset.update(is_active=False))
-            newquery = lambda query, t=self: t.is_active == True
+            newquery = lambda query, t=self: \
+                reduce(AND,[db[tn].is_active == True
+                            for tn in db._adapter.tables(query)
+                            if tn==t.name or getattr(db[tn],'_ot',None)==t.name])
             query = self._common_filter
             if query:
                 newquery = query & newquery
@@ -8386,10 +8413,7 @@ class Table(object):
         elif isinstance(key, dict):
             """ for keyed table """
             query = self._build_query(key)
-            rows = self._db(query).select()
-            if rows:
-                return rows[0]
-            return None
+            return self._db(query).select(limitby=(0,1), orderby_on_limitby=False).first()
         elif str(key).isdigit() or 'google' in DRIVERS and isinstance(key, Key):
             return self._db(self._id == key).select(limitby=(0,1), orderby_on_limitby=False).first()
         elif key:
@@ -10308,7 +10332,7 @@ class Rows(object):
         if i is None:
             return (self.repr(i, fields=fields) for i in range(len(self)))
         import sqlhtml
-        row = copy.copy(self.records[i])
+        row = copy.deepcopy(self.records[i])
         keys = row.keys()
         tables = [f.tablename for f in fields] if fields \
             else [k for k in keys if k != '_extra']
@@ -10328,12 +10352,12 @@ class Rows(object):
     def as_list(self,
                 compact=True,
                 storage_to_dict=True,
-                datetime_to_str=True,
+                datetime_to_str=False,
                 custom_types=None):
         """
         returns the data as a list or dictionary.
         :param storage_to_dict: when True returns a dict, otherwise a list(default True)
-        :param datetime_to_str: convert datetime fields as strings (default True)
+        :param datetime_to_str: convert datetime fields as strings (default False)
         """
         (oc, self.compact) = (self.compact, compact)
         if storage_to_dict:
@@ -10348,7 +10372,7 @@ class Rows(object):
                 key='id',
                 compact=True,
                 storage_to_dict=True,
-                datetime_to_str=True,
+                datetime_to_str=False,
                 custom_types=None):
         """
         returns the data as a dictionary of dictionaries (storage_to_dict=True) or records (False)
@@ -10356,7 +10380,7 @@ class Rows(object):
         :param key: the name of the field to be used as dict key, normally the id
         :param compact: ? (default True)
         :param storage_to_dict: when True returns a dict, otherwise a list(default True)
-        :param datetime_to_str: convert datetime fields as strings (default True)
+        :param datetime_to_str: convert datetime fields as strings (default False)
         """
 
         # test for multiple rows
@@ -10488,6 +10512,7 @@ class Rows(object):
     # for consistent naming yet backwards compatible
     as_csv = __str__
     json = as_json
+
 
 ################################################################################
 # dummy function used to define some doctests

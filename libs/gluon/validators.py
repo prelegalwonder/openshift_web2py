@@ -346,13 +346,15 @@ class IS_JSON(Validator):
         ('spam1234', 'invalid json')
     """
 
-    def __init__(self, error_message='invalid json'):
+    def __init__(self, error_message='invalid json', native_json=False):
+        self.native_json = native_json
         self.error_message = error_message
 
     def __call__(self, value):
-        if value is None:
-            return None
         try:
+            if self.native_json:
+                simplejson.loads(value) # raises error in case of malformed json
+                return (value, None) #  the serialized value is not passed
             return (simplejson.loads(value), None)
         except JSONErrors:
             return (value, translate(self.error_message))
@@ -2665,8 +2667,8 @@ class IS_EMPTY_OR(Validator):
         if hasattr(other, 'options'):
             self.options = self._options
 
-    def _options(self, zero=False):
-        options = self.other.options(zero=zero)
+    def _options(self):
+        options = self.other.options()
         if (not options or options[0][0] != '') and not self.multiple:
             options.insert(0, ('', ''))
         return options

@@ -498,7 +498,6 @@ class Session(Storage):
         masterapp=None,
         clear_session=False
     ):
-        
         if request is None:
             request = current.request
         if response is None:
@@ -506,7 +505,7 @@ class Session(Storage):
 
         #check if session is separate
         separate = None
-        if response.session_id[2:3] == "/":
+        if response.session and response.session_id[2:3] == "/":
             separate = lambda session_name: session_name[-2:]
 
         self._unlock(response)
@@ -576,21 +575,23 @@ class Session(Storage):
             if record_id == '0':
                 raise Exception('record_id == 0')
             # Select from database
-            row = db(table.id == record_id).select().first()
+            row = db(table.id == record_id).select()
+            row = row and row[0] or None
             # Make sure the session data exists in the database
             if not row or row.unique_key != unique_key:
                 raise Exception('No record')
 
             unique_key = web2py_uuid()
-            row.update_record(unique_key=unique_key)
+            db(table.id == record_id).update(unique_key=unique_key)
             response.session_id = '%s:%s' % (record_id, unique_key)
             response.session_db_table = table
             response.session_db_record_id = record_id
             response.session_db_unique_key = unique_key
 
         rcookies = response.cookies
-        rcookies[response.session_id_name] = response.session_id
-        rcookies[response.session_id_name]['path'] = '/'
+        if response.session_id_name:
+            rcookies[response.session_id_name] = response.session_id
+            rcookies[response.session_id_name]['path'] = '/'
         if clear_session:
             self.clear()
 
