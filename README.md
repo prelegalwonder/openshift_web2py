@@ -1,3 +1,7 @@
+NOTICE:
+========
+I no longer have the time to keep the template up to date with the Web2py source but liuyigh was nice enough to create a process that can be followed to manually update in the wiki of this project. The rest of this readme should still hold mostly relevant. If you have any questions or troubles, still feel free to open an issue or send me an email (preferably an issue since that will help others with similar problems). I'll do my best to get to it when I can. 
+
 Web2Py on OpenShift
 ===================
 
